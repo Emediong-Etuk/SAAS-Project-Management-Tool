@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Support\Repositories;
+
+use App\Models\Task;
+use Illuminate\Database\Eloquent\Collection;
+
+class TaskRepository
+{
+    public function getTasks(string $tenant_id):Collection
+    {
+        return Task::query()->where('tenant_id',$tenant_id)->get();
+    }
+    
+    public function create(array $data):Task
+    {
+        return Task::query()->create($data);
+    }
+
+    public function find(string $id):?Task
+    {
+        return Task::query()->find($id);
+    }
+
+    public function update(string $id, array $data): int|bool
+    {
+        return Task::query()->where('id',$id)->update($data);
+    }
+
+    public function delete(string $id):bool|null
+    {
+        return Task::query()->where('id',$id)->delete();
+    }
+}
