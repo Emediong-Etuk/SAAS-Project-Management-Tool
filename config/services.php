@@ -28,6 +28,12 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'flutterwave'=>[
+        'key'=>env('FLUTTERWAVE_WEBHOOK_SECRET_KEY'),
+        'webhook_secret'=>env('FLUTTERWAVE_WEBHOOK_CLIENT_SECRET'),
+        'base_api_url'=>env('FLUTTERWAVE_BASE_API_URL')
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

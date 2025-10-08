@@ -2,14 +2,17 @@
 
 namespace App\Providers;
 
-use App\Models\PersonalAccessToken;
-use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
+use App\Models\PersonalAccessToken;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Validation\Rules\Password;
+use App\ThirdParty\SubscriptionPaymentApi;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Http\Resources\Json\JsonResource;
+use App\Contract\Interface\SubscriptionPaymentInterface;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         //
+        $this->app->singleton(SubscriptionPaymentInterface::class, function(Application $app){
+            return new SubscriptionPaymentApi;
+        });
     }
 
     /**

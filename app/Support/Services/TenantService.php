@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Support\Services\BaseService;
 use App\Http\Resources\TenantResource;
-use App\Repositories\TenantRepository;
+use App\Support\Repositories\TenantRepository;
 use App\Http\Requests\CreateTenantRequest;
 use App\Support\Repositories\UserRepository;
 
