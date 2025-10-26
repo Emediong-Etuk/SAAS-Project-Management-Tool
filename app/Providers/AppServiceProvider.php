@@ -12,7 +12,7 @@ use App\ThirdParty\SubscriptionPaymentApi;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Contract\Interface\SubscriptionPaymentInterface;
+use App\Contracts\Interface\SubscriptionPaymentInterface;
 
 
 class AppServiceProvider extends ServiceProvider

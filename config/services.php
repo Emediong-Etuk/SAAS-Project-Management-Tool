@@ -29,9 +29,10 @@ return [
     ],
 
     'flutterwave'=>[
-        'key'=>env('FLUTTERWAVE_WEBHOOK_SECRET_KEY'),
-        'webhook_secret'=>env('FLUTTERWAVE_WEBHOOK_CLIENT_SECRET'),
-        'base_api_url'=>env('FLUTTERWAVE_BASE_API_URL')
+        'webhook_secret'=>env('FLW_WEBHOOK_SECRET'),
+        'secret_key'=>env('FLW_SECRET_KEY'),
+        'base_api_url'=>env('FLW_BASE_API_URL'),
+        'encryption_key'=>env('FLW_ENCRYPTION_KEY'),
     ],
 
     'slack' => [

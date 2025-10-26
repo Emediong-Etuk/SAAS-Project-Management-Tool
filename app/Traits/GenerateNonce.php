@@ -2,11 +2,12 @@
 
 namespace App\Traits;
 
+
 trait GenerateNonce
 {
     //
 
-    public function generateNonce(int $length=16):string
+    public function generateNonce(int $length=12):string
     {
         $characters='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $nonce='';
