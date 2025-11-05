@@ -24,57 +24,31 @@ class SubscriptionService extends BaseService
         //
     }
 
-    public function displayPlans():JsonResponse
+    public function displayPlans(): JsonResponse
     {
-        $plans=$this->pricingPlanRepository->getAll();
+        $plans = $this->pricingPlanRepository->getAll();
 
-        return $this->successResponse(message:'Plans fetched successfully',data:[
-            'plans'=>PricingPlanResource::collection($plans)
+        return $this->successResponse(message: 'Plans fetched successfully', data: [
+            'plans' => PricingPlanResource::collection($plans)
         ]);
     }
 
-    public function createCustomer(CreateCustomerRequest $request):JsonResponse
-    {
-        $customer=$this->subscriptionPayment->createCustomer($request);
 
-        return $this->successResponse(data:[
-            'customer'=>$customer
+    public function cardPayment(CardPaymentRequest $request): JsonResponse
+    {
+        $payment = $this->subscriptionPayment->cardPayment($request);
+
+        return $this->successResponse(data: [
+            'payment' => $payment
         ]);
     }
 
-    public function createCardMethod(CreateCardRequest $request):JsonResponse
+    public function validateCardPayment(ValidateCardPaymentRequest $request): JsonResponse
     {
-        $cardMethod=$this->subscriptionPayment->createCardPaymentMethod($request);
+        $validationResponse = $this->subscriptionPayment->validateCardPayment($request);
 
-        return $this->successResponse(data:[
-            'cardMethod'=>$cardMethod
-        ]);
-    }
-
-    public function cardPayment(CardPaymentRequest $request):JsonResponse
-    {
-        $payment=$this->subscriptionPayment->cardPayment($request);
-
-        return $this->successResponse(data:[
-            'payment'=>$payment
-        ]);
-    }
-
-    public function confirmCardPin(CardPinRequest $request):JsonResponse
-    {
-        $paymentConfirmation=$this->subscriptionPayment->confirmCardPin($request);
-
-        return $this->successResponse(data:[
-            'transactionDetails'=>$paymentConfirmation
-        ]);
-    }
-
-    public function validateCardPayment(ValidateCardPaymentRequest $request):JsonResponse
-    {
-        $validationResponse=$this->subscriptionPayment->validateCardPayment($request);
-
-        return $this->successResponse(data:[
-            'validationResponse'=>$validationResponse
+        return $this->successResponse(data: [
+            'validationResponse' => $validationResponse
         ]);
     }
 }

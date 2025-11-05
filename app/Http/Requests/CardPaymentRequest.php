@@ -24,16 +24,11 @@ class CardPaymentRequest extends FormRequest
         return [
             //
             'amount' => 'required|numeric|min:100',
-
-
             'card_number' => 'required|string',
             'cvv' => 'required|string',
             'expiry_month' => 'required|string',
             'expiry_year' => 'required|string',
-
-            'full_name' => 'required|string',
-            'email' => 'required|email',
-            'phone_number' => 'required|string',
+            'pin'=>'required|string'
         ];
     }
 }

@@ -30,11 +30,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::controller(SubscriptionController::class)->prefix('/subscription')->group(function () {
         Route::get('/plans', 'displayPlans');
-        Route::post('/customer/create','createCustomer');
-        Route::post('/card/create','createCardMethod');
-        Route::post('/card/payment','cardPayment');
-        Route::post('/card/payment/pin/confirm','confirmCardPin');
-        Route::post('/card/payment/validate','validateCardPayment');
+        Route::post('/customer/create', 'createCustomer');
+        Route::post('/card/create', 'createCardMethod');
+        Route::post('/card/payment', 'cardPayment');
+        Route::post('/card/payment/validate', 'validateCardPayment');
+        Route::post('/card/payment/otp/re-send', 'sendOtp')->middleware('throttle:otp');
     });
 });
 

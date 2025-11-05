@@ -3,10 +3,7 @@
 namespace App\Jobs;
 
 use App\TransactionStatus;
-use App\Models\Transaction;
 use App\Traits\HasResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Enum\FlutterwaveWebhookEvent;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -39,33 +36,28 @@ class FlutterwaveWebhookJob extends ProcessWebhookJob implements ShouldQueue
     public function handle(): void
     {
         //
-        $webhookData=$this->webhookCall->payload;
+        $webhookData = $this->webhookCall->payload;
 
-        if($webhookData['event'] !== FlutterwaveWebhookEvent::value()){
+        if ($webhookData['event'] !== FlutterwaveWebhookEvent::value()) {
             return;
         }
 
-        $transaction=$this->transactionRepository->findByRef($webhookData['data']['tx_ref']);
-        
-        if(!$transaction ){
+        $transaction = $this->transactionRepository->findByRef($webhookData['data']['tx_ref']);
+
+
+        if (!$transaction) {
             return;
         }
 
-        
-        $verifyTransaction=$this->subscriptionPaymentService->verifyTransaction($transaction->reference);
 
-        $verificationStatus=$verifyTransaction->original['data']['transaction']['status'];
-        
+        $verifyTransactionStatus = $this->subscriptionPaymentService->verifyTransaction($transaction->transaction_id);
 
-        if($verificationStatus!== TransactionStatus::SUCCESSFUL->value){
+        if ($verifyTransactionStatus !== TransactionStatus::SUCCESSFUL->value) {
             return;
         }
 
-        // $this->transactionRepository->update($transaction->id, [
-        //     'status'=>TransactionStatus::from($verificationStatus),
-        // ]);
-
-
-
+        $this->transactionRepository->update($transaction->id, [
+            'status' => TransactionStatus::from($verifyTransactionStatus),
+        ]);
     }
 }

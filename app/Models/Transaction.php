@@ -13,17 +13,22 @@ class Transaction extends Model
     use HasUuids;
 
 
-    protected $fillable=[
+    protected $fillable = [
         'user_id',
         'reference',
         'status',
         'category',
         'amount',
         'transaction_id',
+        'meta',
     ];
 
-    
-    public function user():BelongsTo
+    protected $casts = [
+        'meta' => 'array'
+    ];
+
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

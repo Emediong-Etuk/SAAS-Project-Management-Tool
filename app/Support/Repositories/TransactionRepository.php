@@ -9,9 +9,9 @@ class TransactionRepository
     /**
      * Create a new class instance.
      */
-    public function create(array $data):Transaction
+    public function createOrUpdate(array $data): Transaction
     {
-        return Transaction::query()->create($data);
+        return Transaction::query()->createOrFirst($data);
     }
 
     public function findByRef(string $ref): ?Transaction
@@ -19,7 +19,7 @@ class TransactionRepository
         return Transaction::query()->where('reference', $ref)->first();
     }
 
-    public function update(int $id, array $data):bool
+    public function update(string $id, array $data): bool
     {
         return Transaction::query()->where('id', $id)->update($data);
     }
