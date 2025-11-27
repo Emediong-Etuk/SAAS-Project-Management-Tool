@@ -7,7 +7,6 @@ enum PlansEnum:string
     //
     case Free ='free';
     case Pro ='pro';
-    case Enterprise ='enterprise';
 
     public static function values(): array
     {

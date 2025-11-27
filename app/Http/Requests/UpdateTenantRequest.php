@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Enum\PlansEnum;
+use Illuminate\Validation\Rules\Enum;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CardPinRequest extends FormRequest
+class UpdateTenantRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +25,7 @@ class CardPinRequest extends FormRequest
     {
         return [
             //
-            'pin' => 'required|string|min:4|max:4',
+            'name'=>'required|string|max:255'
         ];
     }
 }

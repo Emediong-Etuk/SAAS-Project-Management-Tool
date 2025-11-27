@@ -26,7 +26,6 @@ class CreateTenantRequest extends FormRequest
         return [
             //ap
             'name'=>['required','string','max:255','unique:tenants,name'],
-            'plan'=>['required','string', new Enum(PlansEnum::class)],
         ];
     }
 }

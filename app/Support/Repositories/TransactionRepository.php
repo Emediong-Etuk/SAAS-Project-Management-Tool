@@ -23,4 +23,9 @@ class TransactionRepository
     {
         return Transaction::query()->where('id', $id)->update($data);
     }
+
+    public function findByUser(string $userId): ?Transaction
+    {
+        return Transaction::query()->where('user_id', $userId)->first();
+    }
 }

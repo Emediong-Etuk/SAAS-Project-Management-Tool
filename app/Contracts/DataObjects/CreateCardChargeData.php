@@ -9,10 +9,8 @@ class CreateCardChargeData
      */
     public function __construct(
         public readonly string $status,
-        public readonly string $message,
-        public readonly string $instruction,
-        public readonly string $reference,
-        public readonly string $flw_ref
+        public readonly string $payment_type,
+        public readonly string $flw_ref,
     ) {
         //
     }
@@ -21,10 +19,8 @@ class CreateCardChargeData
     {
         return new static(
             $data['status'],
-            $data['message'],
-            $data['data']['processor_response'],
-            $data['data']['tx_ref'],
-            $data['data']['flw_ref'],
+            $data['data']['card']['type'],
+            $data['data']['flw_ref']
         );
     }
 }

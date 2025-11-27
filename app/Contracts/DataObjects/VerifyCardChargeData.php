@@ -10,7 +10,7 @@ class VerifyCardChargeData
     public function __construct(
         public readonly string $status,
         public readonly string $message,
-        public readonly string $amount
+        // public readonly string $amount
     ) {
         //
     }
@@ -19,7 +19,7 @@ class VerifyCardChargeData
         return new static(
             $data['status'],
             $data['message'],
-            $data['data']['amount']
+            // $data['data']['amount']
         );
     }
 }

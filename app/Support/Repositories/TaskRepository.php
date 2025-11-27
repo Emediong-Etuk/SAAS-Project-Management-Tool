@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TaskRepository
 {
-    public function getTasks(string $tenant_id):Collection
+    public function getTasks(string $project_id):Collection
     {
-        return Task::query()->where('tenant_id',$tenant_id)->get();
+        return Task::query()->where('project_id',$project_id)->get();
     }
     
     public function create(array $data):Task

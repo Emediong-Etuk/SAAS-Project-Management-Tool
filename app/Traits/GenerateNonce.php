@@ -7,13 +7,8 @@ trait GenerateNonce
 {
     //
 
-    public function generateNonce(int $length=12):string
+    public function generateNonce():string
     {
-        $characters='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $nonce='';
-        for ($i=0; $i < $length; $i++) {
-            $nonce .= $characters[random_int(0, strlen($characters) - 1)];
-        }
-        return $nonce;
+        return bin2hex(random_bytes(6));
     }
 }

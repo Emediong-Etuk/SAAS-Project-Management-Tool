@@ -42,4 +42,15 @@ trait HasResponse
             Response::HTTP_NOT_FOUND
         );
     }
+
+    public function forbiddenResponse(string $message=''):JsonResponse
+    {
+        return response()->json(
+            [
+                'status'=>'error',
+                'message'=>$message
+            ],
+            Response::HTTP_FORBIDDEN
+        );
+    }
 }

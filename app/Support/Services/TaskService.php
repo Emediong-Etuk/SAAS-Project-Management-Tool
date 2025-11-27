@@ -86,4 +86,17 @@ class TaskService extends BaseService
         
         return $this->successResponse('Task deleted successfully');
     }
+
+    public function markComplete(Tenant $tenant, Project $project, Task $task):JsonResponse
+    {
+        $data=[
+            'completed'=>true
+        ];
+
+        $this->taskRepository->update($task->id, $data);
+
+        return $this->successResponse('Task complete',[
+            'task'=>new TaskResource($task->refresh())
+        ]);
+    }
 }

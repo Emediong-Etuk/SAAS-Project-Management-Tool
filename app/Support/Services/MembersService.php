@@ -37,6 +37,11 @@ class MembersService extends BaseService
 
     public function sendInvitation(Tenant $tenant, SendInvitationRequest $request):JsonResponse
     {
+        if($request->user()->tenant_id !== $tenant->id) {
+            return $this->badRequestResponse("You are not authorized to send invitations for this tenant");
+        }
+
+
         $inviteCode=$this->generateInviteCode();
         $expiryTime=900;
 
@@ -58,12 +63,15 @@ class MembersService extends BaseService
         if($request->user()->tenant_id!== null) {
             return $this->badRequestResponse("You are already a member of a tenant", 400);
         }
-        else if (!$cacheInviteCode || $cacheInviteCode[0] !== $request->user()->email) {
+        if (!$cacheInviteCode) {
+            return $this->badRequestResponse("Invalid or expired invitation code", 400);
+        }
+        if($cacheInviteCode[0] !== $request->user()->email) {
             return $this->badRequestResponse("Invalid or expired invitation code", 400);
         }
 
         $this->userRepository->update($request->user()->id,[
-            'tenant_id'=> $cacheInviteCode[1]
+            'tenant_id'=> $cacheInviteCode[1],
         ]);
 
         $tenant= $this->tenantRepository->find($cacheInviteCode[1]);

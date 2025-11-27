@@ -42,4 +42,9 @@ class UserRepository
     {
         return User::query()->find($id);
     }
+
+    public function getUsers():Collection
+    {
+        return User::query()->where('expiry_date',now()->toDateString())->get();
+    }
 }

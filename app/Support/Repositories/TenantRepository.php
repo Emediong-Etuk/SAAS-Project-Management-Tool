@@ -16,4 +16,14 @@ class TenantRepository
     {
         return Tenant::query()->find($id);
     }
+
+    public function update(string $id, array $data):bool|null
+    {
+        return Tenant::query()->where('id',$id)->update($data);
+    }
+
+    public function delete(string $id):bool|null
+    {
+        return Tenant::query()->where('id',$id)->delete();
+    }
 }

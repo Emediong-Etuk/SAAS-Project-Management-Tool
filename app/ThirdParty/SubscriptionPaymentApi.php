@@ -5,7 +5,6 @@ namespace App\ThirdParty;
 use App\TransactionStatus;
 use App\Traits\HasResponse;
 use App\Traits\GenerateNonce;
-use Flutterwave\Helper\Config;
 use Flutterwave\Util\Currency;
 use App\Enum\TransactionCategory;
 use App\Traits\GenerateReference;
@@ -16,6 +15,7 @@ use App\Contracts\DataObjects\CreateCardChargeData;
 use App\Contracts\DataObjects\VerifyCardChargeData;
 use App\Support\Repositories\TransactionRepository;
 use App\Contracts\Interface\SubscriptionPaymentInterface;
+use App\Support\Repositories\PricingPlanRepository;
 
 class SubscriptionPaymentApi implements SubscriptionPaymentInterface
 {
@@ -26,7 +26,6 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
     use GenerateNonce, GenerateReference, HasResponse;
 
 
-
     public function cardPayment(CardPaymentRequest $request): CreateCardChargeData
     {
 
@@ -35,8 +34,10 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
         $url = config('services.flutterwave.base_api_url');
         $reference = $this->generateReference(TransactionCategory::SUBSCRIPTION);
 
+        $subscription_plan = App(PricingPlanRepository::class)->findByName($request->query('subscription_plan'));
+
         $data = [
-            'amount' => $request->amount,
+            'amount' => $subscription_plan->price,
             'currency' => Currency::NGN,
             'card_number' => $request->card_number,
             'cvv' => $request->cvv,
@@ -76,7 +77,8 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
             'category' => TransactionCategory::SUBSCRIPTION,
             'transaction_id' => $response->json()['data']['id'],
             'meta' => [
-                'flw_ref' => $flw_ref
+                'flw_ref' => $flw_ref,
+                'subscription_plan' => $request->query('subscription_plan')
             ]
         ];
 
@@ -98,16 +100,5 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
             ]);
 
         return VerifyCardChargeData::fromFlutterwave($response->json());
-    }
-
-    public function verifyTransaction(string $reference): string
-    {
-        $url = config('services.flutterwave.base_api_url') . "/transactions/$reference/verify";
-        $auth = config('services.flutterwave.secret_key');
-
-        $response = Http::withToken($auth)
-            ->get($url);
-
-        return $response->json()['data']['status'];
     }
 }
