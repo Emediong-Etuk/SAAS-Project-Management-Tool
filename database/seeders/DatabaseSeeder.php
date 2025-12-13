@@ -21,5 +21,7 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call(PricingPlanSeeder::class);
+        $this->call(OccupationSeeder::class);
+        $this->call(SkillSeeder::class);
     }
 }

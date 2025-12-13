@@ -3,8 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Enum\PlansEnum;
-use Illuminate\Validation\Rules\Enum;
+
 
 class CreateTenantRequest extends FormRequest
 {
@@ -25,7 +24,7 @@ class CreateTenantRequest extends FormRequest
     {
         return [
             //ap
-            'name'=>['required','string','max:255','unique:tenants,name'],
+            'name'=>['required','string','max:255','unique:tenants,name']
         ];
     }
 }

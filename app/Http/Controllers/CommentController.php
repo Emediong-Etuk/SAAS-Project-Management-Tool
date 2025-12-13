@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Models\Tenant;
 use App\Models\Comment;
 use App\Models\Project;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Support\Services\CommentService;
@@ -20,9 +21,9 @@ class CommentController extends Controller
 
     }
 
-    public function getComments(Tenant $tenant, Project $project, Task $task):JsonResponse
+    public function getComments(Request $request, Tenant $tenant, Project $project, Task $task):JsonResponse
     {
-        return $this->commentService->getComments($tenant, $project, $task);
+        return $this->commentService->getComments($request, $tenant, $project, $task);
     }
 
     public function getSpecificComment(Tenant $tenant, Project $project, Task $task, Comment $comment):JsonResponse

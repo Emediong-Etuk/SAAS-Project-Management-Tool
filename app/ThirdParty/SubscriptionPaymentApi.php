@@ -8,14 +8,15 @@ use App\Traits\GenerateNonce;
 use Flutterwave\Util\Currency;
 use App\Enum\TransactionCategory;
 use App\Traits\GenerateReference;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Http\Requests\CardPaymentRequest;
 use App\Http\Requests\ValidateCardPaymentRequest;
 use App\Contracts\DataObjects\CreateCardChargeData;
 use App\Contracts\DataObjects\VerifyCardChargeData;
+use App\Support\Repositories\PricingPlanRepository;
 use App\Support\Repositories\TransactionRepository;
 use App\Contracts\Interface\SubscriptionPaymentInterface;
-use App\Support\Repositories\PricingPlanRepository;
 
 class SubscriptionPaymentApi implements SubscriptionPaymentInterface
 {
@@ -68,6 +69,7 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
             ]);
 
         $flw_ref = $response->json()['data']['flw_ref'];
+        Log::info('flw_ref', [$flw_ref]);
 
         $transactionData = [
             'user_id' => $request->user()->id,
@@ -100,5 +102,14 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
             ]);
 
         return VerifyCardChargeData::fromFlutterwave($response->json());
+    }
+
+    public function verifyTransaction($id)
+    {
+        $url = config('services.flutterwave.base_api_url') . "/transactions/{$id}/verify";
+
+        $response = Http::withToken(config('services.flutterwave.secret_key'))->get($url);
+
+        return $response->json()['status'];
     }
 }

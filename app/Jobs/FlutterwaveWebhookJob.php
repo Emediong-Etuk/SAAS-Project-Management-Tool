@@ -52,7 +52,7 @@ class FlutterwaveWebhookJob extends ProcessWebhookJob implements ShouldQueue
 
         $verifyTransactionStatus = $this->subscriptionPaymentService->verifyTransaction($transaction->transaction_id);
 
-        if ($verifyTransactionStatus !== TransactionStatus::SUCCESSFUL->value) {
+        if ($verifyTransactionStatus !== TransactionStatus::SUCCESS->value) {
             return;
         }
 
