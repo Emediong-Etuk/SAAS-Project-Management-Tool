@@ -20,6 +20,8 @@ class Project extends Model
         'description',
         'status',
         'deadline',
+        'meeting_status',
+        'meeting_id',
     ];
 
     public static function booted(): void
@@ -34,5 +36,12 @@ class Project extends Model
     public function tenant():BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function casts():array
+    {
+        return[
+            'meeting_id' => 'string',
+        ];
     }
 }

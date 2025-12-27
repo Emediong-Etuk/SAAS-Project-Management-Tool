@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\ProjectStatus;
+use App\Enum\ProjectStatus;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Foundation\Http\FormRequest;
 

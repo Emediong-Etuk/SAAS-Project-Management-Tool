@@ -5,14 +5,17 @@ namespace App\Support\Services;
 use App\Models\User;
 use App\Models\Tenant;
 use App\Models\Project;
+use App\Enum\ProjectStatus;
 use App\Enum\UserRolesEnum;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Support\Services\BaseService;
 use App\Http\Resources\ProjectResource;
+use App\Contracts\Interface\DailyInterface;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Support\Repositories\UserRepository;
+use App\Contracts\Interface\AWSChimeInterface;
 use App\Support\Repositories\ProjectRepository;
 
 class ProjectService extends BaseService
@@ -20,7 +23,7 @@ class ProjectService extends BaseService
     /**
      * Create a new class instance.
      */
-    public function __construct(private readonly ProjectRepository $projectRepository, private readonly UserRepository $userRepository)
+    public function __construct(private readonly ProjectRepository $projectRepository, private readonly UserRepository $userRepository, private readonly DailyInterface $dailyInterface, private readonly AWSChimeInterface $awsInterface)
     {
         //
     }
@@ -77,7 +80,7 @@ class ProjectService extends BaseService
         $data = [
             'name' => $request->name ?? $project->name,
             'description' => $request->description ?? $project->description,
-            'status' => $request->status ?? $project->status,
+            'status' => ProjectStatus::from($request->status) ?? $project->status,
             'deadline' => $request->deadline ?? $project->deadline,
         ];
 
@@ -87,6 +90,16 @@ class ProjectService extends BaseService
 
         return $this->successResponse('Project updated successfully', [
             'project' => new ProjectResource($project->refresh())
+        ]);
+    }
+
+    public function getProjectStatusList(Tenant $tenant, Project $project): JsonResponse
+    {
+        $statusList = ProjectStatus::cases();
+        $statusArray = array_map(fn ($status) => $status->value, $statusList);
+
+        return $this->successResponse(data: [
+            'status_list' => $statusArray
         ]);
     }
 
@@ -126,5 +139,40 @@ class ProjectService extends BaseService
         $this->userRepository->update($user->id, ['role' => UserRolesEnum::PROJECT_MANAGER->value]);
 
         return $this->successResponse("User ,{$user->name} has been assigned the Project Manager role");
+    }
+
+    public function createMeeting(Request $request, Tenant $tenant, Project $project): JsonResponse
+    {
+        return $this->awsInterface->createMeeting($request, $project);
+    }
+
+    public function joinMeeting(Request $request, Tenant $tenant, Project $project): JsonResponse
+    {
+        return $this->awsInterface->createAttendee($project, $request);
+    }
+
+    public function getMeeting(Tenant $tenant, Project $project):JsonResponse
+    {
+        return $this->awsInterface->getMeeting($project);
+    }
+
+    public function getAttendee(Request $request,Tenant $tenant, Project $project):JsonResponse
+    {
+        return $this->awsInterface->getAttendee($project, $request);
+    }
+
+    public function listAttendees(Tenant $tenant, Project $project):JsonResponse
+    {
+        return $this->awsInterface->listAttendees($project);
+    }
+
+    public function deleteMeeting(Tenant $tenant, Project $project):JsonResponse
+    {
+        return $this->awsInterface->deleteMeeting($project);
+    }
+
+    public function deleteAttendee(Request $request, Tenant $tenant, Project $project):JsonResponse
+    {
+        return $this->awsInterface->deleteAttendee($project,$request);
     }
 }

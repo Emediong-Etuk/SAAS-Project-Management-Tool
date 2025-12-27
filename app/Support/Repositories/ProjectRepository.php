@@ -4,6 +4,7 @@ namespace App\Support\Repositories;
 
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Collection;
+use App\Models\User;
 
 class ProjectRepository
 {
@@ -30,5 +31,10 @@ class ProjectRepository
     public function delete(string $id):bool|null
     {
         return Project::query()->where('id', $id)->delete();
+    }
+
+    public function getProjectMembersCount(string $project_id):int
+    {
+        return User::query()->where('project_id', $project_id)->count();
     }
 }
