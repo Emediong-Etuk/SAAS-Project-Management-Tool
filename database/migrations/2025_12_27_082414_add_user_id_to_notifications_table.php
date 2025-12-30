@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tenants', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+        Schema::table('notifications', function (Blueprint $table) {
+            //
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
-            $table->string('name')->unique();
-            $table->string('plan')->default('free');
-            $table->string('customer_bill_id')->nullable();
-            $table->timestamps();
         });
     }
 
@@ -26,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tenants');
+        Schema::table('notifications', function (Blueprint $table) {
+            //
+            $table->dropColumn('user_id');
+        });
     }
 };

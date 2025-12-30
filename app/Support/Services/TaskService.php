@@ -11,6 +11,7 @@ use App\Http\Resources\TaskResource;
 use App\Support\Services\BaseService;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Support\Repositories\NotificationRepository;
 use App\Support\Repositories\TaskRepository;
 use App\Support\Repositories\ProjectRepository;
 
@@ -19,7 +20,7 @@ class TaskService extends BaseService
     /**
      * Create a new class instance.
      */
-    public function __construct(private readonly TaskRepository $taskRepository, private readonly ProjectRepository $projectRepository)
+    public function __construct(private readonly TaskRepository $taskRepository, private readonly ProjectRepository $projectRepository, private readonly NotificationRepository $notificationRepository)
     {
         //
     }
@@ -57,6 +58,14 @@ class TaskService extends BaseService
 
         $task = $this->taskRepository->create($data)->refresh();
         $task->load('project');
+
+        $this->notificationRepository->create([
+            'user_id' => $request->user()->id,
+            'alerts' => "Task created",
+            'mark_read'=>true
+        ]);
+
+        $this->notifyAllMembers($project, $task,'has been created');
 
         return $this->successResponse(
             'Task created successfully',
@@ -100,6 +109,13 @@ class TaskService extends BaseService
 
         $this->taskRepository->update($task->id, $data);
 
+        $this->notificationRepository->create([
+            'user_id'=>$request->user()->id,
+            'alerts'=>"Task updated.",
+        ]);
+
+        $this->notifyAllMembers($project, $task,'has been updated');
+
         return $this->successResponse('Task updated successfully', [
             'task' => new TaskResource($task->refresh())
         ]);
@@ -111,8 +127,17 @@ class TaskService extends BaseService
             return $this->badRequestResponse('You are not a member of this project');
         }
 
-        $this->taskRepository->delete($task->id);
+        
+        $this->notificationRepository->create([
+            'user_id'=>$request->user()->id,
+            'alerts'=>"Task deleted",
+            'mark_read'=>true
+        ]);
 
+        $this->notifyAllMembers($project, $task,'has been deleted');
+        
+        $this->taskRepository->delete($task->id);
+        
         return $this->successResponse('Task deleted successfully');
     }
 
@@ -128,8 +153,24 @@ class TaskService extends BaseService
 
         $this->taskRepository->update($task->id, $data);
 
+        $this->notifyAllMembers($project,$task,'has been marked complete');
+
         return $this->successResponse('Task complete', [
             'task' => new TaskResource($task->refresh())
         ]);
+    }
+
+
+    public function notifyAllMembers(Project $project, Task $task,string $keyMessage){
+
+        $projectMembers=$this->projectRepository->getProjectMembers($project->id);
+        $task=$this->taskRepository->find($task->id);
+
+        foreach($projectMembers as $member){
+            $this->notificationRepository->create([
+                    'user_id'=>$member->id,
+                    'message'=>"{$task->name} for {$project->name} {$keyMessage}"
+                ]);
+        }
     }
 }

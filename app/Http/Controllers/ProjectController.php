@@ -92,9 +92,9 @@ class ProjectController extends Controller
         return $this->projectService->listAttendees($tenant, $project);
     }
 
-    public function deleteMeeting(Tenant $tenant, Project $project):JsonResponse
+    public function deleteMeeting(Request $request,Tenant $tenant, Project $project):JsonResponse
     {
-        return $this->projectService->deleteMeeting($tenant, $project);
+        return $this->projectService->deleteMeeting($request,$tenant, $project);
     }
 
     public function deleteAttendee(Request $request,Tenant $tenant, Project $project):JsonResponse

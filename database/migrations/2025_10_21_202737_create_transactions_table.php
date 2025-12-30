@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id');
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->string('reference')->unique();
             $table->string('status')->default(TransactionStatus::PENDING);
             $table->string('category');
