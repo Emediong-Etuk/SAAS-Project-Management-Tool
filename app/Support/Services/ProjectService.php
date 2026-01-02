@@ -23,7 +23,7 @@ class ProjectService extends BaseService
     /**
      * Create a new class instance.
      */
-    public function __construct(private readonly ProjectRepository $projectRepository, private readonly UserRepository $userRepository, private readonly NotificationRepository $notificationRepository , private readonly AWSChimeInterface $awsInterface)
+    public function __construct(private readonly ProjectRepository $projectRepository, private readonly UserRepository $userRepository, private readonly NotificationRepository $notificationRepository, private readonly AWSChimeInterface $awsInterface)
     {
         //
     }
@@ -57,6 +57,8 @@ class ProjectService extends BaseService
 
         $this->userRepository->update($request->user()->id, ['project_id' => $project->id]);
 
+        $this->notifyAllMembers($project, 'has been created', 'create');
+
         return $this->successResponse('Project created successfully', [
             'project' => new ProjectResource($project)
         ]);
@@ -88,6 +90,8 @@ class ProjectService extends BaseService
 
         $this->projectRepository->update($project->id, $data);
 
+        $this->notifyAllMembers($project, 'has been updated', 'update');
+
         return $this->successResponse('Project updated successfully', [
             'project' => new ProjectResource($project->refresh())
         ]);
@@ -96,7 +100,7 @@ class ProjectService extends BaseService
     public function getProjectStatusList(Tenant $tenant, Project $project): JsonResponse
     {
         $statusList = ProjectStatus::cases();
-        $statusArray = array_map(fn ($status) => $status->value, $statusList);
+        $statusArray = array_map(fn($status) => $status->value, $statusList);
 
         return $this->successResponse(data: [
             'status_list' => $statusArray
@@ -106,6 +110,8 @@ class ProjectService extends BaseService
     public function delete(Tenant $tenant, Project $project): JsonResponse
     {
         $this->projectRepository->delete($project->id);
+
+        $this->notifyAllMembers($project, 'has been deleted', 'delete');
 
         return $this->successResponse('Project deleted successfully');
     }
@@ -131,7 +137,29 @@ class ProjectService extends BaseService
             'message' => "You have been added to the project ,{$project->name}.",
         ]);
 
+        $this->notifyAllMembers($project, 'has been added to the project', 'add_member');
+
         return $this->successResponse("User ,{$user->name} has been added to project ,{$project->name}", [
+            'project' => new ProjectResource($project)
+        ]);
+    }
+
+    public function removeUser(Tenant $tenant, Project $project, User $user): JsonResponse
+    {
+        if ($user->project_id !== $project->id) {
+            return $this->badRequestResponse('User does not belong to this project');
+        }
+
+        $this->userRepository->update($user->id, ['project_id' => null]);
+
+        $this->notificationRepository->create([
+            'user_id' => $user->id,
+            'message' => "You have been removed from the project ,{$project->name}.",
+        ]);
+
+        $this->notifyAllMembers($project, 'has been removed from the project', 'remove_member');
+
+        return $this->successResponse("User ,{$user->name} has been removed from project ,{$project->name}", [
             'project' => new ProjectResource($project)
         ]);
     }
@@ -149,12 +177,12 @@ class ProjectService extends BaseService
 
     public function createMeeting(Request $request, Tenant $tenant, Project $project): JsonResponse
     {
-        
-        $createMeeting=$this->awsInterface->createMeeting($request, $project);
-        
+
+        $createMeeting = $this->awsInterface->createMeeting($request, $project);
+
         $this->notificationRepository->create([
-            'user_id'=>$request->user()->id,
-            'message'=>"Meeting created for project ,{$project->name}.",
+            'user_id' => $request->user()->id,
+            'message' => "Meeting created for project ,{$project->name}.",
         ]);
 
         return $createMeeting;
@@ -165,45 +193,89 @@ class ProjectService extends BaseService
         return $this->awsInterface->createAttendee($project, $request);
     }
 
-    public function getMeeting(Tenant $tenant, Project $project):JsonResponse
+    public function getMeeting(Tenant $tenant, Project $project): JsonResponse
     {
         return $this->awsInterface->getMeeting($project);
     }
 
-    public function getAttendee(Request $request,Tenant $tenant, Project $project):JsonResponse
+    public function getAttendee(Request $request, Tenant $tenant, Project $project): JsonResponse
     {
         return $this->awsInterface->getAttendee($project, $request);
     }
 
-    public function listAttendees(Tenant $tenant, Project $project):JsonResponse
+    public function listAttendees(Tenant $tenant, Project $project): JsonResponse
     {
         return $this->awsInterface->listAttendees($project);
     }
 
-    public function deleteMeeting(Request $request, Tenant $tenant, Project $project):JsonResponse
+    public function deleteMeeting(Request $request, Tenant $tenant, Project $project): JsonResponse
     {
-        
-        $deleteMeeting=$this->awsInterface->deleteMeeting($project);
-        
+
+        $deleteMeeting = $this->awsInterface->deleteMeeting($project);
+
         $this->notificationRepository->create([
-            'user_id'=>$request->user()->id,
-            'message'=>"Meeting ended for project ,{$project->name}.",
+            'user_id' => $request->user()->id,
+            'message' => "Meeting ended for project ,{$project->name}.",
         ]);
 
         return $deleteMeeting;
     }
 
-    public function deleteAttendee(Request $request, Tenant $tenant, Project $project):JsonResponse
+    public function deleteAttendee(Request $request, Tenant $tenant, Project $project): JsonResponse
     {
-        $attendee=$this->awsInterface->deleteAttendee($project,$request);
+        $attendee = $this->awsInterface->deleteAttendee($project, $request);
 
-        $user=$this->userRepository->findByRole($tenant->id,$project->id);
+        $user = $this->userRepository->findByRole($tenant->id, $project->id);
 
         $this->notificationRepository->create([
-            'user_id'=>$user->id,
-            'message'=>"{$request->user()->name} left the meeting for project ,{$project->name}.",
+            'user_id' => $user->id,
+            'message' => "{$request->user()->name} left the meeting for project ,{$project->name}.",
         ]);
 
         return $attendee;
+    }
+
+    public function notifyAllMembers(Project $project, string $keyMessage, string $purpose)
+    {
+        $members = $this->projectRepository->getProjectMembers($project->id);
+
+        for ($i = 0; $i < count($members); $i++) {
+
+            if ($purpose === 'create') {
+                $this->notificationRepository->create([
+                    'user_id' => $members[$i]->id,
+                    'message' => "Project ,{$project->name} has been created.",
+                ]);
+            }
+
+
+            if ($purpose === 'update') {
+                $this->notificationRepository->create([
+                    'user_id' => $members[$i]->id,
+                    'message' => "Project ,{$project->name} has been updated.",
+                ]);
+            }
+
+            if ($purpose === 'delete') {
+                $this->notificationRepository->create([
+                    'user_id' => $members[$i]->id,
+                    'message' => "Project ,{$project->name} has been deleted.",
+                ]);
+            }
+
+            if ($purpose === 'add_member') {
+                $this->notificationRepository->create([
+                    'user_id' => $members[$i]->id,
+                    'message' => "{$members[$i]->name} has been added to the project ,{$project->name}.",
+                ]);
+            }
+
+            if ($purpose === 'remove_member') {
+                $this->notificationRepository->create([
+                    'user_id' => $members[$i]->id,
+                    'message' => "{$members[$i]->name} has been removed from the project ,{$project->name}.",
+                ]);
+            }
+        }
     }
 }

@@ -72,6 +72,11 @@ class ProjectPolicy
         return Response::denyAsNotFound("You do not have permission to assign roles in a project");
     }
 
+    public function removeUser(User $user): Response
+    {
+        return $this->validate($user, 'remove user from');
+    }
+
     public function validate(User $user, string $method): Response
     {
 
