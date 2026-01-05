@@ -31,4 +31,21 @@ class TaskRepository
     {
         return Task::query()->where('id',$id)->delete();
     }
+
+    public function search(string $project_id,string $query):Collection
+    {
+        if(empty($query)){
+            return Task::query()->where('project_id',$project_id)->get();
+        }
+
+        $terms=array_filter(explode(' ',trim($query)));
+
+        return Task::query()->where('project_id',$project_id)
+        ->where(function ($q) use ($terms){
+            foreach($terms as $term){
+                $q->where('name','LIKE','%'.$term.'%')
+                ->orWhere('description','LIKE','%'.$term.'%');
+            }
+        })->get();
+    }
 }

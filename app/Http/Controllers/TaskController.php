@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Support\Services\TaskService;
 use App\Http\Requests\CreateTaskRequest;
+use App\Http\Requests\SearchTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Requests\TaskSubmissionRequest;
 use App\Support\Services\TaskSubmissionService;
@@ -73,5 +74,10 @@ class TaskController extends Controller
     public function downloadSubmissionFile(Tenant $tenant, Project $project, Task $task, TaskSubmission $submittedTask, Request $request): JsonResponse
     {
         return $this->taskSubmissionService->downloadSubmissionFile($tenant, $project, $task, $submittedTask, $request);
+    }
+
+    public function searchTask(SearchTaskRequest $request, Tenant $tenant, Project $project):JsonResponse
+    {
+        return $this->taskService->search($request,$tenant,$project);
     }
 }

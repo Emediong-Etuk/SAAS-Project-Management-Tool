@@ -75,6 +75,7 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
             Route::post('{project}/tasks/{task}/view-submissions', 'viewSubmissions');
             Route::post('{project}/tasks/{task}/view-user-submissions', 'viewUserSubmissions');
             Route::post('{project}/tasks/{task}/{submittedTask}/download-files', 'downloadSubmissionFile');
+            Route::get('{project}/search','searchTask');
         });
 
         Route::controller(CommentController::class)->group(function () {
