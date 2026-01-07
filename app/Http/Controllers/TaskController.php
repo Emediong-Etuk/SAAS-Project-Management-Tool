@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\User;
 use App\Models\Tenant;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Support\Services\TaskService;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\SearchTaskRequest;
+use App\Http\Requests\SearchUserRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Requests\TaskSubmissionRequest;
 use App\Support\Services\TaskSubmissionService;
@@ -79,5 +81,25 @@ class TaskController extends Controller
     public function searchTask(SearchTaskRequest $request, Tenant $tenant, Project $project):JsonResponse
     {
         return $this->taskService->search($request,$tenant,$project);
+    }
+
+    public function assignTask(Tenant $tenant, Project $project, Task $task, User $user):JsonResponse
+    {
+        return $this->taskService->assignTask($tenant,$project,$task,$user);
+    }
+
+    public function searchUser(SearchUserRequest $request, Tenant $tenant, Project $project, Task $task):JsonResponse
+    {
+        return $this->taskService->searchUser($request,$tenant,$project,$task);
+    }
+
+    public function removeUserFromTask(Tenant $tenant, Project $project, Task $task, User $user):JsonResponse
+    {
+        return $this->taskService->removeUserFromTask($tenant,$project,$task,$user);
+    }
+    
+    public function getUsersAssignedToTask(Tenant $tenant,Project $project, Task $task):JsonResponse
+    {
+        return $this->taskService->getUsersAssignedToTask($tenant,$project,$task);
     }
 }

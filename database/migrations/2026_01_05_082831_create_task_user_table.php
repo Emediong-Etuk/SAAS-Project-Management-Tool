@@ -15,7 +15,6 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('task_id')->constrained()->cascadeOnDelete();
-            $table->timestamp('assigned_on');
             $table->timestamps();
         });
     }

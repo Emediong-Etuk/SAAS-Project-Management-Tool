@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Scout\Searchable;
+use App\Models\TaskUser;
 
 class Task extends Model
 {
@@ -46,6 +47,6 @@ class Task extends Model
 
     public function user():BelongsToMany
     {
-        return $this->belongsToMany(Task::class)->withPivot('assigned_on')->withTimestamps();
+        return $this->belongsToMany(User::class)->using(TaskUser::class)->withTimestamps();
     }
 }

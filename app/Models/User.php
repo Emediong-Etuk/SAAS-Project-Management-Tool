@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\TaskUser;
 
 
 class User extends Authenticatable
@@ -82,6 +83,6 @@ class User extends Authenticatable
 
     public function task():BelongsToMany
     {
-        return $this->belongsToMany(Task::class)->withPivot('assignee_on')->withTimestamps();
+        return $this->belongsToMany(Task::class)->using(TaskUser::class)->withTimestamps();
     }
 }

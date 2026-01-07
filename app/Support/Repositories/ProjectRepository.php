@@ -42,4 +42,9 @@ class ProjectRepository
     {
         return User::query()->where('project_id', $project_id)->get();
     }
+
+    public function findUsers(string $project_id,string $name):Collection
+    {
+        return User::query()->where('project_id',$project_id)->where('name','LIKE','%'.$name.'%')->get();
+    }
 }
