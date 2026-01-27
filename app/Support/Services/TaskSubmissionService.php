@@ -2,6 +2,7 @@
 
 namespace App\Support\Services;
 
+use ZipArchive;
 use App\Models\Task;
 use App\Models\Tenant;
 use App\Models\Project;
@@ -69,25 +70,40 @@ class TaskSubmissionService extends BaseService
         ]);
     }
 
-    public function downloadSubmissionFile(Tenant $tenant, Project $project, Task $task, TaskSubmission $submittedTask, Request $request): JsonResponse
+    public function downloadSubmissionFile(Tenant $tenant, Project $project, Task $task, TaskSubmission $submittedTask, Request $request)
     {
-
-        $download = [];
-        $extractedStoragePaths = [];
         $submission = $this->taskSubmissionRepository->findBySubmittedTask($submittedTask->id);
 
-        foreach ($submission->submission_files as $sub) {
-
-            $extractedStoragePaths[] = explode(env('APP_URL') . '/', $sub);
+        if (!$submission || empty($submission->submission_files)) {
+            return response()->json(['error' => 'No files found'], 404);
         }
-        Log::info('extracted Storage Path', [$extractedStoragePaths]);
 
-        foreach ($extractedStoragePaths as $path) {
-            $download[] = response()->download($path[1]);
+        $files = $submission->submission_files;
+
+        if (count($files) === 1) {
+
+            $relativePath = str_replace(env('APP_URL') . '/storage' . '/', '', $files[0]);
+            $fullPath = Storage::disk('public')->path($relativePath);
+            return response()->download($fullPath);
         }
-        Log::info($download);
-        return $this->successResponse(
-            'Downloading..',
-        );
+
+
+        $zip = new ZipArchive();
+        $zipPath = tempnam(sys_get_temp_dir(), 'submissions') . '.zip';
+        $zip->open($zipPath, ZipArchive::CREATE);
+
+        foreach ($files as $fileUrl) {
+            Log::info('File URL: ' . $fileUrl);
+            $relativePath = str_replace(env('APP_URL') . '/storage' . '/', '', $fileUrl);
+            $fullPath = Storage::disk('public')->path($relativePath);
+
+            if (file_exists($fullPath)) {
+                $zip->addFile($fullPath, basename($fullPath));
+            }
+        }
+
+        $zip->close();
+
+        return response()->download($zipPath, 'submissions.zip')->deleteFileAfterSend(true);
     }
 }

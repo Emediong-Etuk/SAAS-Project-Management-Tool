@@ -4,6 +4,7 @@ namespace App\Support\Services;
 
 use App\Models\User;
 use App\Models\Tenant;
+use App\Enum\PlansEnum;
 use App\Models\Project;
 use App\Enum\ProjectStatus;
 use App\Enum\UserRolesEnum;
@@ -16,6 +17,7 @@ use App\Http\Requests\UpdateProjectRequest;
 use App\Support\Repositories\UserRepository;
 use App\Contracts\Interface\AWSChimeInterface;
 use App\Support\Repositories\ProjectRepository;
+use App\Http\Requests\UpdateProjectStatusRequest;
 use App\Support\Repositories\NotificationRepository;
 
 class ProjectService extends BaseService
@@ -170,6 +172,10 @@ class ProjectService extends BaseService
             return $this->badRequestResponse('User does not belong to this project');
         }
 
+        if ($user->subscription_plan !== PlansEnum::Pro->value) {
+            return $this->badRequestResponse('User must have pro subscription to be assigned as Project Manager');
+        }
+
         $this->userRepository->update($user->id, ['role' => UserRolesEnum::PROJECT_MANAGER->value]);
 
         return $this->successResponse("User ,{$user->name} has been assigned the Project Manager role");
@@ -228,11 +234,20 @@ class ProjectService extends BaseService
         $user = $this->userRepository->findByRole($tenant->id, $project->id);
 
         $this->notificationRepository->create([
-            'user_id' => $user->id,
+            'user_id' => $request->user()->id,
             'message' => "{$request->user()->name} left the meeting for project ,{$project->name}.",
         ]);
 
         return $attendee;
+    }
+
+    public function updateProjectStatus(UpdateProjectStatusRequest $request, Tenant $tenant, Project $project): JsonResponse
+    {
+        $this->projectRepository->update($project->id, ['status' => ProjectStatus::from($request->status)]);
+
+        return $this->successResponse('Project status updated successfully', [
+            'project' => new ProjectResource($project->refresh())
+        ]);
     }
 
     public function notifyAllMembers(Project $project, string $keyMessage, string $purpose)

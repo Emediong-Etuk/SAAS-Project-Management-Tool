@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Scout\Searchable;
 use App\Models\TaskUser;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Task extends Model
 {
     //
-    use HasUuids,Searchable;
+    use HasFactory, HasUuids, Searchable;
 
-    protected $fillable=[
+    protected $fillable = [
         'name',
         'description',
         'project_id',
@@ -26,26 +27,26 @@ class Task extends Model
         'completed'
     ];
 
-    public static function booted():void
+    public static function booted(): void
     {
-        static::addGlobalScope('tenant_id',function(Builder $builder){
-            if(Auth::check()){
-                $builder->where('tenant_id',Auth::user()->tenant_id);
+        static::addGlobalScope('tenant_id', function (Builder $builder) {
+            if (Auth::check()) {
+                $builder->where('tenant_id', Auth::user()->tenant_id);
             }
         });
     }
 
-    public function project():BelongsTo
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    public function tenant():BelongsTo
+    public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
-    public function user():BelongsToMany
+    public function user(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->using(TaskUser::class)->withTimestamps();
     }

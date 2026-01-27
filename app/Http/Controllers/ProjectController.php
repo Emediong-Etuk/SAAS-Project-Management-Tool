@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Support\Services\ProjectService;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Http\Requests\UpdateProjectStatusRequest;
 
 class ProjectController extends Controller
 {
@@ -105,5 +106,10 @@ class ProjectController extends Controller
     public function deleteAttendee(Request $request, Tenant $tenant, Project $project): JsonResponse
     {
         return $this->projectService->deleteAttendee($request, $tenant, $project);
+    }
+
+    public function updateProjectStatus(Tenant $tenant, Project $project, UpdateProjectStatusRequest $request): JsonResponse
+    {
+        return $this->projectService->updateProjectStatus($request, $tenant, $project);
     }
 }

@@ -33,23 +33,33 @@ class TaskPolicy
         return $this->validate($user);
     }
 
+    public function downloadSubmissions(User $user): Response
+    {
+        return $this->validate($user);
+    }
+
+    public function assignTask(User $user): Response
+    {
+        return $this->validate($user);
+    }
+
     public function validate(User $user): Response
     {
 
         if ($user->subscription_plan === PlansEnum::Pro->value) {
 
-            return Response::allow();
+            if ($user->role === UserRolesEnum::TENANT_ADMIN->value) {
+                return Response::allow();
+            }
+
+            if ($user->role === UserRolesEnum::PROJECT_MANAGER->value) {
+                return Response::allow();
+            }
         }
 
 
-        if ($user->role === UserRolesEnum::TENANT_ADMIN->value) {
-            return Response::allow();
-        }
 
-        if ($user->role === UserRolesEnum::PROJECT_MANAGER->value) {
-            return Response::allow();
-        }
 
-        return Response::denyAsNotFound("Not Authorized");
+        return Response::deny("Not Authorized", 403);
     }
 }

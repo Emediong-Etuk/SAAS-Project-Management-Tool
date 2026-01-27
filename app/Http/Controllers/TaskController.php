@@ -73,33 +73,33 @@ class TaskController extends Controller
         return $this->taskSubmissionService->viewUserSubmission($tenant, $project, $task, $request);
     }
 
-    public function downloadSubmissionFile(Tenant $tenant, Project $project, Task $task, TaskSubmission $submittedTask, Request $request): JsonResponse
+    public function downloadSubmissionFile(Tenant $tenant, Project $project, Task $task, TaskSubmission $submittedTask, Request $request)
     {
         return $this->taskSubmissionService->downloadSubmissionFile($tenant, $project, $task, $submittedTask, $request);
     }
 
-    public function searchTask(SearchTaskRequest $request, Tenant $tenant, Project $project):JsonResponse
+    public function searchTask(SearchTaskRequest $request, Tenant $tenant, Project $project): JsonResponse
     {
-        return $this->taskService->search($request,$tenant,$project);
+        return $this->taskService->search($request, $tenant, $project);
     }
 
-    public function assignTask(Tenant $tenant, Project $project, Task $task, User $user):JsonResponse
+    public function assignTask(Tenant $tenant, Project $project, Task $task, User $user): JsonResponse
     {
-        return $this->taskService->assignTask($tenant,$project,$task,$user);
+        return $this->taskService->assignTask($tenant, $project, $task, $user);
     }
 
-    public function searchUser(SearchUserRequest $request, Tenant $tenant, Project $project, Task $task):JsonResponse
+    public function searchUser(SearchUserRequest $request, Tenant $tenant, Project $project, Task $task): JsonResponse
     {
-        return $this->taskService->searchUser($request,$tenant,$project,$task);
+        return $this->taskService->searchUser($request, $tenant, $project, $task);
     }
 
-    public function removeUserFromTask(Tenant $tenant, Project $project, Task $task, User $user):JsonResponse
+    public function removeUserFromTask(Tenant $tenant, Project $project, Task $task, User $user): JsonResponse
     {
-        return $this->taskService->removeUserFromTask($tenant,$project,$task,$user);
+        return $this->taskService->removeUserFromTask($tenant, $project, $task, $user);
     }
-    
-    public function getUsersAssignedToTask(Tenant $tenant,Project $project, Task $task):JsonResponse
+
+    public function getUsersAssignedToTask(Tenant $tenant, Project $project, Task $task): JsonResponse
     {
-        return $this->taskService->getUsersAssignedToTask($tenant,$project,$task);
+        return $this->taskService->getUsersAssignedToTask($tenant, $project, $task);
     }
 }

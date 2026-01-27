@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\User;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Tenant extends Model
 {
     //
-    use HasUuids;
+    use HasFactory, HasUuids;
 
 
     protected $fillable = [
@@ -22,12 +23,12 @@ class Tenant extends Model
         'customer_bill_id',
     ];
 
-    public function projects():HasMany
+    public function projects(): HasMany
     {
         return $this->hasMany(Project::class);
     }
 
-    public function users():HasMany
+    public function users(): HasMany
     {
         return $this->hasMany(User::class);
     }

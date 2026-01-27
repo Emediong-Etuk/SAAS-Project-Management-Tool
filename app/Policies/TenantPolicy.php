@@ -35,13 +35,11 @@ class TenantPolicy
     {
 
         if ($user->subscription_plan === PlansEnum::Pro->value) {
-            return Response::allow();
+            if ($user->role === UserRolesEnum::TENANT_ADMIN->value) {
+                return Response::allow();
+            }
         }
 
-        if ($user->role === UserRolesEnum::TENANT_ADMIN->value) {
-            return Response::allow();
-        }
-
-        return Response::denyAsNotFound("You do not have permission to {$method} a tenant");
+        return Response::deny("You do not have permission to {$method} a tenant", 403);
     }
 }

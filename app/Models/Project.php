@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Project extends Model
 {
     //
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'tenant_id',
@@ -26,21 +27,21 @@ class Project extends Model
 
     public static function booted(): void
     {
-        static::addGlobalScope('tenant_id',function(Builder $builder) {
-            if(Auth::check()){
-                $builder->where('tenant_id',Auth::user()->tenant_id);
+        static::addGlobalScope('tenant_id', function (Builder $builder) {
+            if (Auth::check()) {
+                $builder->where('tenant_id', Auth::user()->tenant_id);
             }
         });
     }
-    
-    public function tenant():BelongsTo
+
+    public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
-    public function casts():array
+    public function casts(): array
     {
-        return[
+        return [
             'meeting_id' => 'string',
         ];
     }
