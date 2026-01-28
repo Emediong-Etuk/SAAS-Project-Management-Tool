@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Models\Tenant;
 use App\Models\Comment;
 use App\Models\Project;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Support\Services\BaseService;
@@ -19,7 +20,7 @@ class CommentService extends BaseService
     /**
      * Create a new class instance.
      */
-    public function __construct(private readonly CommentRepository $commentRepository)
+    public function __construct(private readonly CommentRepository $commentRepository, private readonly ProjectRepository $projectRepository)
     {
         //
     }
@@ -49,6 +50,15 @@ class CommentService extends BaseService
 
     public function create(Tenant $tenant, Project $project, Task $task, CreateCommentRequest $request): JsonResponse
     {
+        $projectMembers=$this->getAllProjectMembers($project);
+
+        $names=[];
+
+        if(Str::contains($request->comment,'@')){
+            foreach($projectMembers as $projectMember){
+                $names[]=$projectMember->name;
+            }
+        }
 
         $data = [
             'comment' => $request->comment,
@@ -62,6 +72,7 @@ class CommentService extends BaseService
         
 
         return $this->successResponse('Comment added successfully', [
+            'names'=> $names,
             'comment' => new CommentResource($comment)
         ]);
     }
@@ -83,5 +94,10 @@ class CommentService extends BaseService
     {
         $this->commentRepository->delete($comment->id);
         return $this->successResponse('Comment deleted successfully');
+    }
+
+    public function getAllProjectMembers(Project $project)
+    {
+        return $this->projectRepository->getAllProjectMembers($project->id);
     }
 }

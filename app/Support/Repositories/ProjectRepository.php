@@ -47,4 +47,14 @@ class ProjectRepository
     {
         return User::query()->where('project_id',$project_id)->where('name','LIKE','%'.$name.'%')->get();
     }
+
+    public function countAllByTenant(string $tenant_id):int
+    {
+        return Project::query()->where('tenant_id',$tenant_id)->count();
+    }
+
+    public function findByTenant(string $tenant_id):?Project
+    {
+        return Project::query()->where('tenant_id',$tenant_id)->first();
+    }
 }

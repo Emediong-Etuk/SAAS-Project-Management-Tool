@@ -20,6 +20,11 @@ class TenantController extends Controller
 
     }
 
+    public function dashboard(Request $request):JsonResponse
+    {
+        return $this->tenantService->dashboard($request);
+    }
+
     public function create(CreateTenantRequest $request):JsonResponse
     {
         return $this->tenantService->create($request);
