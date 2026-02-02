@@ -14,14 +14,21 @@ use App\Http\Resources\CommentResource;
 use App\Http\Requests\CreateCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Support\Repositories\CommentRepository;
+use App\Support\Repositories\MentionRepository;
+use App\Support\Repositories\NotificationRepository;
+use App\Support\Repositories\ProjectRepository;
 
 class CommentService extends BaseService
 {
     /**
      * Create a new class instance.
      */
-    public function __construct(private readonly CommentRepository $commentRepository, private readonly ProjectRepository $projectRepository)
-    {
+    public function __construct(
+        private readonly CommentRepository $commentRepository,
+        private readonly ProjectRepository $projectRepository,
+        private readonly MentionRepository $mentionRepository,
+        private readonly NotificationRepository $notificationRepository
+    ) {
         //
     }
 
@@ -50,13 +57,14 @@ class CommentService extends BaseService
 
     public function create(Tenant $tenant, Project $project, Task $task, CreateCommentRequest $request): JsonResponse
     {
-        $projectMembers=$this->getAllProjectMembers($project);
+        $authUser = $request->user()->username;
+        $projectMembers = $this->getAllProjectMembers($project);
 
-        $names=[];
+        $names = [];
 
-        if(Str::contains($request->comment,'@')){
-            foreach($projectMembers as $projectMember){
-                $names[]=$projectMember->name;
+        if (Str::contains($request->comment, '@')) {
+            foreach ($projectMembers as $projectMember) {
+                $names[] = $projectMember->name;
             }
         }
 
@@ -67,12 +75,28 @@ class CommentService extends BaseService
             'task_id' => $task->id,
             'user_id' => $request->user()->id
         ];
+
         $comment = $this->commentRepository->create($data);
 
-        
+        foreach ($projectMembers as $projectMember) {
+            $this->mentionRepository->create([
+                'user_id' => $projectMember->id,
+                'username' => $projectMember->username,
+                'comment_id' => $comment->id,
+                'account_link' => config('app.url') . "/api/{$tenant->id}/account/{$projectMember->username}"
+            ]);
+
+            $this->notificationRepository->create([
+                'message' => "$authUser mentioned you",
+                'user_id' => $projectMember->id,
+            ]);
+        }
+
+        $mentions = $this->mentionRepository->getMentions($comment->id);
 
         return $this->successResponse('Comment added successfully', [
-            'names'=> $names,
+            'mentions' => $mentions,
+            'names' => $names,
             'comment' => new CommentResource($comment)
         ]);
     }
@@ -98,6 +122,6 @@ class CommentService extends BaseService
 
     public function getAllProjectMembers(Project $project)
     {
-        return $this->projectRepository->getAllProjectMembers($project->id);
+        return $this->projectRepository->getProjectMembers($project->id);
     }
 }

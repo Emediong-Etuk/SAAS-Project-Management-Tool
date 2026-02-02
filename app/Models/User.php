@@ -5,6 +5,7 @@ namespace App\Models;
 
 use App\Models\Task;
 use App\Models\Tenant;
+use App\Models\TaskUser;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Notifications\Notifiable;
@@ -12,10 +13,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Models\TaskUser;
-
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -81,7 +80,7 @@ class User extends Authenticatable
         return $this->belongsTo(Tenant::class);
     }
 
-    public function task():BelongsToMany
+    public function task(): BelongsToMany
     {
         return $this->belongsToMany(Task::class)->using(TaskUser::class)->withTimestamps();
     }

@@ -2,7 +2,6 @@
 
 use App\Models\Task;
 use App\Models\Tenant;
-use App\Models\Comment;
 use App\Models\Project;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -31,7 +30,7 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::controller(TenantController::class)->prefix('tenants')->group(function () {
-        Route::get('/dashboard','dashboard');
+        Route::get('/dashboard', 'dashboard');
         Route::post('/create', 'create');
         Route::prefix('/{tenant}')->group(function () {
             Route::post('/update', 'update')->can('update', Tenant::class)->name('tenant.update');
@@ -115,9 +114,9 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
     });
 
     Route::controller(AccountController::class)->prefix('/account')->group(function () {
-        Route::get('/', 'view')->name('account.get');
-        Route::post('/update', 'update')->name('account.update');
-        Route::delete('/delete', 'delete')->name('account.delete');
+        Route::get('/{user:username}', 'view')->name('account.get');
+        Route::post('/{user::username}/update', 'update')->can('update', 'user')->name('account.update');
+        Route::delete('/{user::username}/delete', 'delete')->can('delete', 'user')->name('account.delete');
     });
 });
 

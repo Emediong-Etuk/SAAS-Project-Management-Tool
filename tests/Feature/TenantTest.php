@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\Tenant;
+use App\Models\Project;
 use App\Enum\UserRolesEnum;
 use App\Notifications\SendInvitationNotice;
 use Illuminate\Support\Facades\Notification;
@@ -10,6 +11,46 @@ use App\Notifications\DeleteTenantInfoNotice;
 use App\Notifications\UpdateTenantInfoNotice;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Notifications\AnonymousNotifiable;
+
+
+test('user cannot access other tenant data', function () {
+    $tenant1 = Tenant::factory()->create();
+    $tenant2 = Tenant::factory()->create();
+
+    $user = User::factory()->create([
+        'tenant_id' => $tenant1->id
+    ]);
+
+    $this->actingAs($user);
+
+    $response = $this->post(route('tenant.update', ['tenant' => $tenant2->id]));
+
+    $response->assertStatus(403)
+        ->assertJson(fn(AssertableJson $json) => $json
+            ->hasAll('message')
+            ->whereAllType([
+                'message' => 'string'
+            ])->etc());
+});
+
+test('queries are scoped to tenant', function () {
+    $tenant1 = Tenant::factory()->create();
+    $tenant2 = Tenant::factory()->create();
+
+    $project1 = Project::factory()->create(['tenant_id' => $tenant1->id]);
+    $project2 = Project::factory()->count(5)->create(['tenant_id' => $tenant2->id]);
+
+    $user = User::factory()->create(['tenant_id' => $tenant1->id, 'project_id'=>$project1->id]);
+
+    Project::factory()->count(5)->create(['tenant_id'=>$tenant1->id]);
+
+    $this->actingAs($user, 'sanctum');
+
+    $projects = Project::all();
+
+    expect($projects)->toHaveCount(6);
+});
+
 
 test('tenant created successfully', function () {
 
