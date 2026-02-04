@@ -6,6 +6,7 @@ use App\Models\Project;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\AdminController;
 use App\Http\Middleware\TenantMiddleware;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\AccountController;
@@ -16,6 +17,14 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriptionController;
 
 Route::webhooks('/flutterwave-webhook');
+
+Route::controller(AdminController::class)->prefix('admin')->group(function(){
+    Route::post('/login','login');
+    Route::middleware('auth:sanctum')->group(function(){
+        Route::get('/view','view');
+        Route::delete('/user','delete');
+    });
+});
 
 
 Route::controller(AuthController::class)->prefix('auth')->group(function () {

@@ -34,13 +34,15 @@ class User extends Authenticatable
         'project_id',
         'subscription_plan',
         'expiry_date',
+        'reminder_date',
         'occupation',
         'skills',
         'profile_picture',
         'cover_picture',
         'projects_worked_on',
         'linkedin_profile',
-        'attendee_id'
+        'attendee_id',
+        'is_admin'
     ];
 
     /**

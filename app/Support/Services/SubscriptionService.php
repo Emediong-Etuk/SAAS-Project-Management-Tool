@@ -7,7 +7,6 @@ use App\Models\Tenant;
 use App\Enum\PlansEnum;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Http\Resources\UserResource;
 use App\Support\Services\BaseService;
 use App\Http\Requests\CardPaymentRequest;
@@ -53,7 +52,7 @@ class SubscriptionService extends BaseService
     {
         $validationResponse = $this->subscriptionPayment->validateCardPayment($request);
         if ($validationResponse->status === 'success') {
-            $this->userRepository->update($request->user()->id, ['subscription_plan' => PlansEnum::Pro, 'expiry_date' => now()->addMonth()]);
+            $this->userRepository->update($request->user()->id, ['subscription_plan' => PlansEnum::Pro, 'expiry_date' => now()->addMonth(), 'reminder_date'=>now()->addMonth()->subDays(10)]);
             Notification::route('mail', $request->user()->email)->notify(new SubscriptionSuccessful($request->user()->name, 'Pro', now()->addMonth()->toFormattedDateString()));
         }
 

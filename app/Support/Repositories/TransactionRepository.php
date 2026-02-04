@@ -3,6 +3,7 @@
 namespace App\Support\Repositories;
 
 use App\Models\Transaction;
+use Illuminate\Database\Eloquent\Collection;
 
 class TransactionRepository
 {
@@ -27,5 +28,10 @@ class TransactionRepository
     public function findByUser(string $userId): ?Transaction
     {
         return Transaction::query()->where('user_id', $userId)->first();
+    }
+
+    public function getAll():Collection
+    {
+        return Transaction::query()->get();
     }
 }
