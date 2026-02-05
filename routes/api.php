@@ -18,11 +18,11 @@ use App\Http\Controllers\SubscriptionController;
 
 Route::webhooks('/flutterwave-webhook');
 
-Route::controller(AdminController::class)->prefix('admin')->group(function(){
-    Route::post('/login','login');
-    Route::middleware('auth:sanctum')->group(function(){
-        Route::get('/view','view');
-        Route::delete('/user','delete');
+Route::controller(AdminController::class)->prefix('admin')->group(function () {
+    Route::post('/login', 'login');
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/view', 'view');
+        Route::delete('/user', 'delete');
     });
 });
 
@@ -34,6 +34,16 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
     Route::post('/login', 'login');
     Route::post('/password/reset/get-token', 'getResetPasswordToken');
     Route::post('/password/reset', 'resetPassword');
+    Route::prefix('oauth')->group(function () {
+        Route::get('/github/redirect', 'githubRedirect');
+        Route::get('/github/callback', 'githubCallback');
+        Route::get('/google/redirect', 'googleRedirect');
+        Route::get('/google/callback', 'googleCallback');
+    });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', 'logout');
+    });
 });
 
 
