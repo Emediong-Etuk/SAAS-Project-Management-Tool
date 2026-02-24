@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('subscription_plan')->default('Free')->after('password');
+        Schema::table('tasks', function (Blueprint $table) {
+            //
+            $table->string('status')->default('active')->after('deadline');
         });
     }
 
@@ -21,9 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('tasks', function (Blueprint $table) {
             //
-            $table->dropColumn('subscription_plan');
+            $table->dropColumn(['status']);
         });
     }
 };

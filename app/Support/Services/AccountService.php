@@ -2,13 +2,19 @@
 
 namespace App\Support\Services;
 
-use Illuminate\Http\Request;
-use App\Http\Resources\UserResource;
-use App\Support\Services\BaseService;
 use App\Http\Requests\UpdateAccountRequest;
-use App\Support\Repositories\UserRepository;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Http\Requests\VerifyUpdatedEmail;
+use App\Http\Resources\UserResource;
+use App\Models\Tenant;
+use App\Models\User;
+use App\Notifications\VerifyEmailNotice;
 use App\Support\Repositories\NotificationRepository;
+use App\Support\Repositories\UserRepository;
+use App\Support\Services\BaseService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AccountService extends BaseService
 {
@@ -17,7 +23,7 @@ class AccountService extends BaseService
      */
     public function __construct(private readonly UserRepository $userRepository, private readonly NotificationRepository $notificationRepository) {}
 
-    public function view(Request $request): JsonResponse
+    public function view(Tenant $tenant, User $user,Request $request): JsonResponse
     {
 
         $data = [
@@ -37,8 +43,9 @@ class AccountService extends BaseService
         );
     }
 
-    public function update(UpdateAccountRequest $request): JsonResponse
+    public function update(Tenant $tenant,User $user,UpdateAccountRequest $request): JsonResponse
     {
+        $authEmail=$request->user()->email;
         $new_profile_picture = $request->file('profile_picture');
         $new_cover_picture = $request->file('cover_picture');
 
@@ -61,6 +68,17 @@ class AccountService extends BaseService
 
         ];
 
+        if($request->email !== $request->user()->email){
+            $token=$this->generateToken();
+            $expiryTime=900;
+            Cache::put("EMAIL_VERIFICATION_TOKEN_$authEmail", [$token,$request->email], $expiryTime);
+            Log::info('Cache data',[Cache::get("EMAIL_VERIFICATION_TOKEN_$authEmail")]);
+            $request->user()->notify(new VerifyEmailNotice($token,$expiryTime));
+
+
+            return $this->successResponse('An OTP has been sent to your new email address. Please verify to update your email.');
+        }
+
         $this->userRepository->update($request->user()->id, $data);
         $user = $this->userRepository->find($request->user()->id);
         $this->notificationRepository->create([
@@ -76,7 +94,17 @@ class AccountService extends BaseService
         );
     }
 
-    public function delete(Request $request): JsonResponse
+    public function verifyEmail(Tenant $tenant,User $user,VerifyUpdatedEmail $request): JsonResponse
+    {
+        $cache=Cache::get("EMAIL_VERIFICATION_TOKEN_".$request->user()->email);
+        $this->userRepository->update($request->user()->id, ['email' =>$cache[1]]);
+        Cache::forget("EMAIL_VERIFICATION_TOKEN_$request->email");
+        return $this->successResponse('Email verified successfully',[
+            'user' => new UserResource($request->user()->refresh()),
+        ]);
+    }
+
+    public function delete(Tenant $tenant,User $user,Request $request): JsonResponse
     {
         $this->userRepository->delete($request->user()->id);
 

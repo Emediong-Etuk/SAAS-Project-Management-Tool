@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\SubscriptionReminder;
 use App\Support\Repositories\UserRepository;
+use App\Enum\PlansEnum;
 
 class ResetSubscriptionPlan extends Command
 {
@@ -28,23 +29,22 @@ class ResetSubscriptionPlan extends Command
      */
     public function handle()
     {
-        //
 
-        $usersToRemind=DB::table('users')
+        $users=DB::table('users')
         ->where('reminder_date','=', now()->toDateString())
-        ->where('subscription_plan','!=','free')
+        ->where('subscription_plan','=',PlansEnum::Pro->value)
         ->get();
 
-        foreach($usersToRemind as $user){
+        foreach($users as $user){
             $userModel=App(UserRepository::class)->find($user->id);
             $userModel->notify(new SubscriptionReminder($userModel));
         }
 
         DB::table('users')
             ->where('expiry_date', '=', now()->toDateString())
-            ->where('subscription_plan', '!=', 'free')
+            ->where('subscription_plan', '=', PlansEnum::Pro->value)
             ->update([
-                'subscription_plan' => 'free',
+                'subscription_plan' =>PlansEnum::Free->value,
                 'expiry_date' => null,
                 'reminder_date'=>null,
             ]);

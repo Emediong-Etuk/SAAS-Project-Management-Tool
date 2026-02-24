@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-
 use Illuminate\Foundation\Http\FormRequest;
 
 class CardPaymentRequest extends FormRequest
@@ -27,7 +26,12 @@ class CardPaymentRequest extends FormRequest
             'cvv' => ['required','string'],
             'expiry_month' => ['required','string'],
             'expiry_year' => ['required','string'],
-            'pin' => ['required','string'],
+            'pin' => ['sometimes','string'],
+            'city'=>['sometimes','string'],
+            'address'=>['sometimes','string'],
+            'state'=>['sometimes','string'],
+            'country'=>['sometimes','string'],
+            'zipcode'=>['sometimes','string'],
         ];
     }
 }

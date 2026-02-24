@@ -2,11 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Enum\TransactionStatus;
 use App\Traits\HasResponse;
+use App\Enum\TransactionStatus;
 use App\Enum\FlutterwaveWebhookEvent;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Support\Repositories\UserRepository;
 use Spatie\WebhookClient\Models\WebhookCall;
 use Spatie\WebhookClient\Jobs\ProcessWebhookJob;
 use App\Support\Repositories\TransactionRepository;
@@ -19,6 +20,7 @@ class FlutterwaveWebhookJob extends ProcessWebhookJob implements ShouldQueue
 
     private TransactionRepository $transactionRepository;
     private SubscriptionPaymentInterface $subscriptionPaymentService;
+    private UserRepository $userRepository;
     /**
      * Create a new job instance.
      */
@@ -28,6 +30,7 @@ class FlutterwaveWebhookJob extends ProcessWebhookJob implements ShouldQueue
         parent::__construct($webhookCall);
         $this->transactionRepository = app(TransactionRepository::class);
         $this->subscriptionPaymentService = app(SubscriptionPaymentInterface::class);
+        $this->userRepository=app(UserRepository::class);
     }
 
     /**
@@ -50,14 +53,18 @@ class FlutterwaveWebhookJob extends ProcessWebhookJob implements ShouldQueue
         }
 
 
-        $verifyTransactionStatus = $this->subscriptionPaymentService->verifyTransaction($transaction->transaction_id);
+        $verifyTransaction = $this->subscriptionPaymentService->verifyTransaction($transaction->transaction_id);
 
-        if ($verifyTransactionStatus !== TransactionStatus::SUCCESS->value) {
+        if ($verifyTransaction->status !== TransactionStatus::SUCCESS->value) {
             return;
         }
 
         $this->transactionRepository->update($transaction->id, [
-            'status' => TransactionStatus::from($verifyTransactionStatus),
+            'status' => TransactionStatus::from($verifyTransaction->status),
+        ]);
+
+        $this->userRepository->update($transaction->user_id,[
+            'card_token'=>$verifyTransaction->token
         ]);
     }
 }

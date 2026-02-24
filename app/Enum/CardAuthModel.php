@@ -2,12 +2,11 @@
 
 namespace App\Enum;
 
-enum ProjectStatus:string
+enum CardAuthModel:string
 {
     //
-    case ACTIVE='active';
-    case COMPLETED='completed';
-    case OVERDUE='overdue';
+    case PIN='pin';
+    case AVS_NOAUTH='avs_noauth';
 
     public static function values():array
     {

@@ -11,16 +11,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Tenant extends Model
 {
-    //
+    
     use HasFactory, HasUuids;
 
-
     protected $fillable = [
-        'domain',
         'name',
         'user_id',
         'plan',
-        'customer_bill_id',
+        'company_logo'
     ];
 
     public function projects(): HasMany

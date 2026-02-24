@@ -2,10 +2,11 @@
 
 namespace App\Support\Services;
 
-use App\Enum\ProjectStatus;
 use App\Models\User;
 use App\Models\Tenant;
+use App\Enum\PlansEnum;
 use App\Models\Project;
+use App\Enum\ProjectStatus;
 use App\Enum\UserRolesEnum;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,7 @@ use App\Http\Resources\UserResource;
 use App\Support\Services\BaseService;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\TenantResource;
+use App\Http\Requests\CompanyLogoRequest;
 use App\Http\Requests\CreateTenantRequest;
 use App\Http\Requests\UpdateTenantRequest;
 use App\Notifications\SendInvitationNotice;
@@ -45,24 +47,54 @@ class TenantService extends BaseService
 
     public function dashboard(Request $request): JsonResponse
     {
-        $project = $this->projectRepository->findByTenant($request->user()->tenant->id);
-        $totalProjects = $this->projectRepository->countAllByTenant($request->user()->tenant->id);
-        $totalProjectMembers = $this->projectRepository->getProjectMembersCount($request->user()->tenant->id);
-        $projectCompletionRate=$this->calculateProjectCompletionRate($project,$totalProjects,$request->user()->tenant->id);
-        $projectProgress=$this->calculateProjectProgress($project);
+        $project = $this->projectRepository->findByTenant($request->user()->tenant->id)?? null;
+        $totalProjects = $this->projectRepository->countAllByTenant($request->user()->tenant->id) ?? null;
+        $totalProjectMembers = $this->projectRepository->getProjectMembersCount($request->user()->tenant->id) ?? null;
+        $projectCompletionRate=$project !== null ?$this->calculateProjectCompletionRate($project,$totalProjects,$request->user()->tenant->id):null;
+        $projectProgress=$project !==null ? $this->calculateProjectProgress($project):null;
 
         $totalTasks = $this->taskRepository->countAllByTenant($request->user()->tenant->id);
         $completedTasks=$this->taskRepository->completedTasks($request->user()->tenant->id);
+        $pendingTasks=$this->taskRepository->pendingTasks($request->user()->tenant->id);
+
+        $tenant=$this->tenantRepository->find($request->user()->tenant_id);
+        $currentSubscriptionPlan=$this->subscriptionPlan($request);
+        $projectStatus=$project->status;
 
         return $this->successResponse(data:[
             'no_of_projects'=>$totalProjects,
             'no_of_project_members'=>$totalProjectMembers,
             'project_completion_rate'=>$projectCompletionRate,
             'project_progress'=>$projectProgress,
-
+            'project_status'=>$projectStatus,
             'no_of_tasks'=>$totalTasks,
-            'no_of_completed_tasks'=>$completedTasks
+            'no_of_completed_tasks'=>$completedTasks,
+            'no_of_pending_tasks'=>$pendingTasks,
+            'tenant'=>$tenant,
+            'currentSubscriptionPlan'=>$currentSubscriptionPlan
         ]);
+    }
+
+    public function uploadCompanyLogo(CompanyLogoRequest $request):JsonResponse
+    {
+        $path=$request->file('logo')->store('company_logo','public');
+
+        $this->tenantRepository->update($request->user()->tenant_id,[
+            'company_logo'=>config('filesystems.disks.public.url').'/'.$path
+        ]);
+
+        $tenant=$this->tenantRepository->find($request->user()->tenant_id);
+
+        return $this->successResponse(message:'uploaded',data:[
+            'tenant'=>new TenantResource($tenant)
+        ]);
+    }
+
+    public function subscriptionPlan(Request $request):string
+    {
+        $user=$this->userRepository->find($request->user()->id);
+
+        return $user->subscription_plan;
     }
 
     public function create(CreateTenantRequest $request): JsonResponse
@@ -73,6 +105,7 @@ class TenantService extends BaseService
 
         $data = [
             'name' => $request->name,
+            'plan'=>PlansEnum::from($request->user()->subscription_plan)
         ];
 
         $tenant = $this->tenantRepository->create($data);

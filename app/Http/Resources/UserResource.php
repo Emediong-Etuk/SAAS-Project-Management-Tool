@@ -26,6 +26,7 @@ class UserResource extends JsonResource
             'skills' => $this->skills,
             'projects_worked_on' => $this->projects_worked_on,
             'linkedin_profile' => $this->linkedin_profile,
+            'customer_card_email'=>$this->customer_card_email,
             'password' => $this->password,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at

@@ -4,9 +4,8 @@ namespace App\Enum;
 
 enum PlansEnum:string
 {
-    //
-    case Free ='free';
-    case Pro ='pro';
+    case Free ='Free';
+    case Pro ='Pro';
 
     public static function values(): array
     {

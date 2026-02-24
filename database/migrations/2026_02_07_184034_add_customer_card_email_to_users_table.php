@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('subscription_plan')->default('Free')->after('password');
+            //
+            $table->string('customer_card_email')->nullable();
         });
     }
 
@@ -23,7 +24,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
-            $table->dropColumn('subscription_plan');
+            $table->dropColumn('customer_card_email');
         });
     }
 };

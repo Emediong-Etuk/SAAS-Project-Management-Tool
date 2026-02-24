@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Support\Services\AccountService;
 use App\Http\Requests\UpdateAccountRequest;
+use App\Http\Requests\VerifyUpdatedEmail;
+use App\Models\Tenant;
+use App\Models\User;
+use App\Support\Services\AccountService;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 
@@ -16,18 +19,23 @@ class AccountController extends Controller
         private readonly AccountService $accountService
     ) {}
 
-    public function view(Request $request): JsonResponse
+    public function view(Tenant $tenant, User $user,Request $request): JsonResponse
     {
-        return $this->accountService->view($request);
+        return $this->accountService->view($tenant,$user,$request);
     }
 
-    public function update(UpdateAccountRequest $request): JsonResponse
+    public function update(Tenant $tenant, User $user,UpdateAccountRequest $request): JsonResponse
     {
-        return $this->accountService->update($request);
+        return $this->accountService->update($tenant, $user,$request);
     }
 
-    public function delete(Request $request): JsonResponse
+    public function verifyEmail(Tenant $tenant,User $user,VerifyUpdatedEmail $request): JsonResponse
     {
-        return $this->accountService->delete($request);
+        return $this->accountService->verifyEmail($tenant, $user,$request);
+    }
+
+    public function delete(Tenant $tenant, User $user,Request $request): JsonResponse
+    {
+        return $this->accountService->delete($tenant,$user,$request);
     }
 }

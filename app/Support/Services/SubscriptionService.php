@@ -2,9 +2,10 @@
 
 namespace App\Support\Services;
 
-use App\Models\User;
+
 use App\Models\Tenant;
 use App\Enum\PlansEnum;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\UserResource;
@@ -38,9 +39,33 @@ class SubscriptionService extends BaseService
         ]);
     }
 
+    public function createPaymentPlan(Request $request):JsonResponse
+    {
+        $createPlan=$this->subscriptionPayment->createPaymentPlan();
+
+        $this->userRepository->update($request->user()->id,[
+            'payment_plan'=>$createPlan['data']['id']
+        ]);
+
+        return $this->successResponse(data:[
+            'payment_plan'=>$createPlan
+        ]);
+    }
+
+    public function getAuthModel(Tenant $tenant,CardPaymentRequest $request):JsonResponse
+    {
+        $authModel=$this->subscriptionPayment->getAuthModel($request);
+
+        return $this->successResponse(data:[
+            'response'=>$authModel
+        ]);
+    }
+
     public function cardPayment(Tenant $tenant, CardPaymentRequest $request): JsonResponse
     {
 
+        $this->createPaymentPlan($request);
+        $this->getAuthModel($tenant,$request);
         $payment = $this->subscriptionPayment->cardPayment($request);
 
         return $this->successResponse(message: "OTP has been sent to your phone number", data: [
@@ -51,29 +76,35 @@ class SubscriptionService extends BaseService
     public function validateCardPayment(Tenant $tenant, ValidateCardPaymentRequest $request): JsonResponse
     {
         $validationResponse = $this->subscriptionPayment->validateCardPayment($request);
+
         if ($validationResponse->status === 'success') {
             $this->userRepository->update($request->user()->id, ['subscription_plan' => PlansEnum::Pro, 'expiry_date' => now()->addMonth(), 'reminder_date'=>now()->addMonth()->subDays(10)]);
             Notification::route('mail', $request->user()->email)->notify(new SubscriptionSuccessful($request->user()->name, 'Pro', now()->addMonth()->toFormattedDateString()));
         }
 
         return $this->successResponse(data: [
-            'validationResponse' => $validationResponse
+            'validationResponse' => $validationResponse,
+            'user'=>new UserResource($request->user()->refresh())
         ]);
     }
 
-    public function cancelSubscription(Tenant $tenant, User $user): JsonResponse
+    public function cancelSubscription(Tenant $tenant, Request $request): JsonResponse
     {
+        $user=$request->user()->refresh();
 
-        if ($user->subscription_plan === 'pro') {
+        if ($user->subscription_plan === PlansEnum::Pro->value) {
+            $cancelSubscription=$this->subscriptionPayment->cancelSubscription($request);
+            if($cancelSubscription !== null){
+                DB::transaction(function () use ($user) {
+                    $this->userRepository->update($user->id, ['subscription_plan' => PlansEnum::Free, 'expiry_date' => null,'payment_plan'=>null]);
+                });
+    
+                Notification::route('mail', $user->email)->notify(new SubscriptionCancelled($user->name, 'Pro', now()->addMonth()->toFormattedDateString()));
+                return $this->successResponse(message:'Successfully Cancelled Subscription', data: ['user' => new UserResource($user)]);
 
-            DB::transaction(function () use ($user) {
-                $this->userRepository->update($user->id, ['subscription_plan' => PlansEnum::Free, 'expiry_date' => null]);
-            });
-
-            Notification::route('mail', $user->email)->notify(new SubscriptionCancelled($user->name, 'Pro', now()->addMonth()->toFormattedDateString()));
-            return $this->successResponse(message: 'Subscription cancelled successfully', data: ['user' => new UserResource($user)]);
+            }
         }
 
-        return $this->badRequestResponse(message: 'User does not have an active premium subscription to cancel');
+        return $this->badRequestResponse(message:"Failed to cancel subscription");
     }
 }

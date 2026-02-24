@@ -7,6 +7,7 @@ use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CompanyLogoRequest;
 use App\Support\Services\TenantService;
 use App\Http\Requests\CreateTenantRequest;
 use App\Http\Requests\UpdateTenantRequest;
@@ -23,6 +24,11 @@ class TenantController extends Controller
     public function dashboard(Request $request):JsonResponse
     {
         return $this->tenantService->dashboard($request);
+    }
+
+    public function uploadCompanyLogo(CompanyLogoRequest $request):JsonResponse
+    {
+        return $this->tenantService->uploadCompanyLogo($request);
     }
 
     public function create(CreateTenantRequest $request):JsonResponse
