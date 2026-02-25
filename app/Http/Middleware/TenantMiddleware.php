@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
 use App\Models\Tenant;
+use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,8 +19,7 @@ class TenantMiddleware
         $path = $request->path();
         $segments = explode('/', $path);
 
-
-        if (!empty($segments[0])) {
+        if (! empty($segments[0])) {
             $tenantId = $segments[1];
 
             $tenant = Tenant::where('id', $tenantId)->first();
@@ -31,6 +30,7 @@ class TenantMiddleware
                 return response()->json(['message' => 'Tenant not found'], 403);
             }
         }
+
         return $next($request);
     }
 }

@@ -2,13 +2,14 @@
 
 namespace App\Support\Services;
 
-use App\Traits\HasResponse;
-use App\Traits\GenerateToken;
 use App\Traits\GenerateInvite;
+use App\Traits\GenerateToken;
+use App\Traits\HasResponse;
 
 class BaseService
 {
-    use HasResponse, GenerateToken, GenerateInvite;
+    use GenerateInvite, GenerateToken, HasResponse;
+
     /**
      * Create a new class instance.
      */

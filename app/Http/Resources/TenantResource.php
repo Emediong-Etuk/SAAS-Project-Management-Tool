@@ -18,7 +18,7 @@ class TenantResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'plan' => $this->plan,
-            'company_logo'=>$this->company_logo,
+            'company_logo' => $this->company_logo,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

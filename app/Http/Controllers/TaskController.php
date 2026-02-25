@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
-use App\Models\User;
-use App\Models\Tenant;
-use App\Models\Project;
-use Illuminate\Http\Request;
-use App\Models\TaskSubmission;
-use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Controller;
-use App\Support\Services\TaskService;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\SearchTaskRequest;
 use App\Http\Requests\SearchUserRequest;
-use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Requests\TaskSubmissionRequest;
+use App\Http\Requests\UpdateTaskRequest;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\TaskSubmission;
+use App\Models\Tenant;
+use App\Models\User;
+use App\Support\Services\TaskService;
 use App\Support\Services\TaskSubmissionService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
@@ -58,7 +57,7 @@ class TaskController extends Controller
         return $this->taskService->markComplete($request, $tenant, $project, $task);
     }
 
-    public function submitTask(Tenant $tenant, Project $project, Task $task, TaskSubmissionRequest $request,): JsonResponse
+    public function submitTask(Tenant $tenant, Project $project, Task $task, TaskSubmissionRequest $request): JsonResponse
     {
         return $this->taskSubmissionService->submitTask($tenant, $project, $task, $request);
     }

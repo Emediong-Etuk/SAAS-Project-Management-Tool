@@ -2,23 +2,22 @@
 
 namespace App\Support\Services;
 
-use App\Models\Task;
-use App\Models\User;
-use App\Models\Tenant;
-use App\Models\Project;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Http\Resources\TaskResource;
-use App\Http\Resources\UserResource;
-use App\Support\Services\BaseService;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\SearchTaskRequest;
 use App\Http\Requests\SearchUserRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Resources\TaskResource;
+use App\Http\Resources\UserResource;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\Tenant;
+use App\Models\User;
+use App\Support\Repositories\NotificationRepository;
+use App\Support\Repositories\ProjectRepository;
 use App\Support\Repositories\TaskRepository;
 use App\Support\Repositories\UserRepository;
-use App\Support\Repositories\ProjectRepository;
-use App\Support\Repositories\NotificationRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TaskService extends BaseService
 {
@@ -37,8 +36,9 @@ class TaskService extends BaseService
         }
 
         $tasks = $this->taskRepository->getTasks($project->id);
+
         return $this->successResponse(data: [
-            'tasks' => $tasks
+            'tasks' => $tasks,
         ]);
     }
 
@@ -52,13 +52,12 @@ class TaskService extends BaseService
             return $this->badRequestResponse('You cannot create a task for this project');
         }
 
-
         $data = [
             'name' => $request->name,
             'description' => $request->description,
             'deadline' => $request->deadline,
             'project_id' => $project->id,
-            'tenant_id' => $tenant->id
+            'tenant_id' => $tenant->id,
         ];
 
         $task = $this->taskRepository->create($data)->refresh();
@@ -66,8 +65,8 @@ class TaskService extends BaseService
 
         $this->notificationRepository->create([
             'user_id' => $request->user()->id,
-            'alerts' => "Task created",
-            'mark_read' => true
+            'alerts' => 'Task created',
+            'mark_read' => true,
         ]);
 
         $this->notifyAllMembers($project, $task, 'has been created');
@@ -75,7 +74,7 @@ class TaskService extends BaseService
         return $this->successResponse(
             'Task created successfully',
             [
-                'task' => new TaskResource($task)
+                'task' => new TaskResource($task),
             ]
         );
     }
@@ -94,7 +93,7 @@ class TaskService extends BaseService
         $task->load('project');
 
         return $this->successResponse(data: [
-            'task' => new TaskResource($task)
+            'task' => new TaskResource($task),
         ]);
     }
 
@@ -107,7 +106,7 @@ class TaskService extends BaseService
         $data = [
             'name' => $request->name ?? $task->name,
             'description' => $request->description ?? $task->description,
-            'status'=>$request->status ?? $task->status,
+            'status' => $request->status ?? $task->status,
             'deadline' => $request->deadline ?? $task->deadline,
         ];
 
@@ -117,13 +116,13 @@ class TaskService extends BaseService
 
         $this->notificationRepository->create([
             'user_id' => $request->user()->id,
-            'alerts' => "Task updated.",
+            'alerts' => 'Task updated.',
         ]);
 
         $this->notifyAllMembers($project, $task, 'has been updated');
 
         return $this->successResponse('Task updated successfully', [
-            'task' => new TaskResource($task->refresh())
+            'task' => new TaskResource($task->refresh()),
         ]);
     }
 
@@ -133,11 +132,10 @@ class TaskService extends BaseService
             return $this->badRequestResponse('You are not a member of this project');
         }
 
-
         $this->notificationRepository->create([
             'user_id' => $request->user()->id,
-            'alerts' => "Task deleted",
-            'mark_read' => true
+            'alerts' => 'Task deleted',
+            'mark_read' => true,
         ]);
 
         $this->notifyAllMembers($project, $task, 'has been deleted');
@@ -154,7 +152,7 @@ class TaskService extends BaseService
         }
 
         $data = [
-            'completed' => true
+            'completed' => true,
         ];
 
         $this->taskRepository->update($task->id, $data);
@@ -162,7 +160,7 @@ class TaskService extends BaseService
         $this->notifyAllMembers($project, $task, 'has been marked complete');
 
         return $this->successResponse('Task complete', [
-            'task' => new TaskResource($task->refresh())
+            'task' => new TaskResource($task->refresh()),
         ]);
     }
 
@@ -171,7 +169,7 @@ class TaskService extends BaseService
         $tasks = $this->taskRepository->search($project->id, $request->search);
 
         return $this->successResponse(data: [
-            'tasks' => TaskResource::collection($tasks)
+            'tasks' => TaskResource::collection($tasks),
         ]);
     }
 
@@ -186,13 +184,13 @@ class TaskService extends BaseService
 
         $this->notificationRepository->create([
             'user_id' => $user->id,
-            'message' => "you have been assigned to {$task->name}"
+            'message' => "you have been assigned to {$task->name}",
         ]);
 
         $this->notifyAllMembers($project, $task, "has been assigned to {$user}");
 
         return $this->successResponse(data: [
-            'user(s)' => UserResource::collection($task->user)
+            'user(s)' => UserResource::collection($task->user),
 
         ]);
     }
@@ -202,14 +200,14 @@ class TaskService extends BaseService
         $task->user()->detach($user->id);
 
         return $this->successResponse(message: 'removed from task', data: [
-            'user(s)' => $task->user
+            'user(s)' => $task->user,
         ]);
     }
 
     public function getUsersAssignedToTask(Tenant $tenant, Project $project, Task $task): JsonResponse
     {
         return $this->successResponse(data: [
-            'user(s)' => UserResource::collection($task->user)
+            'user(s)' => UserResource::collection($task->user),
         ]);
     }
 
@@ -218,7 +216,7 @@ class TaskService extends BaseService
         $users = $this->projectRepository->findUsers($project->id, $request->name);
 
         return $this->successResponse(data: [
-            'users' => UserResource::collection($users)
+            'users' => UserResource::collection($users),
         ]);
     }
 
@@ -231,7 +229,7 @@ class TaskService extends BaseService
         foreach ($projectMembers as $member) {
             $this->notificationRepository->create([
                 'user_id' => $member->id,
-                'message' => "{$task->name} for {$project->name} {$keyMessage}"
+                'message' => "{$task->name} for {$project->name} {$keyMessage}",
             ]);
         }
     }

@@ -36,8 +36,8 @@ class CreateTenantInfoNotice extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Tenant created')
-            ->markdown('tenant.create',[
-                'name'=>$this->name
+            ->markdown('tenant.create', [
+                'name' => $this->name,
             ]);
     }
 

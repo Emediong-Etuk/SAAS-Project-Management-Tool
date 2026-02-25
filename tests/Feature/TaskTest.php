@@ -1,26 +1,25 @@
 <?php
 
-use App\Models\Task;
-use App\Models\User;
-use App\Models\Tenant;
-use App\Models\Project;
 use App\Enum\UserRolesEnum;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\TaskSubmission;
+use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\Fluent\AssertableJson;
-use App\Models\TaskSubmission;
 
 test('successfully gotten all tasks', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
-
 
     $this->actingAs($user, 'sanctum');
 
@@ -28,12 +27,11 @@ test('successfully gotten all tasks', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
@@ -43,39 +41,37 @@ test('successfully gotten all tasks', function () {
 test('failed to get tasks due to unauthenticated user', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $response = $this->get(route('tasks.list', ['tenant' => $tenant->id, 'project' => $project->id]));
 
     $response->assertStatus(401)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message')
+            fn (AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
-                        'message' => 'string'
+                        'message' => 'string',
                     ]
                 )
                 ->etc()
         );
 });
 
-
 test('successfully gotten specific task', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -84,12 +80,11 @@ test('successfully gotten specific task', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
@@ -99,23 +94,22 @@ test('successfully gotten specific task', function () {
 test('failed to get specific task due to unauthenticated user', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $response = $this->get(route('tasks.specific', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]));
 
     $response->assertStatus(401)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message')
+            fn (AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
-                        'message' => 'string'
+                        'message' => 'string',
                     ]
                 )
                 ->etc()
@@ -125,7 +119,7 @@ test('failed to get specific task due to unauthenticated user', function () {
 test('task created successfully', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
@@ -147,12 +141,11 @@ test('task created successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
@@ -165,12 +158,12 @@ test('failed to create task due to unauthenticated access', function () {
     $tenant = Tenant::factory()->create();
 
     $project = Project::factory()->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $response = $this->post(route('tasks.create', ['tenant' => $tenant->id, 'project' => $project->id]), [
@@ -181,11 +174,10 @@ test('failed to create task due to unauthenticated access', function () {
 
     $response->assertStatus(401)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message')
+            fn (AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
-                        'message' => 'string'
+                        'message' => 'string',
                     ]
                 )
                 ->etc()
@@ -197,7 +189,7 @@ test('failed to create task due to unauthenticated access', function () {
 test('failed to create task due to invalid input', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
@@ -219,24 +211,22 @@ test('failed to create task due to invalid input', function () {
 
     $response->assertStatus(422)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message', 'errors')
+            fn (AssertableJson $json) => $json->hasAll('message', 'errors')
                 ->whereAllType(
                     [
                         'message' => 'string',
-                        'errors' => 'array'
+                        'errors' => 'array',
                     ]
                 )
                 ->etc()
         );
 });
 
-
 test('failed to create task due to unauthorized user', function () {
     $tenant = Tenant::factory()->create();
 
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
@@ -256,11 +246,10 @@ test('failed to create task due to unauthorized user', function () {
     $response = $this->post(route('tasks.create', ['tenant' => $tenant->id, 'project' => $project->id]), $taskData);
     $response->assertStatus(403)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message')
+            fn (AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
-                        'message' => 'string'
+                        'message' => 'string',
                     ]
                 )
                 ->etc()
@@ -270,12 +259,12 @@ test('failed to create task due to unauthorized user', function () {
 test('task update successfully', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
@@ -297,12 +286,11 @@ test('task update successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
@@ -314,12 +302,12 @@ test('task update successfully', function () {
 test('task update failed due to unauthorized access', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
@@ -340,27 +328,25 @@ test('task update failed due to unauthorized access', function () {
 
     $response->assertStatus(403)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message')
+            fn (AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
-                        'message' => 'string'
+                        'message' => 'string',
                     ]
                 )
                 ->etc()
         );
 });
 
-
 test('deleted task successfully', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
@@ -375,12 +361,11 @@ test('deleted task successfully', function () {
     $response = $this->delete(route('tasks.delete', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]));
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
@@ -390,12 +375,12 @@ test('deleted task successfully', function () {
 test('deleted task failed due to unauthorized access', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
@@ -409,11 +394,10 @@ test('deleted task failed due to unauthorized access', function () {
     $response = $this->delete(route('tasks.delete', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]));
     $response->assertStatus(403)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message')
+            fn (AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
-                        'message' => 'string'
+                        'message' => 'string',
                     ]
                 )
                 ->etc()
@@ -423,7 +407,7 @@ test('deleted task failed due to unauthorized access', function () {
 test('task successfully marked as complete', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
@@ -444,12 +428,11 @@ test('task successfully marked as complete', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
@@ -461,11 +444,10 @@ test('task successfully marked as complete', function () {
     ]);
 });
 
-
 test('mark task as complete failed due to unauthorized access', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
@@ -485,11 +467,10 @@ test('mark task as complete failed due to unauthorized access', function () {
 
     $response->assertStatus(403)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message')
+            fn (AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
-                        'message' => 'string'
+                        'message' => 'string',
                     ]
                 )
                 ->etc()
@@ -502,10 +483,10 @@ test('mark task as complete failed due to unauthorized access', function () {
 });
 
 test('task submitted successfully', function () {
-    Storage::fake('public',);
+    Storage::fake('public');
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
@@ -520,13 +501,10 @@ test('task submitted successfully', function () {
         'subscription_plan' => 'pro',
     ]);
 
-
-
     $files = [
         UploadedFile::fake()->create('submission1.pdf', 1024),
         UploadedFile::fake()->create('submission2.docx', 2048),
     ];
-
 
     $taskData = [
         'files' => $files,
@@ -539,25 +517,24 @@ test('task submitted successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
         );
 
     foreach ($files as $file) {
-        Storage::disk('public')->assertExists('task_submissions/' . $file->hashName());
+        Storage::disk('public')->assertExists('task_submissions/'.$file->hashName());
     }
 
     $this->assertDatabaseHas('task_submissions', [
         'submission_files' => json_encode([
-            config('filesystems.disks.public.url') . '/' . 'task_submissions/' . $files[0]->hashName(),
-            config('filesystems.disks.public.url') . '/' . 'task_submissions/' . $files[1]->hashName(),
+            config('filesystems.disks.public.url').'/'.'task_submissions/'.$files[0]->hashName(),
+            config('filesystems.disks.public.url').'/'.'task_submissions/'.$files[1]->hashName(),
         ]),
         'comments' => $taskData['comment'],
         'user_id' => $user->id,
@@ -565,12 +542,11 @@ test('task submitted successfully', function () {
     ]);
 });
 
-
 test('unable to submit task because file exceeds maximum size', function () {
-    Storage::fake('public',);
+    Storage::fake('public');
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
@@ -600,12 +576,11 @@ test('unable to submit task because file exceeds maximum size', function () {
 
     $response->assertStatus(422)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message', 'errors')
+            fn (AssertableJson $json) => $json->hasAll('message', 'errors')
                 ->whereAllType(
                     [
                         'message' => 'string',
-                        'errors' => 'array'
+                        'errors' => 'array',
                     ]
                 )
                 ->etc()
@@ -613,7 +588,7 @@ test('unable to submit task because file exceeds maximum size', function () {
 
     $this->assertDatabaseMissing('task_submissions', [
         'submission_files' => json_encode([
-            config('filesystems.disks.public.url') . '/' . 'task_submissions/' . $files[0]->hashName(),
+            config('filesystems.disks.public.url').'/'.'task_submissions/'.$files[0]->hashName(),
         ]),
         'comments' => $taskData['comment'],
         'user_id' => $user->id,
@@ -624,7 +599,7 @@ test('unable to submit task because file exceeds maximum size', function () {
 test('test view all submissions', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
@@ -643,12 +618,11 @@ test('test view all submissions', function () {
     $response = $this->post(route('tasks.viewSubmissions', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]));
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
@@ -658,7 +632,7 @@ test('test view all submissions', function () {
 test('test specific users submission', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
@@ -677,12 +651,11 @@ test('test specific users submission', function () {
     $response = $this->post(route('tasks.viewUserSubmissions', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]));
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
@@ -693,7 +666,7 @@ test('test download submission file', function () {
     Storage::fake('public');
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
@@ -712,9 +685,9 @@ test('test download submission file', function () {
 
     $file = 'submission1.pdf';
 
-    Storage::disk('public')->put('task_submissions/' . $file, 'fake content');
+    Storage::disk('public')->put('task_submissions/'.$file, 'fake content');
 
-    $encoded_files = [config('filesystems.disks.public.url') . '/' . 'task_submissions/' . $file];
+    $encoded_files = [config('filesystems.disks.public.url').'/'.'task_submissions/'.$file];
 
     $submission = TaskSubmission::factory()->create([
         'task_id' => $task->id,
@@ -731,7 +704,7 @@ test('download failed due to unauthorized user', function () {
     Storage::fake('public');
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
@@ -749,9 +722,9 @@ test('download failed due to unauthorized user', function () {
 
     $file = 'submission1.pdf';
 
-    Storage::disk('public')->put('task_submissions/' . $file, 'fake content');
+    Storage::disk('public')->put('task_submissions/'.$file, 'fake content');
 
-    $encoded_files = [config('filesystems.disks.public.url') . '/' . 'task_submissions/' . $file];
+    $encoded_files = [config('filesystems.disks.public.url').'/'.'task_submissions/'.$file];
 
     $submission = TaskSubmission::factory()->create([
         'task_id' => $task->id,
@@ -762,11 +735,10 @@ test('download failed due to unauthorized user', function () {
     $response = $this->get(route('tasks.downloadSubmissionFile', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id, 'submittedTask' => $submission->id]));
     $response->assertStatus(403)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message')
+            fn (AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
-                        'message' => 'string'
+                        'message' => 'string',
                     ]
                 )
                 ->etc()
@@ -776,7 +748,7 @@ test('download failed due to unauthorized user', function () {
 test('searched tasks successfully', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $search = 'Task';
@@ -785,37 +757,35 @@ test('searched tasks successfully', function () {
         'name' => 'Task One',
         'description' => 'First task description',
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $this->actingAs($user, 'sanctum');
 
     $response = $this->post(route('projects.searchTask', ['tenant' => $tenant->id, 'project' => $project->id]), [
-        'search' => $search
+        'search' => $search,
     ]);
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
         );
 
-
     $assertTaskExist = Task::query()->where('project_id', $project->id)->where(function ($q) use ($search) {
-        $q->where('name', 'LIKE', '%' . $search . '%')
-            ->orWhere('description', 'LIKE', '%' . $search . '%')
+        $q->where('name', 'LIKE', '%'.$search.'%')
+            ->orWhere('description', 'LIKE', '%'.$search.'%')
             ->get();
     });
 
@@ -825,18 +795,18 @@ test('searched tasks successfully', function () {
 test('search tasks failed due to invalid search', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     Task::factory()->create([
         'name' => 'Task One',
         'description' => 'First task description',
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $search = 'NonExistingTaskName';
@@ -844,25 +814,24 @@ test('search tasks failed due to invalid search', function () {
     $this->actingAs($user, 'sanctum');
 
     $response = $this->post(route('projects.searchTask', ['tenant' => $tenant->id, 'project' => $project->id]), [
-        'search' => $search
+        'search' => $search,
     ]);
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
         );
 
     $assertTaskExist = Task::query()->where('project_id', $project->id)->where(function ($q) use ($search) {
-        $q->where('name', 'LIKE', '%' . $search . '%')
-            ->orWhere('description', 'LIKE', '%' . $search . '%')
+        $q->where('name', 'LIKE', '%'.$search.'%')
+            ->orWhere('description', 'LIKE', '%'.$search.'%')
             ->get();
     });
 
@@ -872,29 +841,28 @@ test('search tasks failed due to invalid search', function () {
 test('search failed due to unauthenticated user', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     Task::factory()->create([
         'name' => 'Task One',
         'description' => 'First task description',
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $search = 'Task';
 
     $response = $this->post(route('projects.searchTask', ['tenant' => $tenant->id, 'project' => $project->id]), [
-        'search' => $search
+        'search' => $search,
     ]);
 
     $response->assertStatus(401)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message')
+            fn (AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
-                        'message' => 'string'
+                        'message' => 'string',
                     ]
                 )
                 ->etc()
@@ -904,22 +872,22 @@ test('search failed due to unauthenticated user', function () {
 test('successfully assigned user to task', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $adminUser = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $this->actingAs($adminUser, 'sanctum');
@@ -928,12 +896,11 @@ test('successfully assigned user to task', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
@@ -941,14 +908,14 @@ test('successfully assigned user to task', function () {
 
     $this->assertDatabaseHas('task_user', [
         'task_id' => $task->id,
-        'user_id' => $user->id
+        'user_id' => $user->id,
     ]);
 });
 
 test('failed to assign user due to unauthorized access', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
     $adminUser = User::factory()->create([
         'tenant_id' => $tenant->id,
@@ -958,12 +925,12 @@ test('failed to assign user due to unauthorized access', function () {
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $this->actingAs($adminUser, 'sanctum');
@@ -971,11 +938,10 @@ test('failed to assign user due to unauthorized access', function () {
     $response = $this->post(route('tasks.assignTask', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id, 'user' => $user->id]));
     $response->assertStatus(403)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('message')
+            fn (AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
-                        'message' => 'string'
+                        'message' => 'string',
                     ]
                 )
                 ->etc()
@@ -983,41 +949,39 @@ test('failed to assign user due to unauthorized access', function () {
 
     $this->assertDatabaseMissing('task_user', [
         'task_id' => $task->id,
-        'user_id' => $user->id
+        'user_id' => $user->id,
     ]);
 });
 
 test('searched user successfully', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $this->actingAs($user, 'sanctum');
 
-
     $response = $this->post(route('tasks.searchUser', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]), [
-        'name' => $user->name
+        'name' => $user->name,
     ]);
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
@@ -1025,56 +989,53 @@ test('searched user successfully', function () {
 
     $this->assertDatabaseHas('users', [
         'id' => $user->id,
-        'name' => $user->name
+        'name' => $user->name,
     ]);
 });
-
 
 test('search failed due to invalid user', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $this->actingAs($user, 'sanctum');
 
     $response = $this->post(route('tasks.searchUser', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]), [
-        'name' => 'NonExistingUserName'
+        'name' => 'NonExistingUserName',
     ]);
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
         );
 
     $this->assertDatabaseMissing('users', [
-        'name' => 'NonExistingUserName'
+        'name' => 'NonExistingUserName',
     ]);
 });
-
 
 test('successfully removed user from task', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->for($tenant)->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $adminUser = User::factory()->create([
@@ -1086,12 +1047,12 @@ test('successfully removed user from task', function () {
 
     $task = Task::factory()->create([
         'project_id' => $project->id,
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $task->user()->attach($user->id);
@@ -1102,12 +1063,11 @@ test('successfully removed user from task', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn(AssertableJson $json) =>
-            $json->hasAll('status', 'data')
+            fn (AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
-                        'data' => 'array'
+                        'data' => 'array',
                     ]
                 )
                 ->etc()
@@ -1115,26 +1075,26 @@ test('successfully removed user from task', function () {
 
     $this->assertDatabaseMissing('task_user', [
         'task_id' => $task->id,
-        'user_id' => $user->id
+        'user_id' => $user->id,
     ]);
 });
 
 test('successfully gotten users assigned to task', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro'
+        'subscription_plan' => 'pro',
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -1142,10 +1102,10 @@ test('successfully gotten users assigned to task', function () {
     $response = $this->get(route('tasks.getUsersAssignedToTask', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id, 'user' => $user->id]));
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('status', 'data')
             ->whereAllType([
                 'status' => 'string',
-                'data' => 'array'
+                'data' => 'array',
             ])->etc());
 });

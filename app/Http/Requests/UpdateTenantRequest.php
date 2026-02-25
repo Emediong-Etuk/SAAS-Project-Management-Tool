@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Enum\PlansEnum;
-use Illuminate\Validation\Rules\Enum;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTenantRequest extends FormRequest
@@ -25,7 +23,7 @@ class UpdateTenantRequest extends FormRequest
     {
         return [
             //
-            'name'=>'required|string|max:255'
+            'name' => 'required|string|max:255',
         ];
     }
 }

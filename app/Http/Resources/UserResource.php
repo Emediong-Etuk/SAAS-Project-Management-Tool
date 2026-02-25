@@ -29,7 +29,7 @@ class UserResource extends JsonResource
             'customer_card_email' => $this->customer_card_email,
             'payment_plan' => $this->payment_plan,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'updated_at' => $this->updated_at,
         ];
     }
 }

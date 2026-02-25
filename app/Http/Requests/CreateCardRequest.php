@@ -9,6 +9,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class CreateCardRequest extends FormRequest
 {
     use CheckCardType;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -17,9 +18,10 @@ class CreateCardRequest extends FormRequest
         return true;
     }
 
-    public function validateCard(string $cardNumber):string
+    public function validateCard(string $cardNumber): string
     {
-        $cardType=$this->checkCardType($cardNumber);
+        $cardType = $this->checkCardType($cardNumber);
+
         return $cardType;
     }
 
@@ -32,10 +34,10 @@ class CreateCardRequest extends FormRequest
     {
         return [
             //
-            'card_number'=>['required','string',],
-            'expiry_month'=>['required','string'],
-            'expiry_year'=>['required','string'],
-            'cvv'=>['required','string']
+            'card_number' => ['required', 'string'],
+            'expiry_month' => ['required', 'string'],
+            'expiry_year' => ['required', 'string'],
+            'cvv' => ['required', 'string'],
 
         ];
         //  function ($attr,$val,$fail){

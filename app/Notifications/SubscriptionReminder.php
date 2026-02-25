@@ -37,9 +37,9 @@ class SubscriptionReminder extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Reminder to renew your subscription')
-            ->markdown('subscription.reminder',[
-                'name'=>$this->user->name,
-                'expiry_date'=>$this->user->expiry_date
+            ->markdown('subscription.reminder', [
+                'name' => $this->user->name,
+                'expiry_date' => $this->user->expiry_date,
             ]);
     }
 

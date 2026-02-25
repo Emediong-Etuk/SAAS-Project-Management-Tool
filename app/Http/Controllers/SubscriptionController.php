@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-
-use App\Models\Tenant;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\CardPaymentRequest;
-use App\Support\Services\SubscriptionService;
 use App\Http\Requests\ValidateCardPaymentRequest;
+use App\Models\Tenant;
+use App\Support\Services\SubscriptionService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
 {
-
     public function __construct(private readonly SubscriptionService $subscriptionService) {}
 
     public function displayPlans(Tenant $tenant): JsonResponse

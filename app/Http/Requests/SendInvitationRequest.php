@@ -23,7 +23,7 @@ class SendInvitationRequest extends FormRequest
     {
         return [
             //
-            'receiver_email'=>['required','email']
+            'receiver_email' => ['required', 'email'],
         ];
     }
 }

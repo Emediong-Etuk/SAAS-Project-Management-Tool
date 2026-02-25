@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Notifications\VerifyEmailNotice;
 use App\Support\Repositories\NotificationRepository;
 use App\Support\Repositories\UserRepository;
-use App\Support\Services\BaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +22,7 @@ class AccountService extends BaseService
      */
     public function __construct(private readonly UserRepository $userRepository, private readonly NotificationRepository $notificationRepository) {}
 
-    public function view(Tenant $tenant, User $user,Request $request): JsonResponse
+    public function view(Tenant $tenant, User $user, Request $request): JsonResponse
     {
 
         $data = [
@@ -31,21 +30,21 @@ class AccountService extends BaseService
             'email' => $request->user()->email,
             'occupation' => $request->user()->occupation,
             'skills' => $request->user()->skills,
-            'profile_picture' => config('filesystems.disks.public.url') . '/' . $request->user()->profile_picture,
-            'cover_picture' => config('filesystems.disks.public.url') . '/' . $request->user()->cover_picture,
-            'projects_worked_on' => $request->user()->projects_worked_on
+            'profile_picture' => config('filesystems.disks.public.url').'/'.$request->user()->profile_picture,
+            'cover_picture' => config('filesystems.disks.public.url').'/'.$request->user()->cover_picture,
+            'projects_worked_on' => $request->user()->projects_worked_on,
         ];
 
         return $this->successResponse(
             data: [
-                'user' => $data
+                'user' => $data,
             ]
         );
     }
 
-    public function update(Tenant $tenant,User $user,UpdateAccountRequest $request): JsonResponse
+    public function update(Tenant $tenant, User $user, UpdateAccountRequest $request): JsonResponse
     {
-        $authEmail=$request->user()->email;
+        $authEmail = $request->user()->email;
         $new_profile_picture = $request->file('profile_picture');
         $new_cover_picture = $request->file('cover_picture');
 
@@ -68,13 +67,12 @@ class AccountService extends BaseService
 
         ];
 
-        if($request->email !== $request->user()->email){
-            $token=$this->generateToken();
-            $expiryTime=900;
-            Cache::put("EMAIL_VERIFICATION_TOKEN_$authEmail", [$token,$request->email], $expiryTime);
-            Log::info('Cache data',[Cache::get("EMAIL_VERIFICATION_TOKEN_$authEmail")]);
-            $request->user()->notify(new VerifyEmailNotice($token,$expiryTime));
-
+        if ($request->email !== $request->user()->email) {
+            $token = $this->generateToken();
+            $expiryTime = 900;
+            Cache::put("EMAIL_VERIFICATION_TOKEN_$authEmail", [$token, $request->email], $expiryTime);
+            Log::info('Cache data', [Cache::get("EMAIL_VERIFICATION_TOKEN_$authEmail")]);
+            $request->user()->notify(new VerifyEmailNotice($token, $expiryTime));
 
             return $this->successResponse('An OTP has been sent to your new email address. Please verify to update your email.');
         }
@@ -94,17 +92,18 @@ class AccountService extends BaseService
         );
     }
 
-    public function verifyEmail(Tenant $tenant,User $user,VerifyUpdatedEmail $request): JsonResponse
+    public function verifyEmail(Tenant $tenant, User $user, VerifyUpdatedEmail $request): JsonResponse
     {
-        $cache=Cache::get("EMAIL_VERIFICATION_TOKEN_".$request->user()->email);
-        $this->userRepository->update($request->user()->id, ['email' =>$cache[1]]);
+        $cache = Cache::get('EMAIL_VERIFICATION_TOKEN_'.$request->user()->email);
+        $this->userRepository->update($request->user()->id, ['email' => $cache[1]]);
         Cache::forget("EMAIL_VERIFICATION_TOKEN_$request->email");
-        return $this->successResponse('Email verified successfully',[
+
+        return $this->successResponse('Email verified successfully', [
             'user' => new UserResource($request->user()->refresh()),
         ]);
     }
 
-    public function delete(Tenant $tenant,User $user,Request $request): JsonResponse
+    public function delete(Tenant $tenant, User $user, Request $request): JsonResponse
     {
         $this->userRepository->delete($request->user()->id);
 

@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use App\Http\Requests\LoginRequest;
-use App\Http\Controllers\Controller;
+use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\ResetPasswordTokenRequest;
 use App\Http\Requests\SignupRequest;
 use App\Http\Requests\VerifyEmailRequest;
-use App\Http\Requests\ResetPasswordRequest;
 use App\Support\Services\Auth\LoginService;
 use App\Support\Services\Auth\LogoutService;
+use App\Support\Services\Auth\OAuthLoginService;
 use App\Support\Services\Auth\SignupService;
 use App\Support\Services\ResetPasswordService;
-use App\Http\Requests\ResetPasswordTokenRequest;
-use App\Support\Services\Auth\OAuthLoginService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {

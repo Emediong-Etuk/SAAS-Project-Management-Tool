@@ -2,16 +2,14 @@
 
 namespace App\Models;
 
-use App\Models\Project;
 use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Scout\Searchable;
-use App\Models\TaskUser;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Task extends Model
 {
@@ -24,7 +22,7 @@ class Task extends Model
         'project_id',
         'tenant_id',
         'deadline',
-        'completed'
+        'completed',
     ];
 
     public static function booted(): void

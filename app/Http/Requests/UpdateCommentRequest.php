@@ -23,7 +23,7 @@ class UpdateCommentRequest extends FormRequest
     {
         return [
             //
-            'comment'=>['sometimes','string','max:1000']
+            'comment' => ['sometimes', 'string', 'max:1000'],
         ];
     }
 }

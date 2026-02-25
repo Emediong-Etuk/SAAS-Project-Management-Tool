@@ -21,7 +21,7 @@ class ProjectResource extends JsonResource
             'description' => $this->description,
             'status' => $this->status,
             'deadline' => $this->deadline,
-            'tenant'=> new TenantResource($this->tenant),
+            'tenant' => new TenantResource($this->tenant),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

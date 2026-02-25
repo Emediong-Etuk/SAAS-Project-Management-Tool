@@ -1,20 +1,20 @@
 <?php
 
-use App\Models\Task;
-use App\Models\Tenant;
-use App\Models\Project;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\AdminController;
-use App\Http\Middleware\TenantMiddleware;
-use App\Http\Controllers\TenantController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\MembersController;
-use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TenantController;
+use App\Http\Middleware\TenantMiddleware;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\Tenant;
+use Illuminate\Support\Facades\Route;
 
 Route::webhooks('/flutterwave-webhook');
 
@@ -25,7 +25,6 @@ Route::controller(AdminController::class)->prefix('admin')->group(function () {
         Route::delete('/user', 'delete');
     });
 });
-
 
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
     Route::post('/signup', 'signup');
@@ -46,7 +45,6 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
     });
 });
 
-
 Route::middleware('auth:sanctum')->group(function () {
     Route::controller(TenantController::class)->prefix('tenants')->group(function () {
         Route::get('/dashboard', 'dashboard');
@@ -60,8 +58,6 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 });
-
-
 
 Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')->group(function () {
     Route::prefix('projects')->group(function () {

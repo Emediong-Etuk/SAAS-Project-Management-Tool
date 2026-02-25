@@ -2,26 +2,25 @@
 
 namespace App\Models;
 
-use App\Models\Task;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TaskSubmission extends Model
 {
     use HasFactory, HasUuids;
+
     //
     protected $fillable = [
         'submission_files',
         'comments',
         'task_id',
-        'user_id'
+        'user_id',
     ];
 
     protected $casts = [
-        'submission_files' => 'array'
+        'submission_files' => 'array',
     ];
 
     public function user(): BelongsTo

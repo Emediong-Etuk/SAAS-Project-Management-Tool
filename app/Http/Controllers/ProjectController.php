@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Tenant;
-use App\Models\Project;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Gate;
-use App\Support\Services\ProjectService;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Requests\UpdateProjectStatusRequest;
+use App\Models\Project;
+use App\Models\Tenant;
+use App\Models\User;
+use App\Support\Services\ProjectService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ProjectController extends Controller
 {
@@ -43,8 +42,9 @@ class ProjectController extends Controller
     public function update(Tenant $tenant, Project $project, UpdateProjectRequest $request): JsonResponse
     {
         if ($request->user()->cannot('update', $project)) {
-            abort(404, "You do not have permission to update this project");
+            abort(404, 'You do not have permission to update this project');
         }
+
         return $this->projectService->updateProject($tenant, $project, $request);
     }
 

@@ -10,10 +10,7 @@ class VerifyTransactionData
     public function __construct(
         public readonly string $status,
         public readonly string $token
-    )
-    {
-        
-    }
+    ) {}
 
     public static function fromFlutterwave(array $data)
     {

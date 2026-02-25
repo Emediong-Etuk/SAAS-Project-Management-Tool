@@ -37,7 +37,7 @@ class DeleteUserNotice extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('Your account has been terminated')
             ->markdown('user.delete', [
-                'name' => $this->name
+                'name' => $this->name,
             ]);
     }
 

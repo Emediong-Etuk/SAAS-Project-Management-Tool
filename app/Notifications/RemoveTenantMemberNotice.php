@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -36,9 +35,9 @@ class RemoveTenantMemberNotice extends Notification
     {
         return (new MailMessage)
             ->subject('Tenant Member Removed')
-            ->markdown('tenant.remove_member',[
-                'name'=>$this->name,
-                'member'=>$this->member
+            ->markdown('tenant.remove_member', [
+                'name' => $this->name,
+                'member' => $this->member,
             ]);
     }
 

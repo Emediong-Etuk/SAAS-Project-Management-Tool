@@ -15,12 +15,12 @@ class VerifyUpdatedEmail extends FormRequest
         return true;
     }
 
-    public function getCachedToken():int
+    public function getCachedToken(): int
     {
-        $cached=Cache::get("EMAIL_VERIFICATION_TOKEN_".$this->user()->email);
+        $cached = Cache::get('EMAIL_VERIFICATION_TOKEN_'.$this->user()->email);
 
         return $cached[0];
-    
+
     }
 
     /**
@@ -32,11 +32,11 @@ class VerifyUpdatedEmail extends FormRequest
     {
         return [
             //
-            'token'=>['required','integer',function($attr,$val,$fail){
-                if(intval($val)!==$this->getCachedToken()){
-                    return $fail("Invalid Token");
+            'token' => ['required', 'integer', function ($attr, $val, $fail) {
+                if (intval($val) !== $this->getCachedToken()) {
+                    return $fail('Invalid Token');
                 }
-            }]
+            }],
         ];
     }
 }

@@ -2,18 +2,18 @@
 
 namespace App\Support\Services\Auth;
 
-use Illuminate\Support\Str;
-use Illuminate\Http\JsonResponse;
 use App\Http\Requests\SignupRequest;
-use App\Http\Resources\UserResource;
-use Illuminate\Support\Facades\Auth;
-use App\Support\Services\BaseService;
-use Illuminate\Support\Facades\Cache;
-use App\Notifications\VerifyEmailNotice;
 use App\Http\Requests\VerifyEmailRequest;
+use App\Http\Resources\UserResource;
+use App\Notifications\VerifyEmailNotice;
 use App\Notifications\WelcomeEmailNotice;
 use App\Support\Repositories\UserRepository;
+use App\Support\Services\BaseService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 
 class SignupService extends BaseService
 {
@@ -45,7 +45,7 @@ class SignupService extends BaseService
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password,
-            'username' => explode('@', $request->name . Str::random(6))
+            'username' => explode('@', $request->name.Str::random(6)),
         ];
 
         $user = $this->userRepository->create($data);
@@ -57,7 +57,7 @@ class SignupService extends BaseService
 
         return $this->successResponse('Signup successful', [
             'token' => $token->plainTextToken,
-            'user' => new UserResource($user)
+            'user' => new UserResource($user),
         ]);
     }
 }

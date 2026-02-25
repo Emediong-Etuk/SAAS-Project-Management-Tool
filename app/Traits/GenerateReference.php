@@ -2,15 +2,15 @@
 
 namespace App\Traits;
 
-use Ramsey\Uuid\Uuid;
 use App\Enum\TransactionCategory;
+use Ramsey\Uuid\Uuid;
 
 trait GenerateReference
 {
     //
     public function generateReference(TransactionCategory $transactionCategory): string
-    { {
-            return $transactionCategory->value . '_' . Uuid::uuid4()->toString();
-        }
+    {
+        return $transactionCategory->value.'_'.Uuid::uuid4()->toString();
+
     }
 }

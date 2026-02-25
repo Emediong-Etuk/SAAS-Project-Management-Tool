@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 
 class PricingPlan extends Model
 {
     //
 
-    use HasApiTokens, HasUuids, HasFactory;
+    use HasApiTokens, HasFactory, HasUuids;
 
-    protected $fillable=[
+    protected $fillable = [
         'name',
         'description',
         'price',
@@ -31,17 +30,17 @@ class PricingPlan extends Model
         'can_invite_members',
     ];
 
-    protected $casts=[
-        'role'=>'array',
-        'can_create_tenant'=>'boolean',
-        'can_edit_tenant'=>'boolean',
-        'can_delete_tenant'=>'boolean',
-        'can_create_tasks'=>'boolean',
-        'can_create_projects'=>'boolean',
-        'can_edit_tasks'=>'boolean',
-        'can_edit_projects'=>'boolean',
-        'can_delete_tasks'=>'boolean',
-        'can_delete_projects'=>'boolean',
-        'can_invite_members'=>'boolean',
+    protected $casts = [
+        'role' => 'array',
+        'can_create_tenant' => 'boolean',
+        'can_edit_tenant' => 'boolean',
+        'can_delete_tenant' => 'boolean',
+        'can_create_tasks' => 'boolean',
+        'can_create_projects' => 'boolean',
+        'can_edit_tasks' => 'boolean',
+        'can_edit_projects' => 'boolean',
+        'can_delete_tasks' => 'boolean',
+        'can_delete_projects' => 'boolean',
+        'can_invite_members' => 'boolean',
     ];
 }

@@ -7,13 +7,13 @@ use Illuminate\Support\Collection;
 
 class MentionRepository
 {
-   public function create(array $data): Mention
-   {
-      return Mention::query()->create($data);
-   }
+    public function create(array $data): Mention
+    {
+        return Mention::query()->create($data);
+    }
 
-   public function getMentions(string $comment_id): Collection
-   {
-      return Mention::query()->where('comment_id', $comment_id)->get();
-   }
+    public function getMentions(string $comment_id): Collection
+    {
+        return Mention::query()->where('comment_id', $comment_id)->get();
+    }
 }

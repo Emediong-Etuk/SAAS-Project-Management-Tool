@@ -2,18 +2,16 @@
 
 namespace App\Support\Services;
 
+use App\Http\Requests\SelectNotificationRequest;
+use App\Http\Resources\NotificationResource;
+use App\Models\Notification;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\Tenant;
-use App\Models\Project;
-use App\Models\Notification;
+use App\Support\Repositories\NotificationRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use App\Support\Services\BaseService;
-use App\Http\Resources\NotificationResource;
-use App\Http\Requests\SelectNotificationRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Support\Repositories\NotificationRepository;
 
 class NotificationService extends BaseService
 {
@@ -31,7 +29,7 @@ class NotificationService extends BaseService
 
         return $this->successResponse(
             data: [
-                'notifications' => NotificationResource::collection($allNotifications)
+                'notifications' => NotificationResource::collection($allNotifications),
             ]
         );
     }
@@ -48,9 +46,10 @@ class NotificationService extends BaseService
         }
 
         $notifications = $this->notificationRepository->findByMarkedRead($request->user()->id);
+
         return $this->successResponse(
             data: [
-                'notifications' => NotificationResource::collection($notifications)
+                'notifications' => NotificationResource::collection($notifications),
             ]
         );
     }
@@ -61,7 +60,7 @@ class NotificationService extends BaseService
 
         return $this->successResponse(
             data: [
-                'unread_notifications' => NotificationResource::collection($unreadNotifications)
+                'unread_notifications' => NotificationResource::collection($unreadNotifications),
             ]
         );
     }
@@ -72,7 +71,7 @@ class NotificationService extends BaseService
 
         return $this->successResponse(
             data: [
-                'notification' => new NotificationResource($notification->refresh())
+                'notification' => new NotificationResource($notification->refresh()),
             ]
         );
     }
@@ -83,7 +82,7 @@ class NotificationService extends BaseService
 
         return $this->successResponse(
             data: [
-                'message' => 'Notification deleted successfully'
+                'message' => 'Notification deleted successfully',
             ]
         );
     }
@@ -98,11 +97,10 @@ class NotificationService extends BaseService
 
         return $this->successResponse(
             data: [
-                'message' => 'All notifications deleted successfully'
+                'message' => 'All notifications deleted successfully',
             ]
         );
     }
-
 
     public function deleteSelectedNotifications(Tenant $tenant, Project $project, Task $task, SelectNotificationRequest $request): JsonResponse
     {
@@ -112,7 +110,7 @@ class NotificationService extends BaseService
 
         return $this->successResponse(
             data: [
-                'message' => 'Selected notifications deleted successfully'
+                'message' => 'Selected notifications deleted successfully',
             ]
         );
     }

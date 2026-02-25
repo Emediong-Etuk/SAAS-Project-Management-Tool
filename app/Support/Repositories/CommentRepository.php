@@ -7,17 +7,17 @@ use Illuminate\Support\Collection;
 
 class CommentRepository
 {
-    public function getAllCommentsForTask($taskId):Collection
+    public function getAllCommentsForTask($taskId): Collection
     {
         return Comment::where('task_id', $taskId)->get();
     }
 
-    public function create(array $data):Comment
+    public function create(array $data): Comment
     {
         return Comment::query()->create($data);
     }
 
-    public function find(string $id):?Comment
+    public function find(string $id): ?Comment
     {
         return Comment::query()->find($id);
     }
@@ -32,4 +32,3 @@ class CommentRepository
         return Comment::query()->where('id', $id)->delete();
     }
 }
-

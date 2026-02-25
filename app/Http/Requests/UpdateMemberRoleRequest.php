@@ -3,8 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Enum\UserRolesEnum;
-use Illuminate\Validation\Rules\Enum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class UpdateMemberRoleRequest extends FormRequest
 {
@@ -24,8 +24,8 @@ class UpdateMemberRoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            
-            'role'=>['required','string',new Enum(UserRolesEnum::class)]
+
+            'role' => ['required', 'string', new Enum(UserRolesEnum::class)],
         ];
     }
 }

@@ -2,15 +2,15 @@
 
 namespace App\Enum;
 
-enum ProjectStatus:string
+enum ProjectStatus: string
 {
     //
-    case ACTIVE='active';
-    case COMPLETED='completed';
-    case OVERDUE='overdue';
+    case ACTIVE = 'active';
+    case COMPLETED = 'completed';
+    case OVERDUE = 'overdue';
 
-    public static function values():array
+    public static function values(): array
     {
-        return array_column(self::cases(),'value');
+        return array_column(self::cases(), 'value');
     }
 }

@@ -1,12 +1,12 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Testing\Fluent\AssertableJson;
 use App\Notifications\ResetPasswordInfoNotice;
 use App\Notifications\ResetPasswordTokenNotice;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Testing\Fluent\AssertableJson;
 
 test('password reset token sent successfully', function () {
 
@@ -16,12 +16,11 @@ test('password reset token sent successfully', function () {
     $this->actingAs($user);
 
     $response = $this->post('/api/auth/password/reset/get-token', [
-        'email' => $user->email
+        'email' => $user->email,
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll(['status', 'message'])
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll(['status', 'message'])
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
@@ -30,8 +29,7 @@ test('password reset token sent successfully', function () {
     Notification::assertSentTo(
         $user,
         ResetPasswordTokenNotice::class,
-        fn($notification, $channels) =>
-        in_array('mail', $channels)
+        fn ($notification, $channels) => in_array('mail', $channels)
     );
 });
 
@@ -41,12 +39,11 @@ test('password reset token request with invalid email', function () {
     $this->actingAs(User::factory()->create());
 
     $response = $this->post('/api/auth/password/reset/get-token', [
-        'email' => '<invalid-email>'
+        'email' => '<invalid-email>',
     ]);
 
     $response->assertStatus(422)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll(['message', 'errors'])
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll(['message', 'errors'])
             ->whereAllType([
                 'errors' => 'array',
                 'message' => 'string',
@@ -68,7 +65,6 @@ test('password reset successful', function () {
         ->with("PASSWORD_RESET_TOKEN_{$user->email}")
         ->andReturn($token);
 
-
     $response = $this->post('/api/auth/password/reset', [
         'email' => $user->email,
         'token' => $token,
@@ -77,15 +73,13 @@ test('password reset successful', function () {
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll(['status', 'message'])
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll(['status', 'message'])
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
             ])->etc());
-            
-    Notification::assertSentTo($user, ResetPasswordInfoNotice::class, fn($notification, $channels) =>
-    in_array('mail', $channels));
+
+    Notification::assertSentTo($user, ResetPasswordInfoNotice::class, fn ($notification, $channels) => in_array('mail', $channels));
 
     $this->assertTrue(Hash::check($newPassword, $user->fresh()->password));
 });

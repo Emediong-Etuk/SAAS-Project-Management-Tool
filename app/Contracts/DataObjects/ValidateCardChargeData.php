@@ -11,9 +11,8 @@ class ValidateCardChargeData
         public readonly string $status,
         public readonly string $message,
         public readonly string $email,
-    ) {
-        
-    }
+    ) {}
+
     public static function fromFlutterwave(array $data)
     {
         return new static(

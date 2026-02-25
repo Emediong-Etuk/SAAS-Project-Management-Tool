@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Contracts\Interface\SubscriptionPaymentInterface;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use App\Support\Repositories\UserRepository;
 use App\Enum\PlansEnum;
 use App\SubscriptionStatus;
+use App\Support\Repositories\UserRepository;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class ResetSubscriptionPlan extends Command
 {
@@ -43,7 +43,7 @@ class ResetSubscriptionPlan extends Command
                 $userRepository->update($user->id, [
                     'reminder_date' => now()->addWeeks(3)->toDateString(),
                     'expiry_date' => now()->addMonth()->toDateString(),
-                    'subscription_plan' => PlansEnum::Pro->value
+                    'subscription_plan' => PlansEnum::Pro->value,
                 ]);
             } else {
                 $userRepository->update($user->id, [
@@ -54,7 +54,7 @@ class ResetSubscriptionPlan extends Command
             }
         }
 
-        $this->info("Reset expired subscriptions");
+        $this->info('Reset expired subscriptions');
 
         return Command::SUCCESS;
     }

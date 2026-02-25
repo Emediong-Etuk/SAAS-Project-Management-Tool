@@ -1,44 +1,17 @@
 <?php
 
 use App\Enum\UserRolesEnum;
-use App\Models\Task;
-use App\Models\User;
-use App\Models\Tenant;
 use App\Models\Comment;
 use App\Models\Project;
+use App\Models\Task;
+use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Testing\Fluent\AssertableJson;
 
 test('gotten all comments', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->create([
-        'tenant_id' => $tenant->id
-    ]);
-    $task = Task::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
-    ]);
-    $user = User::factory()->create([
-        'tenant_id' => $tenant->id,
-        'project_id' => $project->id
-    ]);
-
-    $this->actingAs($user, 'sanctum');
-
-    $response = $this->get(route('comments.get', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]));
-    $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) => $json
-            ->hasAll('status', 'message', 'data')
-            ->whereAllType([
-                'status' => 'string',
-                'message' => 'string',
-                'data' => 'array'
-            ]));
-});
-
-test('failed to get all comments due to unauthenticated user', function () {
-    $tenant = Tenant::factory()->create();
-    $project = Project::factory()->create([
-        'tenant_id' => $tenant->id
     ]);
     $task = Task::factory()->create([
         'tenant_id' => $tenant->id,
@@ -46,20 +19,47 @@ test('failed to get all comments due to unauthenticated user', function () {
     ]);
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
+    ]);
+
+    $this->actingAs($user, 'sanctum');
+
+    $response = $this->get(route('comments.get', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]));
+    $response->assertStatus(200)
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->hasAll('status', 'message', 'data')
+            ->whereAllType([
+                'status' => 'string',
+                'message' => 'string',
+                'data' => 'array',
+            ]));
+});
+
+test('failed to get all comments due to unauthenticated user', function () {
+    $tenant = Tenant::factory()->create();
+    $project = Project::factory()->create([
+        'tenant_id' => $tenant->id,
+    ]);
+    $task = Task::factory()->create([
+        'tenant_id' => $tenant->id,
+        'project_id' => $project->id,
+    ]);
+    $user = User::factory()->create([
+        'tenant_id' => $tenant->id,
+        'project_id' => $project->id,
     ]);
 
     $response = $this->get(route('comments.get', [
         'tenant' => $tenant->id,
         'project' => $project->id,
-        'task' => $task->id
+        'task' => $task->id,
     ]));
 
     $response->assertStatus(401)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('message')
             ->whereAllType([
-                'message' => 'string'
+                'message' => 'string',
             ]));
 });
 
@@ -67,24 +67,24 @@ test('got specific comment successfully', function () {
     $tenant = Tenant::factory()->create();
 
     $project = Project::factory()->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $task = Task::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $comment = Comment::factory()->create([
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'task_id' => $task->id,
-        'user_id' => $user->id
+        'user_id' => $user->id,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -93,27 +93,27 @@ test('got specific comment successfully', function () {
         'tenant' => $tenant->id,
         'project' => $project->id,
         'task' => $task->id,
-        'comment' => $comment->id
+        'comment' => $comment->id,
     ]));
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
-                'data' => 'array'
+                'data' => 'array',
             ]));
 });
 
 test('comment created successfully', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
     $task = Task::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
@@ -123,26 +123,25 @@ test('comment created successfully', function () {
     $this->actingAs($user, 'sanctum');
 
     $response = $this->post(route('comments.create', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]), [
-        'comment' => 'new comment'
+        'comment' => 'new comment',
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
-                'data' => 'array'
+                'data' => 'array',
             ]));
 
     $this->assertDatabaseHas('comments', [
         'comment' => 'new comment',
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
-        'task_id' => $task->id
+        'task_id' => $task->id,
     ]);
 });
-
 
 test('create comment failed due to invalid input', function () {
     $tenant = Tenant::factory()->create();
@@ -165,32 +164,31 @@ test('create comment failed due to invalid input', function () {
     $response = $this->post(route('comments.create', [
         'tenant' => $tenant->id,
         'project' => $project->id,
-        'task' => $task->id
+        'task' => $task->id,
     ]));
 
     $response->assertStatus(422)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('message')
             ->whereAllType([
-                'message' => 'string'
+                'message' => 'string',
             ])->etc());
-
 
     $this->assertDatabaseMissing('comments', [
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
-        'task_id' => $task->id
+        'task_id' => $task->id,
     ]);
 });
 
 test('update comment successful', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
     $task = Task::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
@@ -201,7 +199,7 @@ test('update comment successful', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'task_id' => $task->id,
-        'user_id' => $user->id
+        'user_id' => $user->id,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -210,18 +208,18 @@ test('update comment successful', function () {
         'tenant' => $tenant->id,
         'project' => $project->id,
         'task' => $task->id,
-        'comment' => $comment->id
+        'comment' => $comment->id,
     ]), [
-        'comment' => 'updated comment'
+        'comment' => 'updated comment',
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
-                'data' => 'array'
+                'data' => 'array',
             ]));
 
     $this->assertDatabaseHas('comments', [
@@ -229,15 +227,14 @@ test('update comment successful', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'task_id' => $task->id,
-        'user_id' => $user->id
+        'user_id' => $user->id,
     ]);
 });
-
 
 test('deleted comment successfully', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
     $task = Task::factory()->create([
         'tenant_id' => $tenant->id,
@@ -249,14 +246,14 @@ test('deleted comment successfully', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro'
+        'subscription_plan' => 'pro',
     ]);
 
     $comment = Comment::factory()->create([
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'task_id' => $task->id,
-        'user_id' => $user->id
+        'user_id' => $user->id,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -264,25 +261,25 @@ test('deleted comment successfully', function () {
     $response = $this->delete(route('comments.delete', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id, 'comment' => $comment->id]));
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
-                'data' => 'array'
+                'data' => 'array',
             ]));
 
     $this->assertDatabaseMissing('comments', [
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
-        'task_id' => $task->id
+        'task_id' => $task->id,
     ]);
 });
 
 test('delete comment failed due to unauthorized access', function () {
     $tenant = Tenant::factory()->create();
     $project = Project::factory()->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
     $task = Task::factory()->create([
         'tenant_id' => $tenant->id,
@@ -296,14 +293,14 @@ test('delete comment failed due to unauthorized access', function () {
 
     $wrongUser = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'project_id' => $project->id
+        'project_id' => $project->id,
     ]);
 
     $comment = Comment::factory()->create([
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'task_id' => $task->id,
-        'user_id' => $wrongUser
+        'user_id' => $wrongUser,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -311,15 +308,15 @@ test('delete comment failed due to unauthorized access', function () {
     $response = $this->delete(route('comments.delete', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id, 'comment' => $comment->id]));
 
     $response->assertStatus(403)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('message')
             ->whereAllType([
-                'message' => 'string'
+                'message' => 'string',
             ])->etc());
 
     $this->assertDatabaseHas('comments', [
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
-        'task_id' => $task->id
+        'task_id' => $task->id,
     ]);
 });

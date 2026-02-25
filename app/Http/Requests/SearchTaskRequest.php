@@ -23,7 +23,7 @@ class SearchTaskRequest extends FormRequest
     {
         return [
             //
-            'search'=>['required','string']
+            'search' => ['required', 'string'],
         ];
     }
 }

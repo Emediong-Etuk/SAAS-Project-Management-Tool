@@ -8,6 +8,6 @@ class Occupation extends Model
 {
     //
     protected $fillable = [
-        'name'
+        'name',
     ];
 }

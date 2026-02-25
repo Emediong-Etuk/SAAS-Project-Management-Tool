@@ -2,14 +2,13 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Enum\PlansEnum;
 use App\Enum\UserRolesEnum;
+use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class TenantPolicy
 {
-
     public function update(User $user): Response
     {
 

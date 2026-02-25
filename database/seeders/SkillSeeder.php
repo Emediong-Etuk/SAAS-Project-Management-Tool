@@ -140,7 +140,7 @@ class SkillSeeder extends Seeder
             'Edge Computing',
             'Augmented Reality',
             'Virtual Reality',
-            'Game Development'
+            'Game Development',
         ];
 
         $now = now();

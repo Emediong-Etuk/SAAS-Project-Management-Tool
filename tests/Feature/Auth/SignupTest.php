@@ -1,12 +1,12 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\Cache;
 use App\Notifications\VerifyEmailNotice;
 use App\Notifications\WelcomeEmailNotice;
+use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Testing\Fluent\AssertableJson;
-use Illuminate\Notifications\AnonymousNotifiable;
 
 test('otp for signup sent successfully', function () {
 
@@ -15,25 +15,22 @@ test('otp for signup sent successfully', function () {
     $email = fake()->unique()->safeEmail();
     $password = 'password';
 
-
     $response = $this->post('api/auth/signup', [
         'name' => $name,
         'email' => $email,
-        'password' => $password
+        'password' => $password,
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll(['status', 'message', 'data'])
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll(['status', 'message', 'data'])
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
-                'data' => 'array'
+                'data' => 'array',
             ])->etc());
 
-    Notification::assertSentTo(new AnonymousNotifiable, VerifyEmailNotice::class, fn($notifiable, $channels) => in_array('mail', $channels));
+    Notification::assertSentTo(new AnonymousNotifiable, VerifyEmailNotice::class, fn ($notifiable, $channels) => in_array('mail', $channels));
 });
-
 
 test('resend otp for signup sent successfully', function () {
 
@@ -45,38 +42,34 @@ test('resend otp for signup sent successfully', function () {
     $response = $this->post('/api/auth/signup/resend-token', [
         'email' => $email,
         'password' => $password,
-        'name' => $name
+        'name' => $name,
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll(['status', 'message', 'data'])
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll(['status', 'message', 'data'])
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
-                'data' => 'array'
+                'data' => 'array',
             ])->etc());
 
-    Notification::assertSentTo(new AnonymousNotifiable, VerifyEmailNotice::class, fn($notifiable, $channels) => in_array('mail', $channels));
+    Notification::assertSentTo(new AnonymousNotifiable, VerifyEmailNotice::class, fn ($notifiable, $channels) => in_array('mail', $channels));
 });
-
 
 test('otp for signup failed to send', function () {
 
     Notification::fake();
-
 
     $name = fake()->unique()->name();
     $email = fake()->unique()->safeEmail();
 
     $response = $this->post('/api/auth/signup', [
         'name' => $name,
-        'email' => $email
+        'email' => $email,
     ]);
 
     $response->assertStatus(422)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll(['message'])
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll(['message'])
             ->whereAllType([
                 'message' => 'string',
             ])->etc());
@@ -102,26 +95,25 @@ test('signup successful', function () {
         'name' => $name,
         'email' => $email,
         'password' => $password,
-        'token' => $token
+        'token' => $token,
     ]);
 
     $user = User::where('email', $email)->first();
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll(['status', 'message', 'data'])
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll(['status', 'message', 'data'])
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
-                'data' => 'array'
+                'data' => 'array',
             ])->etc());
 
     $this->assertDatabaseHas('users', [
         'email' => $email,
-        'name' => $name
+        'name' => $name,
     ]);
 
-    Notification::assertSentTo($user, WelcomeEmailNotice::class, fn($notifiable, $channels) => in_array('mail', $channels));
+    Notification::assertSentTo($user, WelcomeEmailNotice::class, fn ($notifiable, $channels) => in_array('mail', $channels));
 });
 
 test('signup failed due to invalid token', function () {
@@ -142,24 +134,22 @@ test('signup failed due to invalid token', function () {
         'name' => $name,
         'email' => $email,
         'password' => $password,
-        'token' => $token
+        'token' => $token,
     ]);
 
     $response->assertStatus(422)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll(['message'])
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll(['message'])
             ->whereAllType([
                 'message' => 'string',
             ])->etc());
 
     $this->assertDatabaseMissing('users', [
         'email' => $email,
-        'name' => $name
+        'name' => $name,
     ]);
 
     Notification::assertNothingSent();
 });
-
 
 test('signup failed due to missing fields', function () {
 
@@ -170,8 +160,7 @@ test('signup failed due to missing fields', function () {
     ]);
 
     $response->assertStatus(422)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll(['message'])
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll(['message'])
             ->whereAllType([
                 'message' => 'string',
             ])->etc());
@@ -187,8 +176,7 @@ test('otp for signup failed due to missing fields', function () {
     ]);
 
     $response->assertStatus(422)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll(['message'])
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll(['message'])
             ->whereAllType([
                 'message' => 'string',
             ])->etc());

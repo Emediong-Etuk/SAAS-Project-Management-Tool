@@ -22,16 +22,16 @@ class CardPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'card_number' => ['required','string'],
-            'cvv' => ['required','string'],
-            'expiry_month' => ['required','string'],
-            'expiry_year' => ['required','string'],
-            'pin' => ['sometimes','string'],
-            'city'=>['sometimes','string'],
-            'address'=>['sometimes','string'],
-            'state'=>['sometimes','string'],
-            'country'=>['sometimes','string'],
-            'zipcode'=>['sometimes','string'],
+            'card_number' => ['required', 'string'],
+            'cvv' => ['required', 'string'],
+            'expiry_month' => ['required', 'string'],
+            'expiry_year' => ['required', 'string'],
+            'pin' => ['sometimes', 'string'],
+            'city' => ['sometimes', 'string'],
+            'address' => ['sometimes', 'string'],
+            'state' => ['sometimes', 'string'],
+            'country' => ['sometimes', 'string'],
+            'zipcode' => ['sometimes', 'string'],
         ];
     }
 }

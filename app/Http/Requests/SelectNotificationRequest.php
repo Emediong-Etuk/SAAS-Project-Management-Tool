@@ -23,7 +23,7 @@ class SelectNotificationRequest extends FormRequest
     {
         return [
             //
-            'messages'=>'required|array',
+            'messages' => 'required|array',
         ];
     }
 }

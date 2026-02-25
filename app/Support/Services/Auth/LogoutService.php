@@ -5,7 +5,6 @@ namespace App\Support\Services\Auth;
 use App\Http\Resources\UserResource;
 use App\Support\Services\BaseService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class LogoutService extends BaseService
@@ -23,7 +22,7 @@ class LogoutService extends BaseService
         $request->user()->currentAccessToken()->delete();
 
         return $this->successResponse(data: [
-            'user' => new UserResource($request->user())
+            'user' => new UserResource($request->user()),
         ]);
     }
 }

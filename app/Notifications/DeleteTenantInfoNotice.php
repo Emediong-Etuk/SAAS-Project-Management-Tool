@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -36,8 +35,8 @@ class DeleteTenantInfoNotice extends Notification
     {
         return (new MailMessage)
             ->subject('Tenant deleted')
-            ->markdown('tenant.delete',[
-                'name'=>$this->name
+            ->markdown('tenant.delete', [
+                'name' => $this->name,
             ]);
     }
 
