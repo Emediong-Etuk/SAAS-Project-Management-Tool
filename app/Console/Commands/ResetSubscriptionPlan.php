@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Contracts\Interface\SubscriptionPaymentInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use App\Notifications\SubscriptionReminder;
 use App\Support\Repositories\UserRepository;
 use App\Enum\PlansEnum;
+use App\SubscriptionStatus;
 
 class ResetSubscriptionPlan extends Command
 {
@@ -30,24 +31,28 @@ class ResetSubscriptionPlan extends Command
     public function handle()
     {
 
-        $users=DB::table('users')
-        ->where('reminder_date','=', now()->toDateString())
-        ->where('subscription_plan','=',PlansEnum::Pro->value)
-        ->get();
-
-        foreach($users as $user){
-            $userModel=App(UserRepository::class)->find($user->id);
-            $userModel->notify(new SubscriptionReminder($userModel));
-        }
-
-        DB::table('users')
+        $users = DB::table('users')
             ->where('expiry_date', '=', now()->toDateString())
-            ->where('subscription_plan', '=', PlansEnum::Pro->value)
-            ->update([
-                'subscription_plan' =>PlansEnum::Free->value,
-                'expiry_date' => null,
-                'reminder_date'=>null,
-            ]);
+            ->where('subscription_plan', '=', PlansEnum::Pro->value)->get();
+
+        foreach ($users as $user) {
+            $subscriptionStatus = App(SubscriptionPaymentInterface::class)->getSubscriptionStatus($user->id);
+            $userRepository = App(UserRepository::class);
+
+            if ($subscriptionStatus->status === SubscriptionStatus::Active->value) {
+                $userRepository->update($user->id, [
+                    'reminder_date' => now()->addWeeks(3)->toDateString(),
+                    'expiry_date' => now()->addMonth()->toDateString(),
+                    'subscription_plan' => PlansEnum::Pro->value
+                ]);
+            } else {
+                $userRepository->update($user->id, [
+                    'subscription_plan' => PlansEnum::Free->value,
+                    'expiry_date' => null,
+                    'reminder_date' => null,
+                ]);
+            }
+        }
 
         $this->info("Reset expired subscriptions");
 
