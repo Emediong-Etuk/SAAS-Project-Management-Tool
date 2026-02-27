@@ -25,6 +25,7 @@ return new class extends Migration
     {
         Schema::table('tenants', function (Blueprint $table) {
             //
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
         });
     }
 };

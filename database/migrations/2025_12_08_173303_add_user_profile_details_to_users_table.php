@@ -28,6 +28,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
+            $table->dropColumn(['occupation', 'skills', 'profile_picture', 'cover_picture', 'projects_worked_on']);
         });
     }
 };

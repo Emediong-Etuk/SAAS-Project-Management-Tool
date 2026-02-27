@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
-            $table->string('project_id')->nullable()->after('tenant_id');
+            $table->foreignUuid('project_id')->nullable()->constrained()->cascadeOnDelete()->after('tenant_id');
         });
     }
 
@@ -24,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
+            $table->dropForeign(['project_id']);
             $table->dropColumn('project_id');
         });
     }

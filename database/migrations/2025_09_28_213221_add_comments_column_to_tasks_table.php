@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('tasks', function (Blueprint $table) {
             //
-            $table->foreignUuid('comments_id')->nullable()->constrained('comments')->onDelete('set null');
+            $table->foreignUuid('comments_id')->nullable()->constrained('comments')->cascadeOnDelete();
         });
     }
 

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->string('name')->unique();
-            $table->string('plan')->default('free');
+            $table->string('plan')->default('Free');
             $table->string('customer_bill_id')->nullable();
             $table->timestamps();
         });

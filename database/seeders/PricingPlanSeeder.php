@@ -35,7 +35,7 @@ class PricingPlanSeeder extends Seeder
                 'name' => 'Pro',
                 'description' => 'Professional plan with advanced features',
                 'price' => 30,
-                'role' => ['admin', 'user', 'tenant_admin', 'project_admin'],
+                'role' => 'admin',
                 'can_create_tenant' => true,
                 'can_edit_tenant' => true,
                 'can_delete_tenant' => true,

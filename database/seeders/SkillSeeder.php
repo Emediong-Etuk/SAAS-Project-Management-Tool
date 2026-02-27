@@ -144,14 +144,11 @@ class SkillSeeder extends Seeder
         ];
 
         $now = now();
-        $rows = array_map(function ($name) use ($now) {
-            return [
-                'name' => $name,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }, $skills);
-
-        DB::table('skills')->insert($rows);
+        foreach ($skills as $name) {
+            DB::table('skills')->updateOrInsert(
+                ['name' => $name],
+                ['created_at' => $now, 'updated_at' => $now]
+            );
+        }
     }
 }
