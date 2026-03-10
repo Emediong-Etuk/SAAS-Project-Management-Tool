@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Tenant;
 use App\Models\Project;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
@@ -21,9 +22,9 @@ class ProjectController extends Controller
         //
     }
 
-    public function getProjects(Tenant $tenant):JsonResponse
+    public function getProjects(Request $request,Tenant $tenant):JsonResponse
     {
-        return $this->projectService->getProjects($tenant);
+        return $this->projectService->getProjects($request, $tenant);
     }
 
     public function create(Tenant $tenant, CreateProjectRequest $request):JsonResponse
@@ -33,9 +34,9 @@ class ProjectController extends Controller
         return $this->projectService->create($tenant, $request);
     }
 
-    public function getSpecificProject(Tenant $tenant, Project $project):JsonResponse
+    public function getSpecificProject(Tenant $tenant, Project $project, Request $request):JsonResponse
     {
-        return $this->projectService->getSpecificProject($tenant, $project);
+        return $this->projectService->getSpecificProject($request,$tenant, $project);
     }
 
     public function update(Tenant $tenant, Project $project, UpdateProjectRequest $request):JsonResponse
@@ -58,6 +59,6 @@ class ProjectController extends Controller
 
     public function assignRole(Tenant $tenant, Project $project, User $user):JsonResponse
     {
-        return $this->projectService->assignRole($user);
+        return $this->projectService->assignRole($tenant, $project,$user);
     }
 }

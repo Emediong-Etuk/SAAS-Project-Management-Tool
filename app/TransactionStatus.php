@@ -2,10 +2,10 @@
 
 namespace App;
 
-enum TransactionStatus:string
+enum TransactionStatus: string
 {
     //
-    case PENDING='pending';
-    case SUCCESSFUL='successful';
-    case FAILED='failed';
+    case PENDING = 'pending';
+    case SUCCESS = 'success';
+    case FAILED = 'failed';
 }

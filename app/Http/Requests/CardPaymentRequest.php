@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\CardType;
+
 use Illuminate\Foundation\Http\FormRequest;
 
 class CardPaymentRequest extends FormRequest
@@ -23,12 +23,11 @@ class CardPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
             'card_number' => ['required','string'],
-            'cvv' => 'required|string',
-            'expiry_month' => 'required|string',
-            'expiry_year' => 'required|string',
-            'pin' => 'required|string'
+            'cvv' => ['required','string'],
+            'expiry_month' => ['required','string'],
+            'expiry_year' => ['required','string'],
+            'pin' => ['required','string'],
         ];
     }
 }

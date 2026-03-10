@@ -21,31 +21,31 @@ class ResetPasswordService extends BaseService
         //
     }
 
-    public function getResetPasswordToken(ResetPasswordTokenRequest $request):JsonResponse
+    public function getResetPasswordToken(ResetPasswordTokenRequest $request): JsonResponse
     {
-        $user=$this->userRepository->findByEmail($request->email);
-        $token=$this->generateToken();
-        $expiryTime=900;
+        $user = $this->userRepository->findByEmail($request->email);
+        $token = $this->generateToken();
+        $expiryTime = 900;
 
-        Cache::put("PASSWORD_RESET_TOKEN_$request->email",$token,$expiryTime);
+        Cache::put("PASSWORD_RESET_TOKEN_$request->email", $token, $expiryTime);
 
-        $user->notify(new ResetPasswordTokenNotice($token,$expiryTime));
+        $user->notify(new ResetPasswordTokenNotice($token, $expiryTime));
 
         return $this->successResponse('Reset token has been sent to your email');
     }
-    
-    public function resetPassword(ResetPasswordRequest $request):JsonResponse
+
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
-        $user=$this->userRepository->findByEmail($request->email);
+        $user = $this->userRepository->findByEmail($request->email);
 
         $this->userRepository->update($user->id, [
-            'password'=>$request->password,
+            'password' => bcrypt($request->password),
         ]);
 
         $user->notify(new ResetPasswordInfoNotice());
 
-        return $this->successResponse('Password has been reset successfully',[
-            'user'=>new UserResource($user->refresh()),
+        return $this->successResponse('Password has been reset successfully', [
+            'user' => new UserResource($user->refresh()),
         ]);
     }
 }

@@ -15,30 +15,39 @@ class Comment extends Model
     //
     use HasUuids;
 
-    protected $fillable=[
+    protected $fillable = [
         'task_id',
         'user_id',
         'tenant_id',
         'project_id',
         'comment'
     ];
-    public static function booted():void
+    public static function booted(): void
     {
-        static::addGlobalScope('tenant_id',function(Builder $builder){
-            if(Auth::check()){
-                $builder->where('tenant_id',Auth::user()->tenant_id);
+        static::addGlobalScope('tenant_id', function (Builder $builder) {
+            if (Auth::check()) {
+                $builder->where('tenant_id', Auth::user()->tenant_id);
             }
         });
-
     }
 
-    public function task():BelongsTo
+    public function task(): BelongsTo
     {
         return $this->belongsTo(Task::class);
     }
 
-    public function user():BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
     }
 }

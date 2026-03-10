@@ -47,4 +47,9 @@ class UserRepository
     {
         return User::query()->where('expiry_date',now()->toDateString())->get();
     }
+
+    public function delete(string $id):bool|null
+    {
+        return User::query()->where('id',$id)->delete();
+    }
 }

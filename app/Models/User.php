@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Models\Tenant;
 use Laravel\Sanctum\HasApiTokens;
@@ -13,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Concerns\HasAttributes;
 
 
 class User extends Authenticatable
@@ -34,6 +32,12 @@ class User extends Authenticatable
         'project_id',
         'subscription_plan',
         'expiry_date',
+        'occupation',
+        'skills',
+        'profile_picture',
+        'cover_picture',
+        'projects_worked_on',
+        'linkedin_profile',
     ];
 
     /**
@@ -61,14 +65,14 @@ class User extends Authenticatable
 
     public static function booted(): void
     {
-        static::addGlobalScope('tenant_id',function(Builder $builder) {
-            if(Auth::check()){
-                $builder->where('tenant_id',Auth::user()->tenant_id);
+        static::addGlobalScope('tenant_id', function (Builder $builder) {
+            if (Auth::check()) {
+                $builder->where('tenant_id', Auth::user()->tenant_id);
             }
         });
     }
 
-    public function tenant():BelongsTo
+    public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }

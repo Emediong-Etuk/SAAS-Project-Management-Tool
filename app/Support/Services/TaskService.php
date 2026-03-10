@@ -5,12 +5,11 @@ namespace App\Support\Services;
 use App\Models\Task;
 use App\Models\Tenant;
 use App\Models\Project;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use App\Http\Resources\TaskResource;
 use App\Support\Services\BaseService;
 use App\Http\Requests\CreateTaskRequest;
-use App\Http\Requests\DeleteTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Support\Repositories\TaskRepository;
 use App\Support\Repositories\ProjectRepository;
@@ -25,78 +24,112 @@ class TaskService extends BaseService
         //
     }
 
-    public function getTasks(Tenant $tenant, Project $project):JsonResponse
+    public function getTasks(Request $request, Tenant $tenant, Project $project): JsonResponse
     {
-        $tasks=$this->taskRepository->getTasks($project->id);
-        return $this->successResponse(data:[
-            'tasks'=>$tasks
+        if ($request->user()->project_id !== $project->id) {
+            return $this->badRequestResponse('You are not a member of this project');
+        }
+
+        $tasks = $this->taskRepository->getTasks($project->id);
+        return $this->successResponse(data: [
+            'tasks' => $tasks
         ]);
     }
 
-    public function create(CreateTaskRequest $request,Tenant $tenant, Project $project):JsonResponse
+    public function create(CreateTaskRequest $request, Tenant $tenant, Project $project): JsonResponse
     {
+        if ($request->user()->tenant_id !== $tenant->id) {
+            return $this->badRequestResponse('You are not a member of this tenant');
+        }
 
-        $data=[
-            'name'=>$request->name,
-            'description'=>$request->description,
-            'deadline'=>$request->deadline,
-            'project_id'=>$project->id,
-            'tenant_id'=>$tenant->id
+        if ($request->user()->project_id !== $project->id) {
+            return $this->badRequestResponse('You cannot create a task for this project');
+        }
+
+
+        $data = [
+            'name' => $request->name,
+            'description' => $request->description,
+            'deadline' => $request->deadline,
+            'project_id' => $project->id,
+            'tenant_id' => $tenant->id
         ];
 
-        $task=$this->taskRepository->create($data);
+        $task = $this->taskRepository->create($data)->refresh();
         $task->load('project');
 
-        return $this->successResponse('Task created successfully',
-        [
-            'task'=>new TaskResource($task)
+        return $this->successResponse(
+            'Task created successfully',
+            [
+                'task' => new TaskResource($task)
+            ]
+        );
+    }
+
+    public function getSpecificTask(Request $request, Tenant $tenant, Project $project, Task $task): JsonResponse
+    {
+        if ($request->user()->project_id !== $project->id) {
+            return $this->badRequestResponse('You are not a member of this project');
+        }
+
+        if ($task->project_id !== $project->id) {
+            return $this->badRequestResponse('You have not been assigned to this task');
+        }
+
+        $task = $this->taskRepository->find($task->id);
+        $task->load('project');
+
+        return $this->successResponse(data: [
+            'task' => new TaskResource($task)
         ]);
     }
 
-    public function getSpecificTask(Tenant $tenant, Project $project, Task $task):JsonResponse
+    public function update(UpdateTaskRequest $request, Tenant $tenant, Project $project, Task $task): JsonResponse
     {
-        $task=$this->taskRepository->find($task->id);
-        
+        if ($request->user()->project_id !== $project->id) {
+            return $this->badRequestResponse('You are not a member of this project');
+        }
 
-        return $this->successResponse(data:[
-            'task'=>new TaskResource($task)
-        ]);
-    }
-
-    public function update(UpdateTaskRequest $request, Tenant $tenant, Project $project, Task $task):JsonResponse
-    {
-        $data=[
-            'name'=>$request->name ?? $task->name,
-            'description'=>$request->description ?? $task->description,
-            'deadline'=>$request->deadline ?? $task->deadline,
+        $data = [
+            'name' => $request->name ?? $task->name,
+            'description' => $request->description ?? $task->description,
+            'deadline' => $request->deadline ?? $task->deadline,
         ];
 
-        $task=$this->taskRepository->find($task->id);
-        
+        $task = $this->taskRepository->find($task->id);
+
         $this->taskRepository->update($task->id, $data);
 
-        return $this->successResponse('Task updated successfully',[
-            'task'=>new TaskResource($task->refresh())
+        return $this->successResponse('Task updated successfully', [
+            'task' => new TaskResource($task->refresh())
         ]);
     }
 
-    public function delete(Tenant $tenant, Project $project, Task $task):JsonResponse
+    public function delete(Request $request, Tenant $tenant, Project $project, Task $task): JsonResponse
     {
+        if ($request->user()->project_id !== $project->id) {
+            return $this->badRequestResponse('You are not a member of this project');
+        }
+
         $this->taskRepository->delete($task->id);
-        
+
         return $this->successResponse('Task deleted successfully');
     }
 
-    public function markComplete(Tenant $tenant, Project $project, Task $task):JsonResponse
+    public function markComplete(Request $request, Tenant $tenant, Project $project, Task $task): JsonResponse
     {
-        $data=[
-            'completed'=>true
+        if ($request->user()->project_id !== $project->id) {
+            return $this->badRequestResponse('You are not a member of this project');
+        }
+
+        $data = [
+            'completed' => true
         ];
 
         $this->taskRepository->update($task->id, $data);
 
-        return $this->successResponse('Task complete',[
-            'task'=>new TaskResource($task->refresh())
+        return $this->successResponse('Task complete', [
+            'task' => new TaskResource($task->refresh())
         ]);
     }
 }
