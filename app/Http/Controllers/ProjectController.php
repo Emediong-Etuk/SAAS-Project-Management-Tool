@@ -22,49 +22,54 @@ class ProjectController extends Controller
         //
     }
 
-    public function getProjects(Request $request,Tenant $tenant):JsonResponse
+    public function getProjects(Request $request, Tenant $tenant): JsonResponse
     {
         return $this->projectService->getProjects($request, $tenant);
     }
 
-    public function create(Tenant $tenant, CreateProjectRequest $request):JsonResponse
+    public function create(Tenant $tenant, CreateProjectRequest $request): JsonResponse
     {
         Gate::authorize('create', Project::class);
-        
+
         return $this->projectService->create($tenant, $request);
     }
 
-    public function getSpecificProject(Tenant $tenant, Project $project, Request $request):JsonResponse
+    public function getSpecificProject(Tenant $tenant, Project $project, Request $request): JsonResponse
     {
-        return $this->projectService->getSpecificProject($request,$tenant, $project);
+        return $this->projectService->getSpecificProject($request, $tenant, $project);
     }
 
-    public function update(Tenant $tenant, Project $project, UpdateProjectRequest $request):JsonResponse
+    public function update(Tenant $tenant, Project $project, UpdateProjectRequest $request): JsonResponse
     {
-        if($request->user()->cannot('update', $project)){
+        if ($request->user()->cannot('update', $project)) {
             abort(404, "You do not have permission to update this project");
         }
         return $this->projectService->updateProject($tenant, $project, $request);
     }
 
-    public function projectStatusList(Tenant $tenant, Project $project):JsonResponse
+    public function projectStatusList(Tenant $tenant, Project $project): JsonResponse
     {
         return $this->projectService->getProjectStatusList($tenant, $project);
     }
 
-    public function delete(Tenant $tenant, Project $project):JsonResponse
+    public function delete(Tenant $tenant, Project $project): JsonResponse
     {
         return $this->projectService->delete($tenant, $project);
     }
 
-    public function addUser(Tenant $tenant, Project $project, User $user):JsonResponse
+    public function addUser(Tenant $tenant, Project $project, User $user): JsonResponse
     {
         return $this->projectService->addUser($tenant, $project, $user);
     }
 
-    public function assignRole(Tenant $tenant, Project $project, User $user):JsonResponse
+    public function removeUser(Tenant $tenant, Project $project, User $user): JsonResponse
     {
-        return $this->projectService->assignRole($tenant, $project,$user);
+        return $this->projectService->removeUser($tenant, $project, $user);
+    }
+
+    public function assignRole(Tenant $tenant, Project $project, User $user): JsonResponse
+    {
+        return $this->projectService->assignRole($tenant, $project, $user);
     }
 
     public function createMeeting(Request $request, Tenant $tenant, Project $project): JsonResponse
@@ -77,27 +82,27 @@ class ProjectController extends Controller
         return $this->projectService->joinMeeting($request, $tenant, $project);
     }
 
-    public function getMeeting(Tenant $tenant, Project $project):JsonResponse
+    public function getMeeting(Tenant $tenant, Project $project): JsonResponse
     {
         return $this->projectService->getMeeting($tenant, $project);
     }
 
-    public function getAttendee(Request $request,Tenant $tenant, Project $project):JsonResponse
+    public function getAttendee(Request $request, Tenant $tenant, Project $project): JsonResponse
     {
         return $this->projectService->getAttendee($request, $tenant, $project);
     }
 
-    public function listAttendees(Tenant $tenant, Project $project):JsonResponse
+    public function listAttendees(Tenant $tenant, Project $project): JsonResponse
     {
         return $this->projectService->listAttendees($tenant, $project);
     }
 
-    public function deleteMeeting(Request $request,Tenant $tenant, Project $project):JsonResponse
+    public function deleteMeeting(Request $request, Tenant $tenant, Project $project): JsonResponse
     {
-        return $this->projectService->deleteMeeting($request,$tenant, $project);
+        return $this->projectService->deleteMeeting($request, $tenant, $project);
     }
 
-    public function deleteAttendee(Request $request,Tenant $tenant, Project $project):JsonResponse
+    public function deleteAttendee(Request $request, Tenant $tenant, Project $project): JsonResponse
     {
         return $this->projectService->deleteAttendee($request, $tenant, $project);
     }

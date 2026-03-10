@@ -53,14 +53,15 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
             Route::post('/{project}/status-list', 'projectStatusList');
             Route::delete('/{project}/delete', 'delete')->can('delete', Project::class);
             Route::post('/{project}/{user}/add', 'addUser')->can('addUser', Project::class);
+            Route::post('/{project}/{user}/remove', 'removeUser')->can('removeUser', Project::class);
             Route::post('/{project}/{user}/assign-role', 'assignRole')->can('assignRole', Project::class);
             Route::post('/{project}/create-meeting', 'createMeeting')->can('createMeeting', Project::class);
             Route::post('/{project}/join-meeting', 'joinMeeting')->middleware('can:joinMeeting,project');
             Route::get('/{project}/get-meeting', 'getMeeting')->middleware('can:joinMeeting,project');
             Route::get('/{project}/get-attendee', 'getAttendee')->middleware('can:joinMeeting,project');
             Route::get('/{project}/list-attendees', 'listAttendees')->middleware('can:joinMeeting,project');
-            Route::delete('/{project}/delete-meeting','deleteMeeting')->can('deleteMeeting', Project::class);
-            Route::delete('/{project}/delete-attendee','deleteAttendee');
+            Route::delete('/{project}/delete-meeting', 'deleteMeeting')->can('deleteMeeting', Project::class);
+            Route::delete('/{project}/delete-attendee', 'deleteAttendee');
         });
 
         Route::controller(TaskController::class)->group(function () {
@@ -70,6 +71,10 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
             Route::post('{project}/tasks/{task}/update', 'update')->can('update', Task::class);
             Route::delete('{project}/tasks/{task}/delete', 'delete')->can('delete', Task::class);
             Route::post('{project}/tasks/{task}/mark-complete', 'markComplete')->can('markComplete', Task::class);
+            Route::post('{project}/tasks/{task}/submit', 'submitTask');
+            Route::post('{project}/tasks/{task}/view-submissions', 'viewSubmissions');
+            Route::post('{project}/tasks/{task}/view-user-submissions', 'viewUserSubmissions');
+            Route::post('{project}/tasks/{task}/{submittedTask}/download-files', 'downloadSubmissionFile');
         });
 
         Route::controller(CommentController::class)->group(function () {
@@ -82,14 +87,14 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
     });
 
     Route::controller(NotificationController::class)->prefix('/notifications')->group(function () {
-            Route::get('/view', 'view');
-            Route::post('/mark-as-read', 'markasRead');
-            Route::get('/unread', 'getUnreadNotifications');
-            Route::delete('/delete-all', 'deleteAllNotifications');
-            Route::delete('/delete/{message}', 'deleteNotification');
-            Route::delete('/delete-selected', 'deleteSelectedNotification');
-            Route::get('/{message}/get', 'getSpecificNotification');
-        });
+        Route::get('/view', 'view');
+        Route::post('/mark-as-read', 'markasRead');
+        Route::get('/unread', 'getUnreadNotifications');
+        Route::delete('/delete-all', 'deleteAllNotifications');
+        Route::delete('/delete/{message}', 'deleteNotification');
+        Route::delete('/delete-selected', 'deleteSelectedNotification');
+        Route::get('/{message}/get', 'getSpecificNotification');
+    });
 
     Route::controller(MembersController::class)->prefix('/team/members')->group(function () {
         Route::get('/all', 'getTenantMembers');
