@@ -25,9 +25,9 @@ class NotificationService extends BaseService
         //
     }
 
-    public function view(Tenant $tenant, Project $project, Task $task,Request $request):JsonResponse
+    public function view(Tenant $tenant, Project $project, Task $task, Request $request): JsonResponse
     {
-        $allNotifications=$this->notificationRepository->getAll($request->user()->id);
+        $allNotifications = $this->notificationRepository->getAll($request->user()->id);
 
         return $this->successResponse(
             data: [
@@ -36,19 +36,18 @@ class NotificationService extends BaseService
         );
     }
 
-    public function markasRead(Tenant $tenant,Project $project, Task $task, SelectNotificationRequest $request):JsonResponse
+    public function markasRead(Tenant $tenant, Project $project, Task $task, SelectNotificationRequest $request): JsonResponse
     {
-        foreach ($request->messages as $message){
-            $unread=$this->notificationRepository->getSelectedUnread($request->user()->id,$message);
-            Log::info('message',[$unread]);
-            
-            DB::transaction(function() use ($unread){
-               $unread->mark_read=true;
-               $unread->save();
+        foreach ($request->messages as $message) {
+            $unread = $this->notificationRepository->getSelectedUnread($request->user()->id, $message);
+
+            DB::transaction(function () use ($unread) {
+                $unread->mark_read = true;
+                $unread->save();
             });
         }
 
-        $notifications=$this->notificationRepository->findByMarkedRead($request->user()->id);
+        $notifications = $this->notificationRepository->findByMarkedRead($request->user()->id);
         return $this->successResponse(
             data: [
                 'notifications' => NotificationResource::collection($notifications)
@@ -56,9 +55,9 @@ class NotificationService extends BaseService
         );
     }
 
-    public function getUnreadNotifications(Tenant $tenant, Project $project, Task $task, Request $request):JsonResponse
+    public function getUnreadNotifications(Tenant $tenant, Project $project, Task $task, Request $request): JsonResponse
     {
-        $unreadNotifications=$this->notificationRepository->getUnread($request->user()->id);
+        $unreadNotifications = $this->notificationRepository->getUnread($request->user()->id);
 
         return $this->successResponse(
             data: [
@@ -67,9 +66,9 @@ class NotificationService extends BaseService
         );
     }
 
-    public function getSpecificNotification(Tenant $tenant, Project $project, Task $task, Notification $message):JsonResponse
+    public function getSpecificNotification(Tenant $tenant, Project $project, Task $task, Notification $message): JsonResponse
     {
-        $notification=$this->notificationRepository->find($message->id);
+        $notification = $this->notificationRepository->find($message->id);
 
         return $this->successResponse(
             data: [
@@ -78,9 +77,9 @@ class NotificationService extends BaseService
         );
     }
 
-    public function deleteNotification(Tenant $tenant, Project $project, Task $task, Request $request,Notification $message):JsonResponse
+    public function deleteNotification(Tenant $tenant, Project $project, Task $task, Request $request, Notification $message): JsonResponse
     {
-        $this->notificationRepository->delete($request->user()->id,$message->message);
+        $this->notificationRepository->delete($request->user()->id, $message->message);
 
         return $this->successResponse(
             data: [
@@ -89,11 +88,11 @@ class NotificationService extends BaseService
         );
     }
 
-    public function deleteAllNotifications(Tenant $tenant, Project $project, Task $task, Request $request):JsonResponse
+    public function deleteAllNotifications(Tenant $tenant, Project $project, Task $task, Request $request): JsonResponse
     {
-        $notification=$this->notificationRepository->getAll($request->user()->id);
+        $notification = $this->notificationRepository->getAll($request->user()->id);
 
-        foreach ($notification as $notice){
+        foreach ($notification as $notice) {
             $this->notificationRepository->delete($request->user()->id, $notice->message);
         }
 
@@ -105,9 +104,9 @@ class NotificationService extends BaseService
     }
 
 
-    public function deleteSelectedNotifications(Tenant $tenant, Project $project, Task $task, SelectNotificationRequest $request):JsonResponse
+    public function deleteSelectedNotifications(Tenant $tenant, Project $project, Task $task, SelectNotificationRequest $request): JsonResponse
     {
-        foreach ($request->messages as $message){
+        foreach ($request->messages as $message) {
             $this->notificationRepository->delete($request->user()->id, $message);
         }
 

@@ -14,7 +14,7 @@ return new class extends Migration
 
         Schema::create('projects', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('tenant_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('tenant_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('status')->default('active');
@@ -28,6 +28,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+
+
         Schema::dropIfExists('projects');
     }
 };

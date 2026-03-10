@@ -68,10 +68,10 @@ class TaskService extends BaseService
         $this->notificationRepository->create([
             'user_id' => $request->user()->id,
             'alerts' => "Task created",
-            'mark_read'=>true
+            'mark_read' => true
         ]);
 
-        $this->notifyAllMembers($project, $task,'has been created');
+        $this->notifyAllMembers($project, $task, 'has been created');
 
         return $this->successResponse(
             'Task created successfully',
@@ -116,11 +116,11 @@ class TaskService extends BaseService
         $this->taskRepository->update($task->id, $data);
 
         $this->notificationRepository->create([
-            'user_id'=>$request->user()->id,
-            'alerts'=>"Task updated.",
+            'user_id' => $request->user()->id,
+            'alerts' => "Task updated.",
         ]);
 
-        $this->notifyAllMembers($project, $task,'has been updated');
+        $this->notifyAllMembers($project, $task, 'has been updated');
 
         return $this->successResponse('Task updated successfully', [
             'task' => new TaskResource($task->refresh())
@@ -133,17 +133,17 @@ class TaskService extends BaseService
             return $this->badRequestResponse('You are not a member of this project');
         }
 
-        
+
         $this->notificationRepository->create([
-            'user_id'=>$request->user()->id,
-            'alerts'=>"Task deleted",
-            'mark_read'=>true
+            'user_id' => $request->user()->id,
+            'alerts' => "Task deleted",
+            'mark_read' => true
         ]);
 
-        $this->notifyAllMembers($project, $task,'has been deleted');
-        
+        $this->notifyAllMembers($project, $task, 'has been deleted');
+
         $this->taskRepository->delete($task->id);
-        
+
         return $this->successResponse('Task deleted successfully');
     }
 
@@ -159,82 +159,80 @@ class TaskService extends BaseService
 
         $this->taskRepository->update($task->id, $data);
 
-        $this->notifyAllMembers($project,$task,'has been marked complete');
+        $this->notifyAllMembers($project, $task, 'has been marked complete');
 
         return $this->successResponse('Task complete', [
             'task' => new TaskResource($task->refresh())
         ]);
     }
 
-    public function search(SearchTaskRequest $request,Tenant $tenant, Project $project):JsonResponse
+    public function search(SearchTaskRequest $request, Tenant $tenant, Project $project): JsonResponse
     {
-        $tasks=$this->taskRepository->search($project->id,$request->search);
+        $tasks = $this->taskRepository->search($project->id, $request->search);
 
-        Log::info('tasks',[$tasks]);
-
-        return $this->successResponse(data:[
-            'tasks'=>TaskResource::collection($tasks)
+        return $this->successResponse(data: [
+            'tasks' => TaskResource::collection($tasks)
         ]);
     }
 
-    public function assignTask(Tenant $tenant, Project $project, Task $task, User $user):JsonResponse
+    public function assignTask(Tenant $tenant, Project $project, Task $task, User $user): JsonResponse
     {
-        
-        if($user->project_id!==$project->id){
+
+        if ($user->project_id !== $project->id) {
             return $this->badRequestResponse('User is not part of this project');
         }
 
         $task->user()->syncWithoutDetaching($user->id);
 
         $this->notificationRepository->create([
-            'user_id'=>$user->id,
-            'message'=>"you have been assigned to {$task->name}"
+            'user_id' => $user->id,
+            'message' => "you have been assigned to {$task->name}"
         ]);
 
-        $this->notifyAllMembers($project,$task,"has been assigned to {$user}");
+        $this->notifyAllMembers($project, $task, "has been assigned to {$user}");
 
-        return $this->successResponse(data:[
-            'user(s)'=>UserResource::collection($task->user)
-      
+        return $this->successResponse(data: [
+            'user(s)' => UserResource::collection($task->user)
+
         ]);
     }
 
-    public function removeUserFromTask(Tenant $tenant, Project $project, Task $task, User $user):JsonResponse
+    public function removeUserFromTask(Tenant $tenant, Project $project, Task $task, User $user): JsonResponse
     {
         $task->user()->detach($user->id);
 
-        return $this->successResponse(message:'removed from task',data:[
-            'user(s)'=>$task->user
+        return $this->successResponse(message: 'removed from task', data: [
+            'user(s)' => $task->user
         ]);
     }
 
-    public function getUsersAssignedToTask(Tenant $tenant, Project $project, Task $task):JsonResponse
+    public function getUsersAssignedToTask(Tenant $tenant, Project $project, Task $task): JsonResponse
     {
-        return $this->successResponse(data:[
-            'user(s)'=>UserResource::collection($task->user)
+        return $this->successResponse(data: [
+            'user(s)' => UserResource::collection($task->user)
         ]);
     }
 
-    public function searchUser(SearchUserRequest $request, Tenant $tenant, Project $project, Task $task):JsonResponse
+    public function searchUser(SearchUserRequest $request, Tenant $tenant, Project $project, Task $task): JsonResponse
     {
-       $users=$this->projectRepository->findUsers($project->id,$request->name);
+        $users = $this->projectRepository->findUsers($project->id, $request->name);
 
-       return $this->successResponse(data:[
-        'users'=>UserResource::collection($users)
-       ]);
-
+        return $this->successResponse(data: [
+            'users' => UserResource::collection($users)
+        ]);
     }
 
-    private function notifyAllMembers(Project $project, Task $task,string $keyMessage){
+    private function notifyAllMembers(Project $project, Task $task, string $keyMessage)
+    {
 
-        $projectMembers=$this->projectRepository->getProjectMembers($project->id);
-        $task=$this->taskRepository->find($task->id);
+        $projectMembers = $this->projectRepository->getProjectMembers($project->id);
+        $task = $this->taskRepository->find($task->id);
 
-        foreach($projectMembers as $member){
+        foreach ($projectMembers as $member) {
             $this->notificationRepository->create([
-                    'user_id'=>$member->id,
-                    'message'=>"{$task->name} for {$project->name} {$keyMessage}"
-                ]);
+                'user_id' => $member->id,
+                'message' => "{$task->name} for {$project->name} {$keyMessage}"
+            ]);
         }
     }
 }

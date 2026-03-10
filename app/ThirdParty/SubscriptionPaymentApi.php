@@ -8,7 +8,6 @@ use App\Traits\GenerateNonce;
 use Flutterwave\Util\Currency;
 use App\Enum\TransactionCategory;
 use App\Traits\GenerateReference;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Http\Requests\CardPaymentRequest;
 use App\Http\Requests\ValidateCardPaymentRequest;
@@ -69,7 +68,7 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
             ]);
 
         $flw_ref = $response->json()['data']['flw_ref'];
-        Log::info('flw_ref', [$flw_ref]);
+
 
         $transactionData = [
             'user_id' => $request->user()->id,

@@ -15,10 +15,7 @@ class AccountService extends BaseService
     /**
      * Create a new class instance.
      */
-    public function __construct(private readonly UserRepository $userRepository, private readonly NotificationRepository $notificationRepository)
-    {
-
-    }
+    public function __construct(private readonly UserRepository $userRepository, private readonly NotificationRepository $notificationRepository) {}
 
     public function view(Request $request): JsonResponse
     {
@@ -42,18 +39,24 @@ class AccountService extends BaseService
 
     public function update(UpdateAccountRequest $request): JsonResponse
     {
+        $new_profile_picture = $request->file('profile_picture');
+        $new_cover_picture = $request->file('cover_picture');
 
-        $new_profile_picture= $request->file('profile_picture')->store('profile_picture', 'public');
-        $new_cover_picture= $request->file('cover_picture')->store('cover_picture', 'public');
+        if ($new_profile_picture !== null) {
+            $new_profile_picture->store('profile_picture', 'public');
+        }
 
-        
+        if ($new_cover_picture !== null) {
+            $new_cover_picture->store('cover_picture', 'public');
+        }
+
         $data = [
             'name' => $request->name ?? $request->user()->name,
             'occupation' => $request->occupation ?? $request->user()->occupation,
             'skills' => $request->skills ?? $request->user()->skills,
             'projects_worked_on' => $request->projects_worked_on ?? $request->user()->projects_worked_on,
             'profile_picture' => $new_profile_picture ?? $request->user()->profile_picture,
-            'cover_picture' => $new_cover_picture?? $request->user()->cover_picture,
+            'cover_picture' => $new_cover_picture ?? $request->user()->cover_picture,
             'linkedin_profile' => $request->linkedin_profile ?? $request->user()->linkedin_profile,
 
         ];
@@ -78,6 +81,5 @@ class AccountService extends BaseService
         $this->userRepository->delete($request->user()->id);
 
         return $this->successResponse('Account deleted successfully');
-
     }
 }
