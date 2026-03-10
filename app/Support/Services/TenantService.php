@@ -2,33 +2,31 @@
 
 namespace App\Support\Services;
 
-use App\Models\User;
-use App\Models\Tenant;
 use App\Enum\PlansEnum;
-use App\Models\Project;
 use App\Enum\ProjectStatus;
 use App\Enum\UserRolesEnum;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Http\Resources\UserResource;
-use App\Support\Services\BaseService;
-use Illuminate\Support\Facades\Cache;
-use App\Http\Resources\TenantResource;
 use App\Http\Requests\CompanyLogoRequest;
 use App\Http\Requests\CreateTenantRequest;
-use App\Http\Requests\UpdateTenantRequest;
-use App\Notifications\SendInvitationNotice;
 use App\Http\Requests\SendInvitationRequest;
-use App\Support\Repositories\TaskRepository;
-use App\Support\Repositories\UserRepository;
-use Illuminate\Support\Facades\Notification;
+use App\Http\Requests\UpdateTenantRequest;
+use App\Http\Resources\TenantResource;
+use App\Http\Resources\UserResource;
+use App\Models\Project;
+use App\Models\Tenant;
+use App\Models\User;
 use App\Notifications\CreateTenantInfoNotice;
 use App\Notifications\DeleteTenantInfoNotice;
-use App\Notifications\UpdateTenantInfoNotice;
-use App\Support\Repositories\TenantRepository;
 use App\Notifications\RemoveTenantMemberNotice;
+use App\Notifications\SendInvitationNotice;
+use App\Notifications\UpdateTenantInfoNotice;
 use App\Support\Repositories\ProjectRepository;
-
+use App\Support\Repositories\TaskRepository;
+use App\Support\Repositories\TenantRepository;
+use App\Support\Repositories\UserRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 
 class TenantService extends BaseService
 {
@@ -44,55 +42,54 @@ class TenantService extends BaseService
         //
     }
 
-
     public function dashboard(Request $request): JsonResponse
     {
-        $project = $this->projectRepository->findByTenant($request->user()->tenant->id)?? null;
+        $project = $this->projectRepository->findByTenant($request->user()->tenant->id) ?? null;
         $totalProjects = $this->projectRepository->countAllByTenant($request->user()->tenant->id) ?? null;
         $totalProjectMembers = $this->projectRepository->getProjectMembersCount($request->user()->tenant->id) ?? null;
-        $projectCompletionRate=$project !== null ?$this->calculateProjectCompletionRate($project,$totalProjects,$request->user()->tenant->id):null;
-        $projectProgress=$project !==null ? $this->calculateProjectProgress($project):null;
+        $projectCompletionRate = $project !== null ? $this->calculateProjectCompletionRate($project, $totalProjects, $request->user()->tenant->id) : null;
+        $projectProgress = $project !== null ? $this->calculateProjectProgress($project) : null;
 
         $totalTasks = $this->taskRepository->countAllByTenant($request->user()->tenant->id);
-        $completedTasks=$this->taskRepository->completedTasks($request->user()->tenant->id);
-        $pendingTasks=$this->taskRepository->pendingTasks($request->user()->tenant->id);
+        $completedTasks = $this->taskRepository->completedTasks($request->user()->tenant->id);
+        $pendingTasks = $this->taskRepository->pendingTasks($request->user()->tenant->id);
 
-        $tenant=$this->tenantRepository->find($request->user()->tenant_id);
-        $currentSubscriptionPlan=$this->subscriptionPlan($request);
-        $projectStatus=$project->status;
+        $tenant = $this->tenantRepository->find($request->user()->tenant_id);
+        $currentSubscriptionPlan = $this->subscriptionPlan($request);
+        $projectStatus = $project->status;
 
-        return $this->successResponse(data:[
-            'no_of_projects'=>$totalProjects,
-            'no_of_project_members'=>$totalProjectMembers,
-            'project_completion_rate'=>$projectCompletionRate,
-            'project_progress'=>$projectProgress,
-            'project_status'=>$projectStatus,
-            'no_of_tasks'=>$totalTasks,
-            'no_of_completed_tasks'=>$completedTasks,
-            'no_of_pending_tasks'=>$pendingTasks,
-            'tenant'=>$tenant,
-            'currentSubscriptionPlan'=>$currentSubscriptionPlan
+        return $this->successResponse(data: [
+            'no_of_projects' => $totalProjects,
+            'no_of_project_members' => $totalProjectMembers,
+            'project_completion_rate' => $projectCompletionRate,
+            'project_progress' => $projectProgress,
+            'project_status' => $projectStatus,
+            'no_of_tasks' => $totalTasks,
+            'no_of_completed_tasks' => $completedTasks,
+            'no_of_pending_tasks' => $pendingTasks,
+            'tenant' => $tenant,
+            'currentSubscriptionPlan' => $currentSubscriptionPlan,
         ]);
     }
 
-    public function uploadCompanyLogo(CompanyLogoRequest $request):JsonResponse
+    public function uploadCompanyLogo(CompanyLogoRequest $request): JsonResponse
     {
-        $path=$request->file('logo')->store('company_logo','public');
+        $path = $request->file('logo')->store('company_logo', 'public');
 
-        $this->tenantRepository->update($request->user()->tenant_id,[
-            'company_logo'=>config('filesystems.disks.public.url').'/'.$path
+        $this->tenantRepository->update($request->user()->tenant_id, [
+            'company_logo' => config('filesystems.disks.public.url').'/'.$path,
         ]);
 
-        $tenant=$this->tenantRepository->find($request->user()->tenant_id);
+        $tenant = $this->tenantRepository->find($request->user()->tenant_id);
 
-        return $this->successResponse(message:'uploaded',data:[
-            'tenant'=>new TenantResource($tenant)
+        return $this->successResponse(message: 'uploaded', data: [
+            'tenant' => new TenantResource($tenant),
         ]);
     }
 
-    public function subscriptionPlan(Request $request):string
+    public function subscriptionPlan(Request $request): string
     {
-        $user=$this->userRepository->find($request->user()->id);
+        $user = $this->userRepository->find($request->user()->id);
 
         return $user->subscription_plan;
     }
@@ -105,7 +102,7 @@ class TenantService extends BaseService
 
         $data = [
             'name' => $request->name,
-            'plan'=>PlansEnum::from($request->user()->subscription_plan)
+            'plan' => PlansEnum::from($request->user()->subscription_plan),
         ];
 
         $tenant = $this->tenantRepository->create($data);
@@ -114,14 +111,14 @@ class TenantService extends BaseService
         $request->user()->notify(new CreateTenantInfoNotice($tenant->name));
 
         return $this->successResponse(data: [
-            'tenant' => new TenantResource($tenant)
+            'tenant' => new TenantResource($tenant),
         ]);
     }
 
     public function update(UpdateTenantRequest $request, Tenant $tenant): JsonResponse
     {
         $data = [
-            'name' => $request->name
+            'name' => $request->name,
         ];
 
         if ($request->user()->tenant_id !== $tenant->id) {
@@ -134,7 +131,7 @@ class TenantService extends BaseService
         $this->notifyAllMembers($tenant, 'has been updated', 'update');
 
         return $this->successResponse(data: [
-            'tenant' => new TenantResource($tenant)
+            'tenant' => new TenantResource($tenant),
         ]);
     }
 
@@ -143,7 +140,7 @@ class TenantService extends BaseService
         $this->tenantRepository->delete($tenant->id);
 
         if ($request->user()->tenant_id !== $tenant->id) {
-            return $this->badRequestResponse(message: "You do not belong to this tenant");
+            return $this->badRequestResponse(message: 'You do not belong to this tenant');
         }
 
         $this->notifyAllMembers($tenant, 'has been deleted', 'delete');
@@ -154,7 +151,7 @@ class TenantService extends BaseService
     public function sendInvitation(Tenant $tenant, SendInvitationRequest $request): JsonResponse
     {
         if ($request->user()->tenant_id !== $tenant->id) {
-            return $this->badRequestResponse("You are not authorized to send invitations for this tenant");
+            return $this->badRequestResponse('You are not authorized to send invitations for this tenant');
         }
 
         $inviteCode = $this->generateInviteCode();
@@ -173,16 +170,16 @@ class TenantService extends BaseService
     {
         $user = $this->userRepository->find($user->id);
 
-        if (!$user || $user->tenant_id !== $tenant->id) {
-            return $this->badRequestResponse("User not found in this tenant", 404);
+        if (! $user || $user->tenant_id !== $tenant->id) {
+            return $this->badRequestResponse('User not found in this tenant', 404);
         }
 
         if ($user->id === $request->user()->id) {
-            return $this->badRequestResponse("You cannot remove yourself from the tenant", 400);
+            return $this->badRequestResponse('You cannot remove yourself from the tenant', 400);
         }
 
         $this->userRepository->update($user->id, [
-            'tenant_id' => null
+            'tenant_id' => null,
         ]);
 
         $users = $this->userRepository->findAllByTenant($request->user()->tenant_id);
@@ -216,24 +213,24 @@ class TenantService extends BaseService
         }
     }
 
-    public function calculateProjectCompletionRate(Project $project,int $totalProjects, string $tenant_id):int
+    public function calculateProjectCompletionRate(Project $project, int $totalProjects, string $tenant_id): int
     {
-        $projects=$this->projectRepository->getProjects($tenant_id);
-        $completedProjects=[];
-        foreach($projects as $project){
-            if($project->status===ProjectStatus::COMPLETED->value){
-                $completedProjects[]=$project;
+        $projects = $this->projectRepository->getProjects($tenant_id);
+        $completedProjects = [];
+        foreach ($projects as $project) {
+            if ($project->status === ProjectStatus::COMPLETED->value) {
+                $completedProjects[] = $project;
             }
         }
 
-        return count($completedProjects)/$totalProjects * 100;
+        return count($completedProjects) / $totalProjects * 100;
     }
 
-    public function calculateProjectProgress(Project $project):int
+    public function calculateProjectProgress(Project $project): int
     {
-        $totalProjectTasks=$this->taskRepository->countAllForProject($project->id);
-        $totalCompletedTasks=$this->taskRepository->getCompletedTasksForProject($project->id);
+        $totalProjectTasks = $this->taskRepository->countAllForProject($project->id);
+        $totalCompletedTasks = $this->taskRepository->getCompletedTasksForProject($project->id);
 
-        return $totalCompletedTasks/$totalProjectTasks * 100;
+        return $totalCompletedTasks / $totalProjectTasks * 100;
     }
 }

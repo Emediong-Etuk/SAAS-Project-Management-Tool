@@ -2,23 +2,22 @@
 
 namespace App\Support\Services;
 
-use App\Models\User;
-use App\Models\Tenant;
+use App\Contracts\Interface\AWSChimeInterface;
 use App\Enum\PlansEnum;
-use App\Models\Project;
 use App\Enum\ProjectStatus;
 use App\Enum\UserRolesEnum;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Support\Services\BaseService;
-use App\Http\Resources\ProjectResource;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
-use App\Support\Repositories\UserRepository;
-use App\Contracts\Interface\AWSChimeInterface;
-use App\Support\Repositories\ProjectRepository;
 use App\Http\Requests\UpdateProjectStatusRequest;
+use App\Http\Resources\ProjectResource;
+use App\Models\Project;
+use App\Models\Tenant;
+use App\Models\User;
 use App\Support\Repositories\NotificationRepository;
+use App\Support\Repositories\ProjectRepository;
+use App\Support\Repositories\UserRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ProjectService extends BaseService
 {
@@ -38,7 +37,7 @@ class ProjectService extends BaseService
         $project = $this->projectRepository->getProjects($tenant->id);
 
         return $this->successResponse(data: [
-            'projects' => ProjectResource::collection($project)
+            'projects' => ProjectResource::collection($project),
         ]);
     }
 
@@ -62,7 +61,7 @@ class ProjectService extends BaseService
         $this->notifyAllMembers($project, 'has been created', 'create');
 
         return $this->successResponse('Project created successfully', [
-            'project' => new ProjectResource($project)
+            'project' => new ProjectResource($project),
         ]);
     }
 
@@ -70,12 +69,12 @@ class ProjectService extends BaseService
     {
 
         if ($request->user()->tenant_id !== $tenant->id) {
-            return $this->badRequestResponse("You do not have permission to view projects in this tenant");
+            return $this->badRequestResponse('You do not have permission to view projects in this tenant');
         }
         $project = $this->projectRepository->find($project->id);
 
         return $this->successResponse(data: [
-            'project' => new ProjectResource($project)
+            'project' => new ProjectResource($project),
         ]);
     }
 
@@ -95,17 +94,17 @@ class ProjectService extends BaseService
         $this->notifyAllMembers($project, 'has been updated', 'update');
 
         return $this->successResponse('Project updated successfully', [
-            'project' => new ProjectResource($project->refresh())
+            'project' => new ProjectResource($project->refresh()),
         ]);
     }
 
     public function getProjectStatusList(Tenant $tenant, Project $project): JsonResponse
     {
         $statusList = ProjectStatus::cases();
-        $statusArray = array_map(fn($status) => $status->value, $statusList);
+        $statusArray = array_map(fn ($status) => $status->value, $statusList);
 
         return $this->successResponse(data: [
-            'status_list' => $statusArray
+            'status_list' => $statusArray,
         ]);
     }
 
@@ -142,7 +141,7 @@ class ProjectService extends BaseService
         $this->notifyAllMembers($project, 'has been added to the project', 'add_member');
 
         return $this->successResponse("User ,{$user->name} has been added to project ,{$project->name}", [
-            'project' => new ProjectResource($project)
+            'project' => new ProjectResource($project),
         ]);
     }
 
@@ -162,7 +161,7 @@ class ProjectService extends BaseService
         $this->notifyAllMembers($project, 'has been removed from the project', 'remove_member');
 
         return $this->successResponse("User ,{$user->name} has been removed from project ,{$project->name}", [
-            'project' => new ProjectResource($project)
+            'project' => new ProjectResource($project),
         ]);
     }
 
@@ -246,7 +245,7 @@ class ProjectService extends BaseService
         $this->projectRepository->update($project->id, ['status' => ProjectStatus::from($request->status)]);
 
         return $this->successResponse('Project status updated successfully', [
-            'project' => new ProjectResource($project->refresh())
+            'project' => new ProjectResource($project->refresh()),
         ]);
     }
 
@@ -262,7 +261,6 @@ class ProjectService extends BaseService
                     'message' => "Project ,{$project->name} has been created.",
                 ]);
             }
-
 
             if ($purpose === 'update') {
                 $this->notificationRepository->create([

@@ -1,24 +1,23 @@
 <?php
 
-use App\Models\User;
-use App\Models\Tenant;
-use App\Models\Project;
 use App\Enum\UserRolesEnum;
-use App\Notifications\SendInvitationNotice;
-use Illuminate\Support\Facades\Notification;
+use App\Models\Project;
+use App\Models\Tenant;
+use App\Models\User;
 use App\Notifications\CreateTenantInfoNotice;
 use App\Notifications\DeleteTenantInfoNotice;
+use App\Notifications\SendInvitationNotice;
 use App\Notifications\UpdateTenantInfoNotice;
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Notifications\AnonymousNotifiable;
-
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Testing\Fluent\AssertableJson;
 
 test('user cannot access other tenant data', function () {
     $tenant1 = Tenant::factory()->create();
     $tenant2 = Tenant::factory()->create();
 
     $user = User::factory()->create([
-        'tenant_id' => $tenant1->id
+        'tenant_id' => $tenant1->id,
     ]);
 
     $this->actingAs($user);
@@ -26,10 +25,10 @@ test('user cannot access other tenant data', function () {
     $response = $this->post(route('tenant.update', ['tenant' => $tenant2->id]));
 
     $response->assertStatus(403)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('message')
             ->whereAllType([
-                'message' => 'string'
+                'message' => 'string',
             ])->etc());
 });
 
@@ -40,9 +39,9 @@ test('queries are scoped to tenant', function () {
     $project1 = Project::factory()->create(['tenant_id' => $tenant1->id]);
     $project2 = Project::factory()->count(5)->create(['tenant_id' => $tenant2->id]);
 
-    $user = User::factory()->create(['tenant_id' => $tenant1->id, 'project_id'=>$project1->id]);
+    $user = User::factory()->create(['tenant_id' => $tenant1->id, 'project_id' => $project1->id]);
 
-    Project::factory()->count(5)->create(['tenant_id'=>$tenant1->id]);
+    Project::factory()->count(5)->create(['tenant_id' => $tenant1->id]);
 
     $this->actingAs($user, 'sanctum');
 
@@ -50,7 +49,6 @@ test('queries are scoped to tenant', function () {
 
     expect($projects)->toHaveCount(6);
 });
-
 
 test('tenant created successfully', function () {
 
@@ -64,8 +62,7 @@ test('tenant created successfully', function () {
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll('status', 'message', 'data')
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
@@ -78,7 +75,7 @@ test('tenant created successfully', function () {
         'name' => 'Test Tenant',
     ]);
 
-    Notification::assertSentTo($user, CreateTenantInfoNotice::class, fn($notification, $channels) => in_array('mail', $channels));
+    Notification::assertSentTo($user, CreateTenantInfoNotice::class, fn ($notification, $channels) => in_array('mail', $channels));
 });
 
 test('tenant creation failed due to unauthenticated user', function () {
@@ -92,7 +89,6 @@ test('tenant creation failed due to unauthenticated user', function () {
 
     Notification::assertNothingSent();
 });
-
 
 test('edit tenant', function () {
     Notification::fake();
@@ -110,8 +106,7 @@ test('edit tenant', function () {
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll('status', 'message', 'data')
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
@@ -125,7 +120,7 @@ test('edit tenant', function () {
         'name' => 'new name',
     ]);
 
-    Notification::assertSentTo($user, UpdateTenantInfoNotice::class, fn($notification, $channels) => in_array('mail', $channels));
+    Notification::assertSentTo($user, UpdateTenantInfoNotice::class, fn ($notification, $channels) => in_array('mail', $channels));
 });
 
 test('edit tenant unsuccessful due to unauthorized user', function () {
@@ -160,11 +155,10 @@ test('delete tenant successful', function () {
     ]);
 
     $this->actingAs($user, 'sanctum');
-    $response = $this->delete('/api/tenants/' . $tenant->id . '/delete');
+    $response = $this->delete('/api/tenants/'.$tenant->id.'/delete');
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll('status', 'message')
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll('status', 'message')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
@@ -175,7 +169,7 @@ test('delete tenant successful', function () {
         'id' => $tenant->id,
     ]);
 
-    Notification::assertSentTo($user, DeleteTenantInfoNotice::class, fn($notification, $channels) => in_array('mail', $channels));
+    Notification::assertSentTo($user, DeleteTenantInfoNotice::class, fn ($notification, $channels) => in_array('mail', $channels));
 });
 
 test('delete tenant unsuccessful due to unauthorized user', function () {
@@ -190,7 +184,7 @@ test('delete tenant unsuccessful due to unauthorized user', function () {
     );
 
     $this->actingAs($user, 'sanctum');
-    $response = $this->delete('/api/tenants/' . $tenant->id . '/delete');
+    $response = $this->delete('/api/tenants/'.$tenant->id.'/delete');
 
     $response->assertStatus(404);
 
@@ -215,15 +209,14 @@ test('send invite successful', function () {
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll('status', 'message')
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll('status', 'message')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
             ])
             ->etc());
 
-    Notification::assertSentTo(new AnonymousNotifiable, SendInvitationNotice::class, fn($notification, $channels) => in_array('mail', $channels));
+    Notification::assertSentTo(new AnonymousNotifiable, SendInvitationNotice::class, fn ($notification, $channels) => in_array('mail', $channels));
 });
 
 test('send invite unsuccessful due to unauthorized user', function () {
@@ -244,8 +237,7 @@ test('send invite unsuccessful due to unauthorized user', function () {
         'receiver_email' => 'test@example.com',
     ]);
     $response->assertStatus(404)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll('message')
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll('message')
             ->whereAllType([
                 'message' => 'string',
             ])
@@ -253,7 +245,6 @@ test('send invite unsuccessful due to unauthorized user', function () {
 
     Notification::assertNothingSent();
 });
-
 
 test('remove member successful', function () {
 
@@ -265,10 +256,9 @@ test('remove member successful', function () {
         'subscription_plan' => 'pro',
     ]);
 
-
     $userToRemove = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'role' => 'member'
+        'role' => 'member',
     ]);
 
     $this->actingAs($adminUser, 'sanctum');
@@ -276,8 +266,7 @@ test('remove member successful', function () {
     $response = $this->post(route('tenant.removeMember', ['tenant' => $tenant->id, 'user' => $userToRemove->id]));
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) =>
-        $json->hasAll('status', 'message')
+        ->assertJson(fn (AssertableJson $json) => $json->hasAll('status', 'message')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
@@ -296,11 +285,11 @@ test('remove member unsuccessful due to unauthorized user', function () {
 
     $normalUser = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'role' => 'member'
+        'role' => 'member',
     ]);
     $userToRemove = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'role' => 'member'
+        'role' => 'member',
     ]);
     $this->actingAs($normalUser, 'sanctum');
     $response = $this->post(route('tenant.removeMember', ['tenant' => $tenant->id, 'user' => $userToRemove->id]));

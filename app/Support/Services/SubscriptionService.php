@@ -2,23 +2,21 @@
 
 namespace App\Support\Services;
 
-
-use App\Models\Tenant;
-use App\Enum\PlansEnum;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use App\Http\Resources\UserResource;
-use App\Support\Services\BaseService;
-use App\Http\Requests\CardPaymentRequest;
-use App\Http\Resources\PricingPlanResource;
-use App\Notifications\SubscriptionCancelled;
-use App\Support\Repositories\UserRepository;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\SubscriptionSuccessful;
-use App\Http\Requests\ValidateCardPaymentRequest;
-use App\Support\Repositories\PricingPlanRepository;
 use App\Contracts\Interface\SubscriptionPaymentInterface;
+use App\Enum\PlansEnum;
+use App\Http\Requests\CardPaymentRequest;
+use App\Http\Requests\ValidateCardPaymentRequest;
+use App\Http\Resources\PricingPlanResource;
+use App\Http\Resources\UserResource;
+use App\Models\Tenant;
+use App\Notifications\SubscriptionCancelled;
+use App\Notifications\SubscriptionSuccessful;
+use App\Support\Repositories\PricingPlanRepository;
+use App\Support\Repositories\UserRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class SubscriptionService extends BaseService
 {
@@ -35,7 +33,7 @@ class SubscriptionService extends BaseService
         $plans = $this->pricingPlanRepository->getAll();
 
         return $this->successResponse(message: 'Plans fetched successfully', data: [
-            'plans' => PricingPlanResource::collection($plans)
+            'plans' => PricingPlanResource::collection($plans),
         ]);
     }
 
@@ -44,11 +42,11 @@ class SubscriptionService extends BaseService
         $createPlan = $this->subscriptionPayment->createPaymentPlan();
 
         $this->userRepository->update($request->user()->id, [
-            'payment_plan' => $createPlan['data']['id']
+            'payment_plan' => $createPlan['data']['id'],
         ]);
 
         return $this->successResponse(data: [
-            'payment_plan' => $createPlan
+            'payment_plan' => $createPlan,
         ]);
     }
 
@@ -57,7 +55,7 @@ class SubscriptionService extends BaseService
         $authModel = $this->subscriptionPayment->getAuthModel($request);
 
         return $this->successResponse(data: [
-            'response' => $authModel
+            'response' => $authModel,
         ]);
     }
 
@@ -68,8 +66,8 @@ class SubscriptionService extends BaseService
         $this->getAuthModel($tenant, $request);
         $payment = $this->subscriptionPayment->cardPayment($request);
 
-        return $this->successResponse(message: "OTP has been sent to your phone number", data: [
-            'payment' => $payment
+        return $this->successResponse(message: 'OTP has been sent to your phone number', data: [
+            'payment' => $payment,
         ]);
     }
 
@@ -84,7 +82,7 @@ class SubscriptionService extends BaseService
 
         return $this->successResponse(data: [
             'validationResponse' => $validationResponse,
-            'user' => new UserResource($request->user()->refresh())
+            'user' => new UserResource($request->user()->refresh()),
         ]);
     }
 
@@ -100,11 +98,12 @@ class SubscriptionService extends BaseService
                 });
 
                 Notification::route('mail', $user->email)->notify(new SubscriptionCancelled($user->name, 'Pro', now()->addMonth()->toFormattedDateString()));
+
                 return $this->successResponse(message: 'Successfully Cancelled Subscription', data: ['user' => new UserResource($user)]);
             }
         }
 
-        return $this->badRequestResponse(message: "Failed to cancel subscription");
+        return $this->badRequestResponse(message: 'Failed to cancel subscription');
     }
 
     public function getSubscriptionStatus(Tenant $tenant, Request $request): JsonResponse
@@ -112,7 +111,7 @@ class SubscriptionService extends BaseService
         $subscriptionStatus = $this->subscriptionPayment->getSubscriptionStatus($request);
 
         return $this->successResponse(data: [
-            'subscription_status' => $subscriptionStatus
+            'subscription_status' => $subscriptionStatus,
         ]);
     }
 }

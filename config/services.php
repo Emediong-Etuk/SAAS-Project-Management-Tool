@@ -28,11 +28,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    'flutterwave'=>[
-        'webhook_secret'=>env('FLW_WEBHOOK_SECRET'),
-        'secret_key'=>env('FLW_SECRET_KEY'),
-        'base_api_url'=>env('FLW_BASE_API_URL'),
-        'encryption_key'=>env('FLW_ENCRYPTION_KEY'),
+    'flutterwave' => [
+        'webhook_secret' => env('FLW_WEBHOOK_SECRET'),
+        'secret_key' => env('FLW_SECRET_KEY'),
+        'base_api_url' => env('FLW_BASE_API_URL'),
+        'encryption_key' => env('FLW_ENCRYPTION_KEY'),
     ],
 
     'slack' => [
@@ -48,16 +48,16 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    'github'=>[
-        'client_id'=>env('GITHUB_CLIENT_ID'),
-        'client_secret'=>env('GITHUB_CLIENT_SECRET'),
-        'redirect'=>env('GITHUB_REDIRECT')
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => env('GITHUB_REDIRECT'),
     ],
 
-    'google'=>[
-        'client_id'=>env('GOOGLE_CLIENT_ID'),
-        'client_secret'=>env('GOOGLE_CLIENT_SECRET'),
-        'redirect'=>env('GOOGLE_REDIRECT')
-    ]
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT'),
+    ],
 
 ];

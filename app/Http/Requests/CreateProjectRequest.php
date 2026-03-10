@@ -3,8 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Enum\ProjectStatus;
-use Illuminate\Validation\Rules\Enum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class CreateProjectRequest extends FormRequest
 {
@@ -25,10 +25,10 @@ class CreateProjectRequest extends FormRequest
     {
         return [
             //
-            'name'=>['required','string','max:255'],
-            'description'=>['nullable','string'],
-            'status'=>['required', new Enum(ProjectStatus::class)],
-            'deadline'=>['nullable','date'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'status' => ['required', new Enum(ProjectStatus::class)],
+            'deadline' => ['nullable', 'date'],
         ];
     }
 }

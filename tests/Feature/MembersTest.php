@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
 use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Testing\Fluent\AssertableJson;
 
@@ -9,7 +9,7 @@ test('successfully gotten all members', function () {
     $tenant = Tenant::factory()->create();
 
     $user = User::factory()->create([
-        'tenant_id' => $tenant->id
+        'tenant_id' => $tenant->id,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -17,15 +17,14 @@ test('successfully gotten all members', function () {
     $response = $this->get(route('members.getAll', ['tenant' => $tenant->id]));
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
-                'data' => 'array'
+                'data' => 'array',
             ]));
 });
-
 
 test('successfully accepted an invitation', function () {
     $tenant = Tenant::factory()->create();
@@ -39,15 +38,15 @@ test('successfully accepted an invitation', function () {
         ->with("TENANCY_INVITATION_CODE_$inviteCode")
         ->andReturn([$user->email, $tenant->id, $inviter->id]);
 
-    $response = $this->post(route('members.acceptInvitation') . '?token=' . $inviteCode);
+    $response = $this->post(route('members.acceptInvitation').'?token='.$inviteCode);
 
     $response->assertStatus(200)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
-                'data' => 'array'
+                'data' => 'array',
             ]));
 });
 
@@ -63,10 +62,10 @@ test('failed to accept invitation due to invalid invite code', function () {
         ->with("TENANCY_INVITATION_CODE_$inviteCode")
         ->andReturn([$user->email, $tenant->id, $inviter->id]);
 
-    $response = $this->post(route('members.acceptInvitation') . '?token=' . 'wrongcode');
+    $response = $this->post(route('members.acceptInvitation').'?token='.'wrongcode');
 
     $response->assertStatus(500)
-        ->assertJson(fn(AssertableJson $json) => $json
+        ->assertJson(fn (AssertableJson $json) => $json
             ->hasAll('message')
             ->whereAllType([
                 'message' => 'string',

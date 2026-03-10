@@ -25,8 +25,8 @@ class LoginRequest extends FormRequest
     {
         return [
             //
-            'email'=>['required','string','email',new ValidateLoginCredentials],
-            'password'=>['required','string',Password::defaults()]
+            'email' => ['required', 'string', 'email', new ValidateLoginCredentials],
+            'password' => ['required', 'string', Password::defaults()],
         ];
     }
 }

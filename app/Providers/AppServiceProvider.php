@@ -20,7 +20,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
 
-
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -39,12 +38,11 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(ChimeSDKMeetingsClient::class, function (Application $app) {
 
-
             return new ChimeSDKMeetingsClient([
                 'version' => 'latest',
-                'region'  => env('AWS_DEFAULT_REGION', 'us-east-1'),
+                'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
                 'credentials' => [
-                    'key'    => config('services.aws-chime.access_key_id'),
+                    'key' => config('services.aws-chime.access_key_id'),
                     'secret' => config('services.aws-chime.secret_access_key'),
                 ],
             ]);
@@ -58,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         Gate::policy(User::class, UserPolicy::class);
-        
+
         JsonResource::withoutWrapping();
 
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
@@ -72,11 +70,11 @@ class AppServiceProvider extends ServiceProvider
         Password::defaults(function () {
             return app()->environment('production')
                 ? Password::min(8)
-                ->letters()
-                ->mixedCase()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
                 : Password::min(8);
         });
     }

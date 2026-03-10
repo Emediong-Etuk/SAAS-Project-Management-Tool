@@ -2,25 +2,27 @@
 
 namespace App\Jobs;
 
-use App\Traits\HasResponse;
-use App\Enum\TransactionStatus;
-use App\Enum\FlutterwaveWebhookEvent;
-use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Support\Repositories\UserRepository;
-use Spatie\WebhookClient\Models\WebhookCall;
-use Spatie\WebhookClient\Jobs\ProcessWebhookJob;
-use App\Support\Repositories\TransactionRepository;
 use App\Contracts\Interface\SubscriptionPaymentInterface;
+use App\Enum\FlutterwaveWebhookEvent;
+use App\Enum\TransactionStatus;
+use App\Support\Repositories\TransactionRepository;
+use App\Support\Repositories\UserRepository;
+use App\Traits\HasResponse;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Spatie\WebhookClient\Jobs\ProcessWebhookJob;
+use Spatie\WebhookClient\Models\WebhookCall;
 
 class FlutterwaveWebhookJob extends ProcessWebhookJob implements ShouldQueue
 {
-    use Queueable, HasResponse;
-
+    use HasResponse, Queueable;
 
     private TransactionRepository $transactionRepository;
+
     private SubscriptionPaymentInterface $subscriptionPaymentService;
+
     private UserRepository $userRepository;
+
     /**
      * Create a new job instance.
      */
@@ -30,7 +32,7 @@ class FlutterwaveWebhookJob extends ProcessWebhookJob implements ShouldQueue
         parent::__construct($webhookCall);
         $this->transactionRepository = app(TransactionRepository::class);
         $this->subscriptionPaymentService = app(SubscriptionPaymentInterface::class);
-        $this->userRepository=app(UserRepository::class);
+        $this->userRepository = app(UserRepository::class);
     }
 
     /**
@@ -47,11 +49,9 @@ class FlutterwaveWebhookJob extends ProcessWebhookJob implements ShouldQueue
 
         $transaction = $this->transactionRepository->findByRef($webhookData['data']['tx_ref']);
 
-
-        if (!$transaction) {
+        if (! $transaction) {
             return;
         }
-
 
         $verifyTransaction = $this->subscriptionPaymentService->verifyTransaction($transaction->transaction_id);
 
@@ -63,8 +63,8 @@ class FlutterwaveWebhookJob extends ProcessWebhookJob implements ShouldQueue
             'status' => TransactionStatus::from($verifyTransaction->status),
         ]);
 
-        $this->userRepository->update($transaction->user_id,[
-            'card_token'=>$verifyTransaction->token
+        $this->userRepository->update($transaction->user_id, [
+            'card_token' => $verifyTransaction->token,
         ]);
     }
 }

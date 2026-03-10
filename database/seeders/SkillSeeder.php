@@ -140,18 +140,15 @@ class SkillSeeder extends Seeder
             'Edge Computing',
             'Augmented Reality',
             'Virtual Reality',
-            'Game Development'
+            'Game Development',
         ];
 
         $now = now();
-        $rows = array_map(function ($name) use ($now) {
-            return [
-                'name' => $name,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }, $skills);
-
-        DB::table('skills')->insert($rows);
+        foreach ($skills as $name) {
+            DB::table('skills')->updateOrInsert(
+                ['name' => $name],
+                ['created_at' => $now, 'updated_at' => $now]
+            );
+        }
     }
 }

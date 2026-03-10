@@ -30,7 +30,7 @@ class TransactionRepository
         return Transaction::query()->where('user_id', $userId)->first();
     }
 
-    public function getAll():Collection
+    public function getAll(): Collection
     {
         return Transaction::query()->get();
     }

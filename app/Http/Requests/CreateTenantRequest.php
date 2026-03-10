@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-
 class CreateTenantRequest extends FormRequest
 {
     /**
@@ -23,8 +22,8 @@ class CreateTenantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //ap
-            'name'=>['required','string','max:255','unique:tenants,name']
+            // ap
+            'name' => ['required', 'string', 'max:255', 'unique:tenants,name'],
         ];
     }
 }

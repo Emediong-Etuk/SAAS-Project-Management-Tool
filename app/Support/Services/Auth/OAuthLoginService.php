@@ -2,13 +2,12 @@
 
 namespace App\Support\Services\Auth;
 
-use Laravel\Socialite\Socialite;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use App\Support\Services\BaseService;
 use App\Support\Repositories\UserRepository;
+use App\Support\Services\BaseService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Socialite;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 
 class OAuthLoginService extends BaseService
 {
@@ -45,7 +44,7 @@ class OAuthLoginService extends BaseService
 
         return $this->successResponse(data: [
             'data' => $data,
-            'token' => $token->plainTextToken
+            'token' => $token->plainTextToken,
         ]);
     }
 
@@ -61,7 +60,7 @@ class OAuthLoginService extends BaseService
 
         $data = [
             'name' => $googleUser->name,
-            'email' => $googleUser->email
+            'email' => $googleUser->email,
         ];
 
         $user = $this->userRepository->firstOrCreate($data['email'], $data);
@@ -70,7 +69,7 @@ class OAuthLoginService extends BaseService
 
         return $this->successResponse(data: [
             'user' => $data,
-            'token' => $token->plainTextToken
+            'token' => $token->plainTextToken,
         ]);
     }
 }

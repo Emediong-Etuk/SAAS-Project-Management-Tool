@@ -2,21 +2,20 @@
 
 namespace App\Support\Services;
 
-use App\Models\Task;
-use App\Models\Tenant;
-use App\Models\Comment;
-use App\Models\Project;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Support\Services\BaseService;
-use App\Http\Resources\CommentResource;
 use App\Http\Requests\CreateCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
+use App\Http\Resources\CommentResource;
+use App\Models\Comment;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\Tenant;
 use App\Support\Repositories\CommentRepository;
 use App\Support\Repositories\MentionRepository;
 use App\Support\Repositories\NotificationRepository;
 use App\Support\Repositories\ProjectRepository;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CommentService extends BaseService
 {
@@ -41,7 +40,7 @@ class CommentService extends BaseService
         }
 
         return $this->successResponse(data: [
-            'comments' => $comment
+            'comments' => $comment,
         ]);
     }
 
@@ -51,7 +50,7 @@ class CommentService extends BaseService
         $comment = $this->commentRepository->find($comment->id);
 
         return $this->successResponse(data: [
-            'comment' => new CommentResource($comment)
+            'comment' => new CommentResource($comment),
         ]);
     }
 
@@ -73,7 +72,7 @@ class CommentService extends BaseService
             'project_id' => $project->id,
             'tenant_id' => $tenant->id,
             'task_id' => $task->id,
-            'user_id' => $request->user()->id
+            'user_id' => $request->user()->id,
         ];
 
         $comment = $this->commentRepository->create($data);
@@ -83,7 +82,7 @@ class CommentService extends BaseService
                 'user_id' => $projectMember->id,
                 'username' => $projectMember->username,
                 'comment_id' => $comment->id,
-                'account_link' => config('app.url') . "/api/{$tenant->id}/account/{$projectMember->username}"
+                'account_link' => config('app.url')."/api/{$tenant->id}/account/{$projectMember->username}",
             ]);
 
             $this->notificationRepository->create([
@@ -97,7 +96,7 @@ class CommentService extends BaseService
         return $this->successResponse('Comment added successfully', [
             'mentions' => $mentions,
             'names' => $names,
-            'comment' => new CommentResource($comment)
+            'comment' => new CommentResource($comment),
         ]);
     }
 
@@ -110,13 +109,14 @@ class CommentService extends BaseService
         $this->commentRepository->update($comment->id, $data);
 
         return $this->successResponse('Comment updated successfully', [
-            'comment' => new CommentResource($this->commentRepository->find($comment->id))
+            'comment' => new CommentResource($this->commentRepository->find($comment->id)),
         ]);
     }
 
     public function delete(Tenant $tenant, Project $project, Task $task, Comment $comment): JsonResponse
     {
         $this->commentRepository->delete($comment->id);
+
         return $this->successResponse('Comment deleted successfully');
     }
 

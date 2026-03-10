@@ -2,11 +2,11 @@
 
 namespace App\Enum;
 
-enum MeetingStatus:string
+enum MeetingStatus: string
 {
     //
-    case TRUE='true';
-    case FALSE='false';
+    case TRUE = 'true';
+    case FALSE = 'false';
 
     public static function value(bool $value): MeetingStatus
     {

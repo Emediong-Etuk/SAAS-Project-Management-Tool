@@ -36,9 +36,9 @@ class VerifyEmailNotice extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Verify your Email')
-            ->markdown('mails.auth.verify_email',[
-                'token'=>$this->token,
-                'expiryTime'=>$this->expiryTime/60
+            ->markdown('mails.auth.verify_email', [
+                'token' => $this->token,
+                'expiryTime' => $this->expiryTime / 60,
             ]);
     }
 

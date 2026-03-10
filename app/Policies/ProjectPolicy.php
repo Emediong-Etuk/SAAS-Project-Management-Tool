@@ -2,16 +2,14 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Enum\PlansEnum;
-use App\Models\Project;
 use App\Enum\UserRolesEnum;
+use App\Models\Project;
+use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class ProjectPolicy
 {
-
-
     public function create(User $user): Response
     {
         if ($user->role !== UserRolesEnum::TENANT_ADMIN->value) {
@@ -20,7 +18,6 @@ class ProjectPolicy
 
         return Response::allow();
     }
-
 
     public function update(User $user): Response
     {
@@ -45,10 +42,10 @@ class ProjectPolicy
     public function joinMeeting(User $user, Project $project): Response
     {
         if ($user->project_id === null) {
-            return Response::deny("You are not assigned to any project to join meeting", 403);
+            return Response::deny('You are not assigned to any project to join meeting', 403);
         }
         if ($user->project_id !== $project->id) {
-            return Response::deny("You are not assigned to this project and cannot join the meeting", 403);
+            return Response::deny('You are not assigned to this project and cannot join the meeting', 403);
         }
 
         return Response::allow();
@@ -69,7 +66,7 @@ class ProjectPolicy
             return Response::allow();
         }
 
-        return Response::deny("You do not have permission to assign roles in a project", 403);
+        return Response::deny('You do not have permission to assign roles in a project', 403);
     }
 
     public function removeUser(User $user): Response

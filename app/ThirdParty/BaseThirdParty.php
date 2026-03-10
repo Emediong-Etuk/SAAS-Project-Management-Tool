@@ -10,5 +10,5 @@ class BaseThirdParty
     /**
      * Create a new class instance.
      */
-    use HasResponse, GenerateClientRequestToken;
+    use GenerateClientRequestToken, HasResponse;
 }

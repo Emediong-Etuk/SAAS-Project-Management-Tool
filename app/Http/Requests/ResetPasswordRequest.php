@@ -16,7 +16,7 @@ class ResetPasswordRequest extends FormRequest
         return true;
     }
 
-    public function getCachedToken():int
+    public function getCachedToken(): int
     {
         return intval(Cache::get("PASSWORD_RESET_TOKEN_$this->email"));
     }
@@ -30,13 +30,13 @@ class ResetPasswordRequest extends FormRequest
     {
         return [
             //
-            'email'=>['required','string','email','exists:users,email'],
-            'password'=>['required','string',Password::defaults()],
-            'token'=>['required','integer',function($attr,$val,$fail){
-                if(intval($val) !==$this->getCachedToken()){
+            'email' => ['required', 'string', 'email', 'exists:users,email'],
+            'password' => ['required', 'string', Password::defaults()],
+            'token' => ['required', 'integer', function ($attr, $val, $fail) {
+                if (intval($val) !== $this->getCachedToken()) {
                     return $fail('Invalid Token');
                 }
-            }]
+            }],
         ];
     }
 }

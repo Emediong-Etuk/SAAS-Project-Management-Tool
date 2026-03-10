@@ -3,20 +3,21 @@
 namespace App\Rules;
 
 use Closure;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Facades\Auth;
 
-class ValidateLoginCredentials implements ValidationRule, DataAwareRule
+class ValidateLoginCredentials implements DataAwareRule, ValidationRule
 {
-    protected array $data=[];
+    protected array $data = [];
 
-    public function setData(array $data):static
+    public function setData(array $data): static
     {
-        $this->data=$data;
+        $this->data = $data;
 
         return $this;
     }
+
     /**
      * Run the validation rule.
      *
@@ -25,12 +26,12 @@ class ValidateLoginCredentials implements ValidationRule, DataAwareRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         //
-        $credentials=[
-            'email'=>$this->data['email'] ?? null,
-            'password'=>$this->data['password']??null
+        $credentials = [
+            'email' => $this->data['email'] ?? null,
+            'password' => $this->data['password'] ?? null,
         ];
 
-        if(!Auth::attempt($credentials)){
+        if (! Auth::attempt($credentials)) {
             $fail('The provided credentials are incorrect');
         }
     }

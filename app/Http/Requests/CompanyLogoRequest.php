@@ -22,7 +22,7 @@ class CompanyLogoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'logo'=>['required','image','mimes:jpeg,jpg,png'],
+            'logo' => ['required', 'image', 'mimes:jpeg,jpg,png'],
         ];
     }
 }

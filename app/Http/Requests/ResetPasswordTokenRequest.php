@@ -23,7 +23,7 @@ class ResetPasswordTokenRequest extends FormRequest
     {
         return [
             //
-            'email'=>['required','email','string','exists:users,email']
+            'email' => ['required', 'email', 'string', 'exists:users,email'],
         ];
     }
 }

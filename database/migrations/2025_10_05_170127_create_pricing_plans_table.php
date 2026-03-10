@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->integer('price')->default(0);
-            $table->json('role')->default('user');
+            $table->string('role')->default('user');
             $table->boolean('can_create_tenant')->default(false);
             $table->boolean('can_edit_tenant')->default(false);
             $table->boolean('can_delete_tenant')->default(false);

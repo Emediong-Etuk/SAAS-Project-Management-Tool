@@ -2,24 +2,20 @@
 
 namespace App\Models;
 
-
-use App\Models\Task;
-use App\Models\Tenant;
-use App\Models\TaskUser;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens, HasUuids;
+    use HasApiTokens, HasFactory, HasUuids, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -45,7 +41,7 @@ class User extends Authenticatable
         'is_admin',
         'card_token',
         'customer_card_email',
-        'payment_plan'
+        'payment_plan',
     ];
 
     /**

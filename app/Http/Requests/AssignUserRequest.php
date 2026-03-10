@@ -23,7 +23,7 @@ class AssignUserRequest extends FormRequest
     {
         return [
             //
-            'name'=>['required','string']
+            'name' => ['required', 'string'],
         ];
     }
 }

@@ -14,10 +14,16 @@ use Illuminate\Http\Request;
 interface SubscriptionPaymentInterface
 {
     public function createPaymentPlan(): array;
+
     public function getAuthModel(CardPaymentRequest $request);
+
     public function cardPayment(CardPaymentRequest $request): CreateCardChargeData;
+
     public function validateCardPayment(ValidateCardPaymentRequest $request): ValidateCardChargeData;
+
     public function verifyTransaction($id): VerifyTransactionData;
+
     public function cancelSubscription(Request $request): JsonResponse;
+
     public function getSubscriptionStatus(Request $request): SubscriptionStatusData;
 }

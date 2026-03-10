@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class TaskUser extends Pivot
 {
@@ -12,6 +11,5 @@ class TaskUser extends Pivot
 
     use HasUuids;
 
-    protected $table='task_user';
-
+    protected $table = 'task_user';
 }

@@ -129,12 +129,11 @@ class OccupationSeeder extends Seeder
         ];
 
         $now = now();
-        DB::table('occupations')->insert(array_map(function ($name) use ($now) {
-            return [
-                'name' => $name,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }, $occupations));
+        foreach ($occupations as $name) {
+            DB::table('occupations')->updateOrInsert(
+                ['name' => $name],
+                ['created_at' => $now, 'updated_at' => $now]
+            );
+        }
     }
 }

@@ -36,9 +36,9 @@ class ResetPasswordTokenNotice extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Reset Password Token')
-            ->markdown('mails.auth.reset_password_token',[
-                'token'=>$this->token,
-                'expiryTime'=>$this->expiryTime/60
+            ->markdown('mails.auth.reset_password_token', [
+                'token' => $this->token,
+                'expiryTime' => $this->expiryTime / 60,
             ]);
     }
 

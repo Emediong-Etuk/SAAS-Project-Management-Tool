@@ -24,7 +24,7 @@ return new class extends Migration
     {
         Schema::table('tenants', function (Blueprint $table) {
             //
-            $table->string('plan')->nullable();
+            $table->string('plan')->default('Free');
         });
     }
 };

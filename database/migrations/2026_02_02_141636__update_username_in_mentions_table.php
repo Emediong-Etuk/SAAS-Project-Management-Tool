@@ -24,7 +24,7 @@ return new class extends Migration
     {
         Schema::table('mentions', function (Blueprint $table) {
             //
-            $table->string('username')->unique()->change();
+            $table->string('username')->change();
         });
     }
 };

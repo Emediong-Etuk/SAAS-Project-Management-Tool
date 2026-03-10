@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rules\Password;
-
 
 class VerifyEmailRequest extends FormRequest
 {
@@ -17,7 +16,7 @@ class VerifyEmailRequest extends FormRequest
         return true;
     }
 
-    public function getCachedToken():int
+    public function getCachedToken(): int
     {
         return intval(Cache::get("EMAIL_VERIFICATION_TOKEN_$this->email"));
     }
@@ -31,14 +30,14 @@ class VerifyEmailRequest extends FormRequest
     {
         return [
             //
-            'name'=>['required','string'],
-            'email'=>['required','email','string','unique:users,email'],
-            'password'=>['required','string',Password::defaults()],
-            'token'=>['required','integer',function($attr,$val,$fail){
-                if(intval($val)!==$this->getCachedToken()){
-                    return $fail("Invalid Token");
+            'name' => ['required', 'string'],
+            'email' => ['required', 'email', 'string', 'unique:users,email'],
+            'password' => ['required', 'string', Password::defaults()],
+            'token' => ['required', 'integer', function ($attr, $val, $fail) {
+                if (intval($val) !== $this->getCachedToken()) {
+                    return $fail('Invalid Token');
                 }
-            }]
+            }],
 
         ];
     }

@@ -2,28 +2,25 @@
 
 namespace App\Models;
 
-use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Sanctum\HasApiTokens;
 
 class Notification extends Model
 {
     //
-    use HasUuids, HasApiTokens, HasFactory;
+    use HasApiTokens, HasFactory, HasUuids;
 
-    protected $fillable=[
+    protected $fillable = [
         'message',
         'mark_read',
         'user_id',
-        'alerts'
+        'alerts',
     ];
 
-
-    public function user():BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

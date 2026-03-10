@@ -2,26 +2,22 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Enum\PlansEnum;
 use App\Enum\UserRolesEnum;
+use App\Models\User;
 use Illuminate\Auth\Access\Response;
-
 
 class TaskPolicy
 {
-
     public function create(User $user): Response
     {
         return $this->validate($user);
     }
 
-
     public function update(User $user): Response
     {
         return $this->validate($user);
     }
-
 
     public function delete(User $user): Response
     {
@@ -57,9 +53,6 @@ class TaskPolicy
             }
         }
 
-
-
-
-        return Response::deny("Not Authorized", 403);
+        return Response::deny('Not Authorized', 403);
     }
 }

@@ -2,17 +2,16 @@
 
 namespace App\ThirdParty;
 
-use App\Models\Project;
-use App\Enum\MeetingStatus;
-use Illuminate\Http\Request;
-use App\Traits\GenerateMeetingId;
-use Illuminate\Http\JsonResponse;
-use App\ThirdParty\BaseThirdParty;
-use App\Traits\GenerateClientRequestToken;
-use App\Support\Repositories\UserRepository;
 use App\Contracts\Interface\AWSChimeInterface;
+use App\Enum\MeetingStatus;
+use App\Models\Project;
 use App\Support\Repositories\ProjectRepository;
+use App\Support\Repositories\UserRepository;
+use App\Traits\GenerateClientRequestToken;
+use App\Traits\GenerateMeetingId;
 use Aws\ChimeSDKMeetings\ChimeSDKMeetingsClient;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class AWSChimeApi extends BaseThirdParty implements AWSChimeInterface
 {
@@ -20,8 +19,11 @@ class AWSChimeApi extends BaseThirdParty implements AWSChimeInterface
      * Create a new class instance.
      */
     use GenerateClientRequestToken, GenerateMeetingId;
+
     protected $chime;
+
     private ProjectRepository $projectRepository;
+
     private UserRepository $userRepository;
 
     public function __construct(ChimeSDKMeetingsClient $chime)
@@ -37,18 +39,18 @@ class AWSChimeApi extends BaseThirdParty implements AWSChimeInterface
         $project_id = $project->id;
         $user_id = $request->user()->id;
 
-        if ($project->meeting_status=== MeetingStatus::TRUE->value) {
-            return $this->badRequestResponse(message: "Meeting already ongoing for this project.");
+        if ($project->meeting_status === MeetingStatus::TRUE->value) {
+            return $this->badRequestResponse(message: 'Meeting already ongoing for this project.');
         }
 
         $meetingResponse = $this->chime->createMeeting([
             'ClientRequestToken' => $this->generateClientRequestToken(),
-            'ExternalMeetingId' => "project-meeting-" . $this->generateMeetingId(),
+            'ExternalMeetingId' => 'project-meeting-'.$this->generateMeetingId(),
             'MediaRegion' => env('AWS_DEFAULT_REGION', 'us-east-1'),
             'MeetingFeatures' => [
                 'Attendee' => [
-                    'MaxCount' => $this->projectRepository->getProjectMembersCount($project_id)
-                ]
+                    'MaxCount' => $this->projectRepository->getProjectMembersCount($project_id),
+                ],
             ],
         ]);
 
@@ -66,7 +68,7 @@ class AWSChimeApi extends BaseThirdParty implements AWSChimeInterface
 
         return $this->successResponse(data: [
             'meeting' => $meeting,
-            'attendee' => $attendee
+            'attendee' => $attendee,
         ]);
     }
 
@@ -81,6 +83,7 @@ class AWSChimeApi extends BaseThirdParty implements AWSChimeInterface
 
             $attendee = $attendeeResponse['Attendee'];
             $this->userRepository->update($request->user()->id, ['attendee_id' => $attendee['AttendeeId']]);
+
             return $this->successResponse(data: $attendee);
         } catch (\Exception $e) {
             return $this->badRequestResponse(message: $e->getMessage());
@@ -139,7 +142,7 @@ class AWSChimeApi extends BaseThirdParty implements AWSChimeInterface
 
             return $this->successResponse(data: [
                 'meeting_id' => $project->meeting_id,
-                'delete_data' => $response
+                'delete_data' => $response,
             ]);
         } catch (\Exception $e) {
             return $this->badRequestResponse(message: $e->getMessage());
@@ -158,7 +161,7 @@ class AWSChimeApi extends BaseThirdParty implements AWSChimeInterface
 
             return $this->successResponse(data: [
                 'attendee_id' => $request->user()->attendee_id,
-                'delete_data' => $response
+                'delete_data' => $response,
             ]);
         } catch (\Exception $e) {
             return $this->badRequestResponse(message: $e->getMessage());

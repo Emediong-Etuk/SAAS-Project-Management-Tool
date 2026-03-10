@@ -42,7 +42,7 @@ class ResetPasswordService extends BaseService
             'password' => bcrypt($request->password),
         ]);
 
-        $user->notify(new ResetPasswordInfoNotice());
+        $user->notify(new ResetPasswordInfoNotice);
 
         return $this->successResponse('Password has been reset successfully', [
             'user' => new UserResource($user->refresh()),
