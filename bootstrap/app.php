@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Middleware\ForceJsonResponse;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Sentry\Laravel\Integration;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -24,7 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        
         $exceptions->render(function(NotFoundHttpException $e, Request $request){
             if($request->wantsJson()){
                 return response()->json(
@@ -45,4 +46,5 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         });
+        // Integration::handles($exceptions);
     })->create();
