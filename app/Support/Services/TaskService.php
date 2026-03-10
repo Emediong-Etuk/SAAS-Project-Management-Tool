@@ -7,13 +7,15 @@ use App\Models\Tenant;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use App\Http\Resources\TaskResource;
 use App\Support\Services\BaseService;
 use App\Http\Requests\CreateTaskRequest;
+use App\Http\Requests\SearchTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
-use App\Support\Repositories\NotificationRepository;
 use App\Support\Repositories\TaskRepository;
 use App\Support\Repositories\ProjectRepository;
+use App\Support\Repositories\NotificationRepository;
 
 class TaskService extends BaseService
 {
@@ -157,6 +159,17 @@ class TaskService extends BaseService
 
         return $this->successResponse('Task complete', [
             'task' => new TaskResource($task->refresh())
+        ]);
+    }
+
+    public function search(SearchTaskRequest $request,Tenant $tenant, Project $project):JsonResponse
+    {
+        $tasks=$this->taskRepository->search($project->id,$request->search);
+
+        Log::info('tasks',[$tasks]);
+
+        return $this->successResponse(data:[
+            'tasks'=>TaskResource::collection($tasks)
         ]);
     }
 
