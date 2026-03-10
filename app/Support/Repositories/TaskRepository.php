@@ -48,4 +48,24 @@ class TaskRepository
             }
         })->get();
     }
+
+    public function countAllByTenant(string $tenant_id):int
+    {
+        return Task::query()->where('tenant_id',$tenant_id)->count();
+    }
+
+    public function completedTasks(string $tenant_id):int
+    {
+        return Task::query()->where('tenant_id',$tenant_id)->where('completed',true)->count();
+    }
+
+    public function countAllForProject(string $project_id):int
+    {
+        return Task::query()->where('project_id',$project_id)->count();
+    }
+
+    public function getCompletedTasksForProject(string $project_id):int
+    {
+        return Task::query()->where('project_id',$project_id)->where('completed',true)->count();
+    }
 }

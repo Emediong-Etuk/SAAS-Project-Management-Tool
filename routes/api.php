@@ -31,6 +31,7 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::controller(TenantController::class)->prefix('tenants')->group(function () {
+        Route::get('/dashboard','dashboard');
         Route::post('/create', 'create');
         Route::prefix('/{tenant}')->group(function () {
             Route::post('/update', 'update')->can('update', Tenant::class)->name('tenant.update');
