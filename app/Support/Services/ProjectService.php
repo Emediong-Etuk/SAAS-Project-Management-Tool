@@ -2,13 +2,16 @@
 
 namespace App\Support\Services;
 
+use App\Models\User;
 use App\Models\Tenant;
 use App\Models\Project;
+use App\Enum\UserRolesEnum;
 use Illuminate\Http\JsonResponse;
 use App\Support\Services\BaseService;
 use App\Http\Resources\ProjectResource;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Support\Repositories\UserRepository;
 use App\Support\Repositories\ProjectRepository;
 
 class ProjectService extends BaseService
@@ -16,7 +19,7 @@ class ProjectService extends BaseService
     /**
      * Create a new class instance.
      */
-    public function __construct(private readonly ProjectRepository $projectRepository)
+    public function __construct(private readonly ProjectRepository $projectRepository, private readonly UserRepository $userRepository)
     {
         //
     }
@@ -41,6 +44,11 @@ class ProjectService extends BaseService
         ];
 
         $project=$this->projectRepository->create($data);
+        if($request->user()->project_id !==null){
+            return $this->badRequestResponse('You are already part of a project');
+        }
+        
+        $this->userRepository->update($request->user()->id, ['project_id'=>$project->id]);
 
         return $this->successResponse('Project created successfully',[
             'project'=>new ProjectResource($project)
@@ -73,7 +81,7 @@ class ProjectService extends BaseService
         $this->projectRepository->update($project->id, $data);
 
         return $this->successResponse('Project updated successfully',[
-            'project'=>new ProjectResource($project)
+            'project'=>new ProjectResource($project->refresh())
         ]);
     }
 
@@ -82,5 +90,32 @@ class ProjectService extends BaseService
         $this->projectRepository->delete($project->id);
 
         return $this->successResponse('Project deleted successfully');
+    }
+
+    public function addUser(Tenant $tenant, Project $project, User $user):JsonResponse
+    {
+        if($user->tenant_id !==$tenant->id){
+            return $this->badRequestResponse('User does not belong to this tenancy');
+        }
+
+        if($user->project_id === $project->id){
+            return $this->badRequestResponse('User is already part of  this project');
+        }
+
+        if($user->project_id !== null){
+            return $this->badRequestResponse('User is already part of another project');
+        }
+
+        $this->userRepository->update($user->id, ['project_id'=>$project->id]);
+        return $this->successResponse("User ,{$user->name} has been added to project ,{$project->name}",[
+            'project'=>new ProjectResource($project)
+        ]);
+    }
+
+    public function assignRole(User $user):JsonResponse
+    {
+        $this->userRepository->update($user->id, ['role'=> UserRolesEnum::PROJECT_MANAGER->value]);
+
+        return $this->successResponse("User ,{$user->name} has been assigned the Project Manager role");
     }
 }

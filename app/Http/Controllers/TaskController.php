@@ -43,4 +43,9 @@ class TaskController extends Controller
     {
         return $this->taskService->delete($tenant, $project, $task);
     }
+
+    public function markComplete(Tenant $tenant, Project $project, Task $task):JsonResponse
+    {
+        return $this->taskService->markComplete($tenant, $project, $task);
+    }
 }
