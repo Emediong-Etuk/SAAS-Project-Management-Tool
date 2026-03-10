@@ -2,7 +2,7 @@
 
 namespace App\Support\Services;
 
-use App\Enum\PlansEnum;
+
 use App\Enum\ProjectStatus;
 use App\Enum\UserRolesEnum;
 use App\Http\Requests\CompanyLogoRequest;
@@ -77,7 +77,7 @@ class TenantService extends BaseService
         $path = $request->file('logo')->store('company_logo', 'public');
 
         $this->tenantRepository->update($request->user()->tenant_id, [
-            'company_logo' => config('filesystems.disks.public.url').'/'.$path,
+            'company_logo' => config('filesystems.disks.public.url') . '/' . $path,
         ]);
 
         $tenant = $this->tenantRepository->find($request->user()->tenant_id);
@@ -102,7 +102,6 @@ class TenantService extends BaseService
 
         $data = [
             'name' => $request->name,
-            'plan' => PlansEnum::from($request->user()->subscription_plan),
         ];
 
         $tenant = $this->tenantRepository->create($data);
@@ -137,13 +136,13 @@ class TenantService extends BaseService
 
     public function delete(Request $request, Tenant $tenant): JsonResponse
     {
-        $this->tenantRepository->delete($tenant->id);
-
         if ($request->user()->tenant_id !== $tenant->id) {
             return $this->badRequestResponse(message: 'You do not belong to this tenant');
         }
 
         $this->notifyAllMembers($tenant, 'has been deleted', 'delete');
+
+        $this->tenantRepository->delete($tenant->id);
 
         return $this->successResponse('Tenant deleted successfully');
     }

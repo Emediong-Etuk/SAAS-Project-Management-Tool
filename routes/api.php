@@ -70,7 +70,7 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
             Route::delete('/{project}/delete', 'delete')->can('delete', Project::class)->name('projects.delete');
             Route::post('/{project}/{user}/add', 'addUser')->can('addUser', Project::class)->name('projects.addUser');
             Route::post('/{project}/{user}/remove', 'removeUser')->can('removeUser', Project::class)->name('projects.removeUser');
-            Route::post('/{project}/{user}/assign-role', 'assignRole')->can('assignRole', Project::class)->name('projects.assignRole');
+            Route::post('/{project}/{user}/assign-role', 'assignRole')->middleware('can:assignRole,project,user')->name('projects.assignRole');
             Route::post('/{project}/create-meeting', 'createMeeting')->can('createMeeting', Project::class)->name('projects.createMeeting');
             Route::post('/{project}/join-meeting', 'joinMeeting')->middleware('can:joinMeeting,project')->name('projects.joinMeeting');
             Route::get('/{project}/get-meeting', 'getMeeting')->middleware('can:joinMeeting,project')->name('projects.getMeeting');
@@ -124,8 +124,6 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
 
     Route::controller(SubscriptionController::class)->prefix('/subscription')->group(function () {
         Route::get('/plans', 'displayPlans')->name('subscription.getPlans');
-        Route::post('/payment-plan/create', 'createPaymentPlan');
-        Route::post('/card/authmodel', 'getAuthModel');
         Route::post('/card/payment', 'cardPayment')->name('subscription.cardPayment');
         Route::post('/card/payment/validate', 'validateCardPayment')->name('subscription.validatePayment');
         Route::post('/cancel', 'cancelSubscription')->name('subscription.cancelSubscription');

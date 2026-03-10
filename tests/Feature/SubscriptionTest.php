@@ -3,11 +3,11 @@
 use App\Contracts\DataObjects\CreateCardChargeData;
 use App\Contracts\DataObjects\ValidateCardChargeData;
 use App\Contracts\Interface\SubscriptionPaymentInterface;
+use App\Enum\PlansEnum;
 use App\Models\PricingPlan;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Testing\Fluent\AssertableJson;
-use Mockery;
 
 test('successfully gotten subscription plans', function () {
     $tenant = Tenant::factory()->create();
@@ -21,7 +21,7 @@ test('successfully gotten subscription plans', function () {
     $response = $this->get(route('subscription.getPlans', ['tenant' => $tenant->id]));
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn(AssertableJson $json) => $json
             ->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
@@ -76,10 +76,10 @@ test('successfully made card payments', function () {
         'pin' => '1104',
     ];
 
-    $response = $this->post(route('subscription.cardPayment', ['tenant' => $tenant->id]).'?subscription_plan=Pro', $data);
+    $response = $this->post(route('subscription.cardPayment', ['tenant' => $tenant->id]) . '?subscription_plan=Pro', $data);
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn(AssertableJson $json) => $json
             ->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
@@ -114,7 +114,7 @@ test('successfully validated card payments', function () {
     $response = $this->post(route('subscription.validatePayment', ['tenant' => $tenant->id]), $data);
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn(AssertableJson $json) => $json
             ->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
@@ -123,7 +123,7 @@ test('successfully validated card payments', function () {
             ]));
 
     $this->assertDatabaseHas('users', [
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 });
 
@@ -177,7 +177,7 @@ test('payment verified successfully', function () {
     $response = $this->post('api/flutterwave-webhook', $payload);
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn(AssertableJson $json) => $json
             ->hasAll('message')
             ->whereAllType([
                 'message' => 'string',
@@ -189,15 +189,15 @@ test('subscription cancelled successfully', function () {
 
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
 
-    $response = $this->post(route('subscription.cancelSubscription', ['tenant' => $tenant->id, 'user' => $user->id]));
+    $response = $this->post(route('subscription.cancelSubscription', ['tenant' => $tenant->id]));
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn(AssertableJson $json) => $json
             ->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
@@ -207,6 +207,6 @@ test('subscription cancelled successfully', function () {
 
     $this->assertDatabaseHas('users', [
         'id' => $user->id,
-        'subscription_plan' => 'free',
+        'subscription_plan' => PlansEnum::Free->value,
     ]);
 });
