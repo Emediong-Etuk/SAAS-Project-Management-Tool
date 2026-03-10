@@ -3,7 +3,6 @@
 namespace App\Support\Repositories;
 
 use App\Models\Tenant;
-use Illuminate\Support\Collection;
 
 class TenantRepository
 {
@@ -25,5 +24,10 @@ class TenantRepository
     public function delete(string $id):bool|null
     {
         return Tenant::query()->where('id',$id)->delete();
+    }
+
+    public function countAllTenants(): int
+    {
+        return Tenant::query()->count();
     }
 }

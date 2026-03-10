@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class TenantMiddleware
@@ -17,21 +16,19 @@ class TenantMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $path=$request->path();
-        $segments=explode('/',$path);
-        Log::info('segments',[$segments]);
+        $path = $request->path();
+        $segments = explode('/', $path);
 
-        if(!empty($segments[0])){
-            $tenantId=$segments[1];
-            Log::info('tenantId',[$tenantId]);
 
-            $tenant=Tenant::where('id',$tenantId)->first();
+        if (!empty($segments[0])) {
+            $tenantId = $segments[1];
 
-            if($tenant){
-                // Set tenant to be available globally
+            $tenant = Tenant::where('id', $tenantId)->first();
+
+            if ($tenant) {
                 app()->instance('currentTenant', $tenant);
-            }else{
-                return response()->json(['message'=>'Tenant not found'],404);
+            } else {
+                return response()->json(['message' => 'Tenant not found'], 403);
             }
         }
         return $next($request);

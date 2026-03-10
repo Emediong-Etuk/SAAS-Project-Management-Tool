@@ -58,4 +58,16 @@ class UserRepository
     {
         return User::query()->where('name',$name)->first();
     }
+
+    public function countAllUsers():int
+    {
+        return User::query()->count();
+    }
+
+    public function searchUser(string $search): ?User
+    {
+        return User::query()->where('name', 'LIKE', '%'.$search.'%')
+        ->orWhere('username','LIKE', '%'.$search.'%')
+        ->first();
+    }
 }
