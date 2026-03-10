@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Enum\PlansEnum;
+use App\Models\Project;
 use App\Enum\UserRolesEnum;
 use Illuminate\Auth\Access\Response;
 
@@ -34,6 +35,28 @@ class ProjectPolicy
     public function delete(User $user): Response
     {
         return $this->validate($user, 'delete');
+    }
+
+    public function createMeeting(User $user): Response
+    {
+        return $this->validate($user, 'create meeting for');
+    }
+
+    public function joinMeeting(User $user, Project $project): Response
+    {
+        if($user->project_id === null){
+            return Response::denyAsNotFound("You are not assigned to any project to join meeting");
+        }
+        if($user->project_id !== $project->id){
+            return Response::denyAsNotFound("You are not assigned to this project and cannot join the meeting");
+        }
+
+        return Response::allow();
+    }
+
+    public function deleteMeeting(User $user): Response
+    {
+        return $this->validate($user, 'delete meeting for');
     }
 
     public function assignRole(User $user): Response

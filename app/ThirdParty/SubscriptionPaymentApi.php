@@ -2,7 +2,7 @@
 
 namespace App\ThirdParty;
 
-use App\TransactionStatus;
+use App\Enum\TransactionStatus;
 use App\Traits\HasResponse;
 use App\Traits\GenerateNonce;
 use Flutterwave\Util\Currency;

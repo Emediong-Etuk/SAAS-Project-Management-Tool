@@ -49,9 +49,17 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
             Route::get('/{project}', 'getSpecificProject');
             Route::post('/create', 'create');
             Route::post('/{project}/update', 'update')->can('update', Project::class);
+            Route::post('/{project}/status-list', 'projectStatusList');
             Route::delete('/{project}/delete', 'delete')->can('delete', Project::class);
             Route::post('/{project}/{user}/add', 'addUser')->can('addUser', Project::class);
             Route::post('/{project}/{user}/assign-role', 'assignRole')->can('assignRole', Project::class);
+            Route::post('/{project}/create-meeting', 'createMeeting')->can('createMeeting', Project::class);
+            Route::post('/{project}/join-meeting', 'joinMeeting')->middleware('can:joinMeeting,project');
+            Route::get('/{project}/get-meeting', 'getMeeting')->middleware('can:joinMeeting,project');
+            Route::get('/{project}/get-attendee', 'getAttendee')->middleware('can:joinMeeting,project');
+            Route::get('/{project}/list-attendees', 'listAttendees')->middleware('can:joinMeeting,project');
+            Route::delete('/{project}/delete-meeting','deleteMeeting')->can('deleteMeeting', Project::class);
+            Route::delete('/{project}/delete-attendee','deleteAttendee');
         });
 
         Route::controller(TaskController::class)->group(function () {

@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\TransactionStatus;
+use App\Enum\TransactionStatus;
 use App\Traits\HasResponse;
 use App\Enum\FlutterwaveWebhookEvent;
 use Illuminate\Foundation\Queue\Queueable;

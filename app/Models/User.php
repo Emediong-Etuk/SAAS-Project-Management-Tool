@@ -38,6 +38,7 @@ class User extends Authenticatable
         'cover_picture',
         'projects_worked_on',
         'linkedin_profile',
+        'attendee_id'
     ];
 
     /**
