@@ -13,9 +13,6 @@ use Illuminate\Http\Request;
 
 interface SubscriptionPaymentInterface
 {
-    public function createPaymentPlan(): array;
-
-    public function getAuthModel(CardPaymentRequest $request);
 
     public function cardPayment(CardPaymentRequest $request): CreateCardChargeData;
 

@@ -34,7 +34,7 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
 
     public function createPaymentPlan(): array
     {
-        $url = config('services.flutterwave.base_api_url').'/payment-plans';
+        $url = config('services.flutterwave.base_api_url') . '/payment-plans';
         $key = config('services.flutterwave.secret_key');
         $subscription_plan = App(PricingPlanRepository::class)->findByName(PlansEnum::Pro->value);
 
@@ -82,7 +82,7 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
 
         $encrypted_details = base64_encode($encrypt);
 
-        $response = Http::withToken($key)->post($url.'/charges?type=card', [
+        $response = Http::withToken($key)->post($url . '/charges?type=card', [
             'client' => $encrypted_details,
         ]);
 
@@ -94,6 +94,8 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
     public function cardPayment(CardPaymentRequest $request): CreateCardChargeData
     {
 
+        $this->createPaymentPlan();
+        $this->getAuthModel($request);
         $encryptionKey = config('services.flutterwave.encryption_key');
         $key = config('services.flutterwave.secret_key');
         $url = config('services.flutterwave.base_api_url');
@@ -134,7 +136,7 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
 
         $encrypted_details = base64_encode($encrypt);
 
-        $response = Http::withToken($key)->post($url.'/charges?type=card', [
+        $response = Http::withToken($key)->post($url . '/charges?type=card', [
             'client' => $encrypted_details,
         ]);
 
@@ -162,7 +164,7 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
     {
         $reference = $request->query('flw_ref');
 
-        $url = config('services.flutterwave.base_api_url').'/validate-charge';
+        $url = config('services.flutterwave.base_api_url') . '/validate-charge';
 
         $response = Http::withToken(config('services.flutterwave.secret_key'))
             ->post($url, [
@@ -175,7 +177,7 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
 
     public function verifyTransaction($id): VerifyTransactionData
     {
-        $url = config('services.flutterwave.base_api_url')."/transactions/{$id}/verify";
+        $url = config('services.flutterwave.base_api_url') . "/transactions/{$id}/verify";
 
         $response = Http::withToken(config('services.flutterwave.secret_key'))->get($url);
 
@@ -186,20 +188,20 @@ class SubscriptionPaymentApi implements SubscriptionPaymentInterface
     {
         $paymentPlan = $request->user()->payment_plan;
 
-        $url = config('services.flutterwave.base_api_url')."/payment-plans/{$paymentPlan}/cancel";
+        $url = config('services.flutterwave.base_api_url') . "/payment-plans/{$paymentPlan}/cancel";
 
         $key = config('services.flutterwave.secret_key');
 
         $response = Http::withToken($key)->put($url);
 
-        return $this->successResponse(message: $response->json()['status'].','.$response->json()['message']);
+        return $this->successResponse(message: $response->json()['status'] . ',' . $response->json()['message']);
     }
 
     public function getSubscriptionStatus(Request $request): SubscriptionStatusData
     {
         $paymentPlan = $request->user()->payment_plan;
 
-        $url = config('services.flutterwave.base_api_url')."/payment-plans/{$paymentPlan}";
+        $url = config('services.flutterwave.base_api_url') . "/payment-plans/{$paymentPlan}";
 
         $key = config('services.flutterwave.secret_key');
 

@@ -9,7 +9,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.2",
+        "php": "^8.4",
         "algolia/algoliasearch-client-php": "^4.37",
         "aws/aws-sdk-php": "*",
         "flutterwavedev/flutterwave-v3": "^1.1",
@@ -19,7 +19,6 @@
         "laravel/socialite": "^5.24",
         "laravel/tinker": "^2.10.1",
         "paragonie/sodium_compat": "^2.4",
-        "sentry/sentry-laravel": "^4.20",
         "spatie/laravel-webhook-client": "^3.4"
     },
     "require-dev": {

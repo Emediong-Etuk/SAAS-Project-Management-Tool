@@ -7,15 +7,16 @@ use Illuminate\Testing\Fluent\AssertableJson;
 test('successfully gotten user account', function () {
     $tenant = Tenant::factory()->create();
     $user = User::factory()->create([
+        'username' => fake()->userName(),
         'tenant_id' => $tenant->id,
     ]);
 
     $this->actingAs($user, 'sanctum');
 
-    $response = $this->get(route('account.get', ['tenant' => $tenant->id]));
+    $response = $this->get(route('account.get', ['tenant' => $tenant->id, 'user' => $user->username]));
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn(AssertableJson $json) => $json
             ->hasAll('status', 'data', 'message')
             ->whereAllType([
                 'status' => 'string',
@@ -28,16 +29,17 @@ test('successfully updated user account', function () {
     $tenant = Tenant::factory()->create();
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
+        'username' => fake()->userName()
     ]);
 
     $this->actingAs($user, 'sanctum');
 
-    $response = $this->post(route('account.update', ['tenant' => $tenant->id]), [
+    $response = $this->post(route('account.update', ['tenant' => $tenant->id, 'user' => $user->username]), [
         'name' => 'new name',
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn(AssertableJson $json) => $json
             ->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
@@ -48,6 +50,8 @@ test('successfully updated user account', function () {
     $this->assertDatabaseHas(
         'users',
         [
+            'id' => $user->id,
+            'username' => $user->username,
             'name' => 'new name',
         ]
     );
@@ -57,14 +61,15 @@ test('successfully deleted account', function () {
     $tenant = Tenant::factory()->create();
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
+        'username' => fake()->userName()
     ]);
 
     $this->actingAs($user, 'sanctum');
 
-    $response = $this->delete(route('account.delete', ['tenant' => $tenant->id]));
+    $response = $this->delete(route('account.delete', ['tenant' => $tenant->id, 'user' => $user->username]));
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn(AssertableJson $json) => $json
             ->hasAll('status', 'message')
             ->whereAllType([
                 'status' => 'string',

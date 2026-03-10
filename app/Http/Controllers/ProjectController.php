@@ -41,9 +41,6 @@ class ProjectController extends Controller
 
     public function update(Tenant $tenant, Project $project, UpdateProjectRequest $request): JsonResponse
     {
-        if ($request->user()->cannot('update', $project)) {
-            abort(404, 'You do not have permission to update this project');
-        }
 
         return $this->projectService->updateProject($tenant, $project, $request);
     }

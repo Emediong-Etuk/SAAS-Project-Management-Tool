@@ -37,33 +37,8 @@ class SubscriptionService extends BaseService
         ]);
     }
 
-    public function createPaymentPlan(Request $request): JsonResponse
-    {
-        $createPlan = $this->subscriptionPayment->createPaymentPlan();
-
-        $this->userRepository->update($request->user()->id, [
-            'payment_plan' => $createPlan['data']['id'],
-        ]);
-
-        return $this->successResponse(data: [
-            'payment_plan' => $createPlan,
-        ]);
-    }
-
-    public function getAuthModel(Tenant $tenant, CardPaymentRequest $request): JsonResponse
-    {
-        $authModel = $this->subscriptionPayment->getAuthModel($request);
-
-        return $this->successResponse(data: [
-            'response' => $authModel,
-        ]);
-    }
-
     public function cardPayment(Tenant $tenant, CardPaymentRequest $request): JsonResponse
     {
-
-        $this->createPaymentPlan($request);
-        $this->getAuthModel($tenant, $request);
         $payment = $this->subscriptionPayment->cardPayment($request);
 
         return $this->successResponse(message: 'OTP has been sent to your phone number', data: [

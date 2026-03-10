@@ -1,6 +1,7 @@
 <?php
 
 use App\Contracts\Interface\AWSChimeInterface;
+use App\Enum\PlansEnum;
 use App\Enum\ProjectStatus;
 use App\Enum\UserRolesEnum;
 use App\Models\Project;
@@ -22,7 +23,7 @@ test('list of projects gotten successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'data', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'data', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'data' => 'array',
@@ -52,7 +53,7 @@ test('specific project gotten successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'data', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'data', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'data' => 'array',
@@ -75,7 +76,7 @@ test('specific project not found', function () {
     $response = $this->get(route('projects.specific', ['tenant' => $tenant->id, 'project' => $invalidProjectId]));
     $response->assertStatus(404)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType([
                     'message' => 'string',
                 ])
@@ -100,14 +101,14 @@ test('project created successfully', function () {
         'name' => 'New Project',
         'description' => 'This is a new project',
         'deadline' => fake()->date(),
-        'status' => ProjectStatus::IN_PROGRESS->value,
+        'status' => ProjectStatus::ACTIVE->value,
     ];
 
     $response = $this->post(route('projects.create', ['tenant' => $tenant->id]), $projectData);
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'data', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'data', 'status')
                 ->whereAllType([
                     'status' => 'string',
                     'message' => 'string',
@@ -136,7 +137,7 @@ test('project creation failed due to unauthorized access', function () {
         'name' => fake()->sentence(10),
         'description' => fake()->paragraph(3),
         'deadline' => fake()->date(),
-        'status' => ProjectStatus::IN_PROGRESS->value,
+        'status' => ProjectStatus::ACTIVE->value,
     ];
 
     $project = Project::factory()->create([
@@ -147,7 +148,7 @@ test('project creation failed due to unauthorized access', function () {
 
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType([
                     'message' => 'string',
                 ])->etc()
@@ -167,7 +168,7 @@ test('project creation failed due to unauthenticated user', function () {
         'name' => fake()->sentence(10),
         'description' => fake()->paragraph(3),
         'deadline' => fake()->date(),
-        'status' => ProjectStatus::IN_PROGRESS->value,
+        'status' => ProjectStatus::ACTIVE->value,
     ];
 
     $project = Project::factory()->create([
@@ -178,7 +179,7 @@ test('project creation failed due to unauthenticated user', function () {
 
     $response->assertStatus(401)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType([
                     'message' => 'string',
                 ])->etc()
@@ -190,7 +191,7 @@ test('project update successful', function () {
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
         'role' => UserRolesEnum::PROJECT_MANAGER->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
     $project = Project::factory()->create([
         'tenant_id' => $tenant->id,
@@ -207,7 +208,7 @@ test('project update successful', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'data', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'data', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'data' => 'array',
@@ -242,7 +243,7 @@ test('project update failed due to unauthorized user', function () {
     ));
 
     $response->assertStatus(403)
-        ->assertJson(fn (AssertableJson $json) => $json->hasAll('message')
+        ->assertJson(fn(AssertableJson $json) => $json->hasAll('message')
             ->whereAllType([
                 'message' => 'string',
             ])->etc());
@@ -271,7 +272,7 @@ test('project update failed due to unauthenticated user', function () {
     ));
 
     $response->assertStatus(401)
-        ->assertJson(fn (AssertableJson $json) => $json->hasAll('message')
+        ->assertJson(fn(AssertableJson $json) => $json->hasAll('message')
             ->whereAllType([
                 'message' => 'string',
             ])->etc());
@@ -300,7 +301,7 @@ test('project status list gotten successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'data', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'data', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'data' => 'array',
@@ -316,7 +317,7 @@ test('project deleted successfully', function () {
         [
             'tenant_id' => $tenant->id,
             'role' => UserRolesEnum::TENANT_ADMIN->value,
-            'subscription_plan' => 'pro',
+            'subscription_plan' => PlansEnum::Pro->value,
         ]
     );
 
@@ -332,7 +333,7 @@ test('project deleted successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'status' => 'string',
@@ -365,7 +366,7 @@ test('delete project failed due to unauthorized user', function () {
 
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType([
                     'message' => 'string',
                 ])->etc()
@@ -382,7 +383,7 @@ test('add user to project successfully', function () {
         [
             'tenant_id' => $tenant->id,
             'role' => UserRolesEnum::TENANT_ADMIN->value,
-            'subscription_plan' => 'pro',
+            'subscription_plan' => PlansEnum::Pro->value,
         ]
     );
 
@@ -404,7 +405,7 @@ test('add user to project successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'status' => 'string',
@@ -443,7 +444,7 @@ test('add user failed due to unauthorized access', function () {
 
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType([
                     'message' => 'string',
                 ])->etc()
@@ -459,7 +460,7 @@ test('successfully removed user', function () {
     $adminUser = User::factory()->create([
         'tenant_id' => $tenant->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $project = Project::factory()->create([
@@ -476,7 +477,7 @@ test('successfully removed user', function () {
     $response = $this->post(route('projects.removeUser', ['tenant' => $tenant->id, 'project' => $project->id, 'user' => $userToRemove->id]));
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'status' => 'string',
@@ -508,7 +509,7 @@ test('failed to remove user due to unauthorized access', function () {
     $response = $this->post(route('projects.removeUser', ['tenant' => $tenant->id, 'project' => $project->id, 'user' => $userToRemove->id]));
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType([
                     'message' => 'string',
                 ])->etc()
@@ -525,7 +526,7 @@ test('assign role to user successful', function () {
         [
             'tenant_id' => $tenant->id,
             'role' => UserRolesEnum::TENANT_ADMIN->value,
-            'subscription_plan' => 'pro',
+            'subscription_plan' => PlansEnum::Pro->value,
         ]
     );
 
@@ -539,6 +540,7 @@ test('assign role to user successful', function () {
         [
             'tenant_id' => $tenant->id,
             'project_id' => $project->id,
+            'subscription_plan' => PlansEnum::Pro->value,
         ]
     );
 
@@ -548,7 +550,7 @@ test('assign role to user successful', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'status' => 'string',
@@ -589,7 +591,7 @@ test('assign role to user failed due to unauthorized access', function () {
 
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType([
                     'message' => 'string',
                 ])->etc()
@@ -611,7 +613,7 @@ test('successfully created a meeting for the project', function () {
     $adminUser = User::factory()->create([
         'tenant_id' => $tenant->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
         'project_id' => $project->id,
     ]);
 
@@ -631,7 +633,7 @@ test('successfully created a meeting for the project', function () {
     $response = $this->post(route('projects.createMeeting', ['tenant' => $tenant->id, 'project' => $project->id]));
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'data', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'data', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'data' => 'array',
@@ -656,7 +658,7 @@ test('failed to create meeting due to unauthorized access', function () {
     $response = $this->post(route('projects.createMeeting', ['tenant' => $tenant->id, 'project' => $project->id]));
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType([
                     'message' => 'string',
                 ])->etc()
@@ -693,7 +695,7 @@ test('user joined meeting successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'data', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'data', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'data' => 'array',
@@ -719,7 +721,7 @@ test('failed to join meeting due to unauthorized access', function () {
 
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType([
                     'message' => 'string',
                 ])->etc()
@@ -756,7 +758,7 @@ test('successfully got meeting details', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'data', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'data', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'data' => 'array',
@@ -786,7 +788,7 @@ test('failed to get meeting details due to unauthorized access', function () {
 
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType([
                     'message' => 'string',
                 ])->etc()
@@ -823,7 +825,7 @@ test('successfully gotten list of attendees', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'data', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'data', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'data' => 'array',
@@ -853,7 +855,7 @@ test('failed to get attendees due to unauthorized access', function () {
     $response = $this->get(route('projects.listAttendees', ['tenant' => $tenant->id, 'project' => $project->id]));
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType([
                     'message' => 'string',
                 ])->etc()
@@ -866,7 +868,7 @@ test('delete meeting successful', function () {
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $project = Project::factory()->create([
@@ -891,7 +893,7 @@ test('delete meeting successful', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'data', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'data', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'data' => 'array',
@@ -905,7 +907,7 @@ test('update project status successfully', function () {
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
         'role' => UserRolesEnum::PROJECT_MANAGER->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
     $project = Project::factory()->create([
         'tenant_id' => $tenant->id,
@@ -919,7 +921,7 @@ test('update project status successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'data', 'status')
+            fn(AssertableJson $json) => $json->hasAll('message', 'data', 'status')
                 ->whereAllType([
                     'message' => 'string',
                     'data' => 'array',
@@ -954,7 +956,7 @@ test('project status update failed due to unauthorized user', function () {
     ));
 
     $response->assertStatus(403)
-        ->assertJson(fn (AssertableJson $json) => $json->hasAll('message')
+        ->assertJson(fn(AssertableJson $json) => $json->hasAll('message')
             ->whereAllType([
                 'message' => 'string',
             ])->etc());

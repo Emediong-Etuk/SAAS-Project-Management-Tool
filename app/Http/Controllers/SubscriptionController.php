@@ -18,16 +18,6 @@ class SubscriptionController extends Controller
         return $this->subscriptionService->displayPlans($tenant);
     }
 
-    public function createPaymentPlan(Request $request): JsonResponse
-    {
-        return $this->subscriptionService->createPaymentPlan($request);
-    }
-
-    public function getAuthModel(Tenant $tenant, CardPaymentRequest $request): JsonResponse
-    {
-        return $this->subscriptionService->getAuthModel($tenant, $request);
-    }
-
     public function cardPayment(Tenant $tenant, CardPaymentRequest $request): JsonResponse
     {
         return $this->subscriptionService->cardPayment($tenant, $request);

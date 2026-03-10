@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\PlansEnum;
 use App\Enum\UserRolesEnum;
 use App\Models\Project;
 use App\Models\Tenant;
@@ -25,7 +26,7 @@ test('user cannot access other tenant data', function () {
     $response = $this->post(route('tenant.update', ['tenant' => $tenant2->id]));
 
     $response->assertStatus(403)
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn(AssertableJson $json) => $json
             ->hasAll('message')
             ->whereAllType([
                 'message' => 'string',
@@ -54,7 +55,9 @@ test('tenant created successfully', function () {
 
     Notification::fake();
 
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'subscription_plan' => PlansEnum::Pro->value,
+    ]);
 
     $this->actingAs($user, 'sanctum');
     $response = $this->post('/api/tenants/create', [
@@ -62,7 +65,7 @@ test('tenant created successfully', function () {
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json->hasAll('status', 'message', 'data')
+        ->assertJson(fn(AssertableJson $json) => $json->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
@@ -75,7 +78,7 @@ test('tenant created successfully', function () {
         'name' => 'Test Tenant',
     ]);
 
-    Notification::assertSentTo($user, CreateTenantInfoNotice::class, fn ($notification, $channels) => in_array('mail', $channels));
+    Notification::assertSentTo($user, CreateTenantInfoNotice::class, fn($notification, $channels) => in_array('mail', $channels));
 });
 
 test('tenant creation failed due to unauthenticated user', function () {
@@ -97,7 +100,7 @@ test('edit tenant', function () {
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -106,7 +109,7 @@ test('edit tenant', function () {
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json->hasAll('status', 'message', 'data')
+        ->assertJson(fn(AssertableJson $json) => $json->hasAll('status', 'message', 'data')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
@@ -120,7 +123,7 @@ test('edit tenant', function () {
         'name' => 'new name',
     ]);
 
-    Notification::assertSentTo($user, UpdateTenantInfoNotice::class, fn ($notification, $channels) => in_array('mail', $channels));
+    Notification::assertSentTo($user, UpdateTenantInfoNotice::class, fn($notification, $channels) => in_array('mail', $channels));
 });
 
 test('edit tenant unsuccessful due to unauthorized user', function () {
@@ -139,7 +142,7 @@ test('edit tenant unsuccessful due to unauthorized user', function () {
         'name' => 'new name 2',
     ]);
 
-    $response->assertStatus(404);
+    $response->assertStatus(403);
 
     Notification::assertNothingSent();
 });
@@ -151,14 +154,14 @@ test('delete tenant successful', function () {
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
-    $response = $this->delete('/api/tenants/'.$tenant->id.'/delete');
+    $response = $this->delete('/api/tenants/' . $tenant->id . '/delete');
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json->hasAll('status', 'message')
+        ->assertJson(fn(AssertableJson $json) => $json->hasAll('status', 'message')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
@@ -169,7 +172,7 @@ test('delete tenant successful', function () {
         'id' => $tenant->id,
     ]);
 
-    Notification::assertSentTo($user, DeleteTenantInfoNotice::class, fn ($notification, $channels) => in_array('mail', $channels));
+    Notification::assertSentTo($user, DeleteTenantInfoNotice::class, fn($notification, $channels) => in_array('mail', $channels));
 });
 
 test('delete tenant unsuccessful due to unauthorized user', function () {
@@ -184,9 +187,9 @@ test('delete tenant unsuccessful due to unauthorized user', function () {
     );
 
     $this->actingAs($user, 'sanctum');
-    $response = $this->delete('/api/tenants/'.$tenant->id.'/delete');
+    $response = $this->delete('/api/tenants/' . $tenant->id . '/delete');
 
-    $response->assertStatus(404);
+    $response->assertStatus(403);
 
     Notification::assertNothingSent();
 });
@@ -199,7 +202,7 @@ test('send invite successful', function () {
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -209,14 +212,14 @@ test('send invite successful', function () {
     ]);
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json->hasAll('status', 'message')
+        ->assertJson(fn(AssertableJson $json) => $json->hasAll('status', 'message')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
             ])
             ->etc());
 
-    Notification::assertSentTo(new AnonymousNotifiable, SendInvitationNotice::class, fn ($notification, $channels) => in_array('mail', $channels));
+    Notification::assertSentTo(new AnonymousNotifiable, SendInvitationNotice::class, fn($notification, $channels) => in_array('mail', $channels));
 });
 
 test('send invite unsuccessful due to unauthorized user', function () {
@@ -236,8 +239,8 @@ test('send invite unsuccessful due to unauthorized user', function () {
     $response = $this->post(route('tenant.invite', $tenant), [
         'receiver_email' => 'test@example.com',
     ]);
-    $response->assertStatus(404)
-        ->assertJson(fn (AssertableJson $json) => $json->hasAll('message')
+    $response->assertStatus(403)
+        ->assertJson(fn(AssertableJson $json) => $json->hasAll('message')
             ->whereAllType([
                 'message' => 'string',
             ])
@@ -253,7 +256,7 @@ test('remove member successful', function () {
     $adminUser = User::factory()->create([
         'tenant_id' => $tenant->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $userToRemove = User::factory()->create([
@@ -266,7 +269,7 @@ test('remove member successful', function () {
     $response = $this->post(route('tenant.removeMember', ['tenant' => $tenant->id, 'user' => $userToRemove->id]));
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json->hasAll('status', 'message')
+        ->assertJson(fn(AssertableJson $json) => $json->hasAll('status', 'message')
             ->whereAllType([
                 'status' => 'string',
                 'message' => 'string',
@@ -293,7 +296,8 @@ test('remove member unsuccessful due to unauthorized user', function () {
     ]);
     $this->actingAs($normalUser, 'sanctum');
     $response = $this->post(route('tenant.removeMember', ['tenant' => $tenant->id, 'user' => $userToRemove->id]));
-    $response->assertStatus(404);
+
+    $response->assertStatus(403);
 
     $this->assertDatabaseHas('users', [
         'id' => $userToRemove->id,

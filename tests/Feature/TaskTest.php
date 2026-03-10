@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\PlansEnum;
 use App\Enum\UserRolesEnum;
 use App\Models\Project;
 use App\Models\Task;
@@ -27,7 +28,7 @@ test('successfully gotten all tasks', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -48,7 +49,7 @@ test('failed to get tasks due to unauthenticated user', function () {
 
     $response->assertStatus(401)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -80,7 +81,7 @@ test('successfully gotten specific task', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -106,7 +107,7 @@ test('failed to get specific task due to unauthenticated user', function () {
 
     $response->assertStatus(401)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -126,7 +127,7 @@ test('task created successfully', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -141,7 +142,7 @@ test('task created successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -174,7 +175,7 @@ test('failed to create task due to unauthenticated access', function () {
 
     $response->assertStatus(401)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -196,7 +197,7 @@ test('failed to create task due to invalid input', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -211,7 +212,7 @@ test('failed to create task due to invalid input', function () {
 
     $response->assertStatus(422)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'errors')
+            fn(AssertableJson $json) => $json->hasAll('message', 'errors')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -246,7 +247,7 @@ test('failed to create task due to unauthorized user', function () {
     $response = $this->post(route('tasks.create', ['tenant' => $tenant->id, 'project' => $project->id]), $taskData);
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -271,7 +272,7 @@ test('task update successfully', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -286,7 +287,7 @@ test('task update successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -328,7 +329,7 @@ test('task update failed due to unauthorized access', function () {
 
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -353,7 +354,7 @@ test('deleted task successfully', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -361,7 +362,7 @@ test('deleted task successfully', function () {
     $response = $this->delete(route('tasks.delete', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]));
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -394,7 +395,7 @@ test('deleted task failed due to unauthorized access', function () {
     $response = $this->delete(route('tasks.delete', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]));
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -419,7 +420,7 @@ test('task successfully marked as complete', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
@@ -428,7 +429,7 @@ test('task successfully marked as complete', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -467,7 +468,7 @@ test('mark task as complete failed due to unauthorized access', function () {
 
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -498,7 +499,7 @@ test('task submitted successfully', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $files = [
@@ -517,7 +518,7 @@ test('task submitted successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -528,13 +529,13 @@ test('task submitted successfully', function () {
         );
 
     foreach ($files as $file) {
-        Storage::disk('public')->assertExists('task_submissions/'.$file->hashName());
+        Storage::disk('public')->assertExists('task_submissions/' . $file->hashName());
     }
 
     $this->assertDatabaseHas('task_submissions', [
         'submission_files' => json_encode([
-            config('filesystems.disks.public.url').'/'.'task_submissions/'.$files[0]->hashName(),
-            config('filesystems.disks.public.url').'/'.'task_submissions/'.$files[1]->hashName(),
+            config('filesystems.disks.public.url') . '/' . 'task_submissions/' . $files[0]->hashName(),
+            config('filesystems.disks.public.url') . '/' . 'task_submissions/' . $files[1]->hashName(),
         ]),
         'comments' => $taskData['comment'],
         'user_id' => $user->id,
@@ -558,7 +559,7 @@ test('unable to submit task because file exceeds maximum size', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $files = [
@@ -576,7 +577,7 @@ test('unable to submit task because file exceeds maximum size', function () {
 
     $response->assertStatus(422)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message', 'errors')
+            fn(AssertableJson $json) => $json->hasAll('message', 'errors')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -588,7 +589,7 @@ test('unable to submit task because file exceeds maximum size', function () {
 
     $this->assertDatabaseMissing('task_submissions', [
         'submission_files' => json_encode([
-            config('filesystems.disks.public.url').'/'.'task_submissions/'.$files[0]->hashName(),
+            config('filesystems.disks.public.url') . '/' . 'task_submissions/' . $files[0]->hashName(),
         ]),
         'comments' => $taskData['comment'],
         'user_id' => $user->id,
@@ -611,14 +612,14 @@ test('test view all submissions', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
     $response = $this->post(route('tasks.viewSubmissions', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]));
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -644,14 +645,14 @@ test('test specific users submission', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
     $response = $this->post(route('tasks.viewUserSubmissions', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id]));
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -678,16 +679,16 @@ test('test download submission file', function () {
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
         'role' => UserRolesEnum::TENANT_ADMIN->value,
-        'subscription_plan' => 'pro',
+        'subscription_plan' => PlansEnum::Pro->value,
     ]);
 
     $this->actingAs($user, 'sanctum');
 
     $file = 'submission1.pdf';
 
-    Storage::disk('public')->put('task_submissions/'.$file, 'fake content');
+    Storage::disk('public')->put('task_submissions/' . $file, 'fake content');
 
-    $encoded_files = [config('filesystems.disks.public.url').'/'.'task_submissions/'.$file];
+    $encoded_files = [config('filesystems.disks.public.url') . '/' . 'task_submissions/' . $file];
 
     $submission = TaskSubmission::factory()->create([
         'task_id' => $task->id,
@@ -722,9 +723,9 @@ test('download failed due to unauthorized user', function () {
 
     $file = 'submission1.pdf';
 
-    Storage::disk('public')->put('task_submissions/'.$file, 'fake content');
+    Storage::disk('public')->put('task_submissions/' . $file, 'fake content');
 
-    $encoded_files = [config('filesystems.disks.public.url').'/'.'task_submissions/'.$file];
+    $encoded_files = [config('filesystems.disks.public.url') . '/' . 'task_submissions/' . $file];
 
     $submission = TaskSubmission::factory()->create([
         'task_id' => $task->id,
@@ -735,7 +736,7 @@ test('download failed due to unauthorized user', function () {
     $response = $this->get(route('tasks.downloadSubmissionFile', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id, 'submittedTask' => $submission->id]));
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -773,7 +774,7 @@ test('searched tasks successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -784,8 +785,8 @@ test('searched tasks successfully', function () {
         );
 
     $assertTaskExist = Task::query()->where('project_id', $project->id)->where(function ($q) use ($search) {
-        $q->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('description', 'LIKE', '%'.$search.'%')
+        $q->where('name', 'LIKE', '%' . $search . '%')
+            ->orWhere('description', 'LIKE', '%' . $search . '%')
             ->get();
     });
 
@@ -819,7 +820,7 @@ test('search tasks failed due to invalid search', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -830,8 +831,8 @@ test('search tasks failed due to invalid search', function () {
         );
 
     $assertTaskExist = Task::query()->where('project_id', $project->id)->where(function ($q) use ($search) {
-        $q->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('description', 'LIKE', '%'.$search.'%')
+        $q->where('name', 'LIKE', '%' . $search . '%')
+            ->orWhere('description', 'LIKE', '%' . $search . '%')
             ->get();
     });
 
@@ -859,7 +860,7 @@ test('search failed due to unauthenticated user', function () {
 
     $response->assertStatus(401)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -878,6 +879,8 @@ test('successfully assigned user to task', function () {
     $adminUser = User::factory()->create([
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
+        'subscription_plan' => PlansEnum::Pro->value,
+        'role' => UserRolesEnum::TENANT_ADMIN->value,
     ]);
 
     $task = Task::factory()->create([
@@ -888,6 +891,7 @@ test('successfully assigned user to task', function () {
     $user = User::factory()->create([
         'tenant_id' => $tenant->id,
         'project_id' => $project->id,
+
     ]);
 
     $this->actingAs($adminUser, 'sanctum');
@@ -896,7 +900,7 @@ test('successfully assigned user to task', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -938,7 +942,7 @@ test('failed to assign user due to unauthorized access', function () {
     $response = $this->post(route('tasks.assignTask', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id, 'user' => $user->id]));
     $response->assertStatus(403)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('message')
+            fn(AssertableJson $json) => $json->hasAll('message')
                 ->whereAllType(
                     [
                         'message' => 'string',
@@ -977,7 +981,7 @@ test('searched user successfully', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -1017,7 +1021,7 @@ test('search failed due to invalid user', function () {
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -1059,11 +1063,11 @@ test('successfully removed user from task', function () {
 
     $this->actingAs($adminUser, 'sanctum');
 
-    $response = $this->post(route('tasks.removeUser', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id, 'user' => $user->id]));
+    $response = $this->post(route('tasks.removeUserFromTask', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id, 'user' => $user->id]));
 
     $response->assertStatus(200)
         ->assertJson(
-            fn (AssertableJson $json) => $json->hasAll('status', 'data')
+            fn(AssertableJson $json) => $json->hasAll('status', 'data')
                 ->whereAllType(
                     [
                         'status' => 'string',
@@ -1102,7 +1106,7 @@ test('successfully gotten users assigned to task', function () {
     $response = $this->get(route('tasks.getUsersAssignedToTask', ['tenant' => $tenant->id, 'project' => $project->id, 'task' => $task->id, 'user' => $user->id]));
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) => $json
+        ->assertJson(fn(AssertableJson $json) => $json
             ->hasAll('status', 'data')
             ->whereAllType([
                 'status' => 'string',

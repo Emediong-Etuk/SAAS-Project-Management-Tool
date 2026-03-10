@@ -30,8 +30,8 @@ class AccountService extends BaseService
             'email' => $request->user()->email,
             'occupation' => $request->user()->occupation,
             'skills' => $request->user()->skills,
-            'profile_picture' => config('filesystems.disks.public.url').'/'.$request->user()->profile_picture,
-            'cover_picture' => config('filesystems.disks.public.url').'/'.$request->user()->cover_picture,
+            'profile_picture' => config('filesystems.disks.public.url') . '/' . $request->user()->profile_picture,
+            'cover_picture' => config('filesystems.disks.public.url') . '/' . $request->user()->cover_picture,
             'projects_worked_on' => $request->user()->projects_worked_on,
         ];
 
@@ -67,13 +67,17 @@ class AccountService extends BaseService
 
         ];
 
-        if ($request->email !== $request->user()->email) {
+        if ($request->email === null) {
+            $data['email'] = $request->user()->email;
+        }
+
+        if ($request->email !== null && $request->email !== $request->user()->email) {
+            $this->userRepository->update($request->user()->id, $data);
             $token = $this->generateToken();
             $expiryTime = 900;
             Cache::put("EMAIL_VERIFICATION_TOKEN_$authEmail", [$token, $request->email], $expiryTime);
-            Log::info('Cache data', [Cache::get("EMAIL_VERIFICATION_TOKEN_$authEmail")]);
-            $request->user()->notify(new VerifyEmailNotice($token, $expiryTime));
 
+            $request->user()->notify(new VerifyEmailNotice($token, $expiryTime));
             return $this->successResponse('An OTP has been sent to your new email address. Please verify to update your email.');
         }
 
@@ -94,7 +98,7 @@ class AccountService extends BaseService
 
     public function verifyEmail(Tenant $tenant, User $user, VerifyUpdatedEmail $request): JsonResponse
     {
-        $cache = Cache::get('EMAIL_VERIFICATION_TOKEN_'.$request->user()->email);
+        $cache = Cache::get('EMAIL_VERIFICATION_TOKEN_' . $request->user()->email);
         $this->userRepository->update($request->user()->id, ['email' => $cache[1]]);
         Cache::forget("EMAIL_VERIFICATION_TOKEN_$request->email");
 
