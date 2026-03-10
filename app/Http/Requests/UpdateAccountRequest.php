@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\LinkedInUrl;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateAccountRequest extends FormRequest
@@ -25,12 +24,13 @@ class UpdateAccountRequest extends FormRequest
         return [
             //
             'name' => ['nullable', 'string', 'max:255'],
+            'email' => ['nullable', 'string', 'email', 'max:255'],
             'occupation' => ['nullable', 'string', 'max:255', 'exists:occupations,name'],
             'skills' => ['nullable', 'string', 'max:255', 'exists:skills,name'],
             'profile_picture' => ['nullable', 'image', 'mimes:png,jpg,jpeg'],
             'cover_picture' => ['nullable', 'image', 'mimes:png,jpeg,jpg'],
             'projects_worked_on' => ['nullable', 'string', 'max:255'],
-            'linkedin_profile' => ['nullable', 'url', 'max:255', new LinkedInUrl()],
+            'linkedin_profile' => ['nullable', 'url', 'max:255'],
         ];
     }
 }

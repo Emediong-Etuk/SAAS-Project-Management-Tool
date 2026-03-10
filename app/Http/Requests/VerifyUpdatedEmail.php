@@ -2,11 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Enum\ProjectStatus;
-use Illuminate\Validation\Rules\Enum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Cache;
 
-class UpdateTaskRequest extends FormRequest
+class VerifyUpdatedEmail extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,6 +13,14 @@ class UpdateTaskRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    public function getCachedToken():int
+    {
+        $cached=Cache::get("EMAIL_VERIFICATION_TOKEN_".$this->user()->email);
+
+        return $cached[0];
+    
     }
 
     /**
@@ -25,10 +32,11 @@ class UpdateTaskRequest extends FormRequest
     {
         return [
             //
-            'name'=>['sometimes','string','max:255'],
-            'description'=>['sometimes','string'],
-            'status'=>['sometimes','string',new Enum(ProjectStatus::class)],
-            'deadline'=>['sometimes','date'],
+            'token'=>['required','integer',function($attr,$val,$fail){
+                if(intval($val)!==$this->getCachedToken()){
+                    return $fail("Invalid Token");
+                }
+            }]
         ];
     }
 }

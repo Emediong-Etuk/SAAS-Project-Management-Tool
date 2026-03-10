@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('subscription_plan')->default('Free')->after('password');
+        Schema::table('tenants', function (Blueprint $table) {
+            //
+            $table->string('company_logo')->nullable();
+
         });
     }
 
@@ -21,9 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('tenants', function (Blueprint $table) {
             //
-            $table->dropColumn('subscription_plan');
         });
     }
 };

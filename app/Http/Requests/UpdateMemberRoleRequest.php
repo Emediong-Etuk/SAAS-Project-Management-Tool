@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests;
 
-use App\Enum\ProjectStatus;
+use App\Enum\UserRolesEnum;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateTaskRequest extends FormRequest
+class UpdateMemberRoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,11 +24,8 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            'name'=>['sometimes','string','max:255'],
-            'description'=>['sometimes','string'],
-            'status'=>['sometimes','string',new Enum(ProjectStatus::class)],
-            'deadline'=>['sometimes','date'],
+            
+            'role'=>['required','string',new Enum(UserRolesEnum::class)]
         ];
     }
 }

@@ -2,24 +2,24 @@
 
 namespace App\Contracts\DataObjects;
 
-class VerifyCardChargeData
+class VerifyTransactionData
 {
     /**
      * Create a new class instance.
      */
     public function __construct(
         public readonly string $status,
-        public readonly string $message,
-        // public readonly string $amount
-    ) {
-        //
+        public readonly string $token
+    )
+    {
+        
     }
+
     public static function fromFlutterwave(array $data)
     {
         return new static(
             $data['status'],
-            $data['message'],
-            // $data['data']['amount']
+            $data['data']['card']['token']
         );
     }
 }

@@ -42,7 +42,10 @@ class User extends Authenticatable
         'projects_worked_on',
         'linkedin_profile',
         'attendee_id',
-        'is_admin'
+        'is_admin',
+        'card_token',
+        'customer_card_email',
+        'payment_plan'
     ];
 
     /**

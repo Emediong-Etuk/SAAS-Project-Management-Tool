@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Enum\ProjectStatus;
-use Illuminate\Validation\Rules\Enum;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateTaskRequest extends FormRequest
+class CompanyLogoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,11 +22,7 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            'name'=>['sometimes','string','max:255'],
-            'description'=>['sometimes','string'],
-            'status'=>['sometimes','string',new Enum(ProjectStatus::class)],
-            'deadline'=>['sometimes','date'],
+            'logo'=>['required','image','mimes:jpeg,jpg,png'],
         ];
     }
 }

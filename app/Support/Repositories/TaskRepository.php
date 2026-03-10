@@ -59,6 +59,11 @@ class TaskRepository
         return Task::query()->where('tenant_id',$tenant_id)->where('completed',true)->count();
     }
 
+    public function pendingTasks(string $tenant_id):int
+    {
+        return Task::query()->where('tenant_id',$tenant_id)->where('completed',false)->count();
+    }
+
     public function countAllForProject(string $project_id):int
     {
         return Task::query()->where('project_id',$project_id)->count();

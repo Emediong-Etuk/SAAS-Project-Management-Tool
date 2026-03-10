@@ -8,7 +8,6 @@ use App\Models\Tenant;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use App\Http\Resources\TaskResource;
 use App\Http\Resources\UserResource;
 use App\Support\Services\BaseService;
@@ -108,6 +107,7 @@ class TaskService extends BaseService
         $data = [
             'name' => $request->name ?? $task->name,
             'description' => $request->description ?? $task->description,
+            'status'=>$request->status ?? $task->status,
             'deadline' => $request->deadline ?? $task->deadline,
         ];
 
