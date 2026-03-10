@@ -53,4 +53,9 @@ class UserRepository
     {
         return User::query()->where('tenant_id',$tenant_id)->where('project_id',$project_id)->whereIn('role',[UserRolesEnum::PROJECT_MANAGER->value, UserRolesEnum::TENANT_ADMIN->value])->first();
     }
+
+    public function findByName(string $name):?User
+    {
+        return User::query()->where('name',$name)->first();
+    }
 }

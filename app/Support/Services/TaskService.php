@@ -3,17 +3,21 @@
 namespace App\Support\Services;
 
 use App\Models\Task;
+use App\Models\User;
 use App\Models\Tenant;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Resources\TaskResource;
+use App\Http\Resources\UserResource;
 use App\Support\Services\BaseService;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\SearchTaskRequest;
+use App\Http\Requests\SearchUserRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Support\Repositories\TaskRepository;
+use App\Support\Repositories\UserRepository;
 use App\Support\Repositories\ProjectRepository;
 use App\Support\Repositories\NotificationRepository;
 
@@ -22,7 +26,7 @@ class TaskService extends BaseService
     /**
      * Create a new class instance.
      */
-    public function __construct(private readonly TaskRepository $taskRepository, private readonly ProjectRepository $projectRepository, private readonly NotificationRepository $notificationRepository)
+    public function __construct(private readonly TaskRepository $taskRepository, private readonly ProjectRepository $projectRepository, private readonly NotificationRepository $notificationRepository, private readonly UserRepository $userRepository)
     {
         //
     }
@@ -173,8 +177,55 @@ class TaskService extends BaseService
         ]);
     }
 
+    public function assignTask(Tenant $tenant, Project $project, Task $task, User $user):JsonResponse
+    {
+        
+        if($user->project_id!==$project->id){
+            return $this->badRequestResponse('User is not part of this project');
+        }
 
-    public function notifyAllMembers(Project $project, Task $task,string $keyMessage){
+        $task->user()->syncWithoutDetaching($user->id);
+
+        $this->notificationRepository->create([
+            'user_id'=>$user->id,
+            'message'=>"you have been assigned to {$task->name}"
+        ]);
+
+        $this->notifyAllMembers($project,$task,"has been assigned to {$user}");
+
+        return $this->successResponse(data:[
+            'user(s)'=>UserResource::collection($task->user)
+      
+        ]);
+    }
+
+    public function removeUserFromTask(Tenant $tenant, Project $project, Task $task, User $user):JsonResponse
+    {
+        $task->user()->detach($user->id);
+
+        return $this->successResponse(message:'removed from task',data:[
+            'user(s)'=>$task->user
+        ]);
+    }
+
+    public function getUsersAssignedToTask(Tenant $tenant, Project $project, Task $task):JsonResponse
+    {
+        return $this->successResponse(data:[
+            'user(s)'=>UserResource::collection($task->user)
+        ]);
+    }
+
+    public function searchUser(SearchUserRequest $request, Tenant $tenant, Project $project, Task $task):JsonResponse
+    {
+       $users=$this->projectRepository->findUsers($project->id,$request->name);
+
+       return $this->successResponse(data:[
+        'users'=>UserResource::collection($users)
+       ]);
+
+    }
+
+    private function notifyAllMembers(Project $project, Task $task,string $keyMessage){
 
         $projectMembers=$this->projectRepository->getProjectMembers($project->id);
         $task=$this->taskRepository->find($task->id);
