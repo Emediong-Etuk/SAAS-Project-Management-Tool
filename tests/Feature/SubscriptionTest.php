@@ -1,12 +1,13 @@
 <?php
 
-use App\Models\User;
-use App\Models\Tenant;
-use App\Models\PricingPlan;
-use Illuminate\Testing\Fluent\AssertableJson;
 use App\Contracts\DataObjects\CreateCardChargeData;
-use App\Contracts\DataObjects\VerifyCardChargeData;
+use App\Contracts\DataObjects\ValidateCardChargeData;
 use App\Contracts\Interface\SubscriptionPaymentInterface;
+use App\Models\PricingPlan;
+use App\Models\Tenant;
+use App\Models\User;
+use Illuminate\Testing\Fluent\AssertableJson;
+use Mockery;
 
 test('successfully gotten subscription plans', function () {
     $tenant = Tenant::factory()->create();
@@ -97,9 +98,10 @@ test('successfully validated card payments', function () {
     $mockApi = Mockery::mock(SubscriptionPaymentInterface::class);
     $mockApi->shouldReceive('validateCardPayment')
         ->once()
-        ->andReturn(new VerifyCardChargeData(
+        ->andReturn(new ValidateCardChargeData(
             status: 'success',
-            message: 'subscription paid'
+            message: 'subscription paid',
+            email: $user->email
         ));
 
     $this->app->instance(SubscriptionPaymentInterface::class, $mockApi);

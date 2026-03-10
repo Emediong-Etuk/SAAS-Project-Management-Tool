@@ -52,7 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard', 'dashboard');
         Route::post('/create', 'create');
         Route::prefix('/{tenant}')->group(function () {
-            Route::post('/upload-company-logo','uploadCompanyLogo');
+            Route::post('/upload-company-logo', 'uploadCompanyLogo');
             Route::post('/update', 'update')->can('update', Tenant::class)->name('tenant.update');
             Route::delete('/delete', 'delete')->can('delete', Tenant::class);
             Route::post('/invite', 'sendInvitation')->can('invite', Tenant::class)->name('tenant.invite');
@@ -128,11 +128,12 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
 
     Route::controller(SubscriptionController::class)->prefix('/subscription')->group(function () {
         Route::get('/plans', 'displayPlans')->name('subscription.getPlans');
-        Route::post('/payment-plan/create','createPaymentPlan');
-        Route::post('/card/authmodel','getAuthModel');
+        Route::post('/payment-plan/create', 'createPaymentPlan');
+        Route::post('/card/authmodel', 'getAuthModel');
         Route::post('/card/payment', 'cardPayment')->name('subscription.cardPayment');
         Route::post('/card/payment/validate', 'validateCardPayment')->name('subscription.validatePayment');
         Route::post('/cancel', 'cancelSubscription')->name('subscription.cancelSubscription');
+        Route::get('/status', 'getSubscriptionStatus')->name('subscription.getSubscriptionStatus');
     });
 
     Route::controller(AccountController::class)->prefix('/account')->group(function () {

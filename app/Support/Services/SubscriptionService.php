@@ -39,25 +39,25 @@ class SubscriptionService extends BaseService
         ]);
     }
 
-    public function createPaymentPlan(Request $request):JsonResponse
+    public function createPaymentPlan(Request $request): JsonResponse
     {
-        $createPlan=$this->subscriptionPayment->createPaymentPlan();
+        $createPlan = $this->subscriptionPayment->createPaymentPlan();
 
-        $this->userRepository->update($request->user()->id,[
-            'payment_plan'=>$createPlan['data']['id']
+        $this->userRepository->update($request->user()->id, [
+            'payment_plan' => $createPlan['data']['id']
         ]);
 
-        return $this->successResponse(data:[
-            'payment_plan'=>$createPlan
+        return $this->successResponse(data: [
+            'payment_plan' => $createPlan
         ]);
     }
 
-    public function getAuthModel(Tenant $tenant,CardPaymentRequest $request):JsonResponse
+    public function getAuthModel(Tenant $tenant, CardPaymentRequest $request): JsonResponse
     {
-        $authModel=$this->subscriptionPayment->getAuthModel($request);
+        $authModel = $this->subscriptionPayment->getAuthModel($request);
 
-        return $this->successResponse(data:[
-            'response'=>$authModel
+        return $this->successResponse(data: [
+            'response' => $authModel
         ]);
     }
 
@@ -65,7 +65,7 @@ class SubscriptionService extends BaseService
     {
 
         $this->createPaymentPlan($request);
-        $this->getAuthModel($tenant,$request);
+        $this->getAuthModel($tenant, $request);
         $payment = $this->subscriptionPayment->cardPayment($request);
 
         return $this->successResponse(message: "OTP has been sent to your phone number", data: [
@@ -78,33 +78,41 @@ class SubscriptionService extends BaseService
         $validationResponse = $this->subscriptionPayment->validateCardPayment($request);
 
         if ($validationResponse->status === 'success') {
-            $this->userRepository->update($request->user()->id, ['subscription_plan' => PlansEnum::Pro, 'expiry_date' => now()->addMonth(), 'reminder_date'=>now()->addMonth()->subDays(10)]);
+            $this->userRepository->update($request->user()->id, ['subscription_plan' => PlansEnum::Pro, 'expiry_date' => now()->addMonth(), 'reminder_date' => now()->addMonth()->subDays(10)]);
             Notification::route('mail', $request->user()->email)->notify(new SubscriptionSuccessful($request->user()->name, 'Pro', now()->addMonth()->toFormattedDateString()));
         }
 
         return $this->successResponse(data: [
             'validationResponse' => $validationResponse,
-            'user'=>new UserResource($request->user()->refresh())
+            'user' => new UserResource($request->user()->refresh())
         ]);
     }
 
     public function cancelSubscription(Tenant $tenant, Request $request): JsonResponse
     {
-        $user=$request->user()->refresh();
+        $user = $request->user()->refresh();
 
         if ($user->subscription_plan === PlansEnum::Pro->value) {
-            $cancelSubscription=$this->subscriptionPayment->cancelSubscription($request);
-            if($cancelSubscription !== null){
+            $cancelSubscription = $this->subscriptionPayment->cancelSubscription($request);
+            if ($cancelSubscription !== null) {
                 DB::transaction(function () use ($user) {
-                    $this->userRepository->update($user->id, ['subscription_plan' => PlansEnum::Free, 'expiry_date' => null,'payment_plan'=>null]);
+                    $this->userRepository->update($user->id, ['subscription_plan' => PlansEnum::Free, 'expiry_date' => null, 'payment_plan' => null]);
                 });
-    
-                Notification::route('mail', $user->email)->notify(new SubscriptionCancelled($user->name, 'Pro', now()->addMonth()->toFormattedDateString()));
-                return $this->successResponse(message:'Successfully Cancelled Subscription', data: ['user' => new UserResource($user)]);
 
+                Notification::route('mail', $user->email)->notify(new SubscriptionCancelled($user->name, 'Pro', now()->addMonth()->toFormattedDateString()));
+                return $this->successResponse(message: 'Successfully Cancelled Subscription', data: ['user' => new UserResource($user)]);
             }
         }
 
-        return $this->badRequestResponse(message:"Failed to cancel subscription");
+        return $this->badRequestResponse(message: "Failed to cancel subscription");
+    }
+
+    public function getSubscriptionStatus(Tenant $tenant, Request $request): JsonResponse
+    {
+        $subscriptionStatus = $this->subscriptionPayment->getSubscriptionStatus($request);
+
+        return $this->successResponse(data: [
+            'subscription_status' => $subscriptionStatus
+        ]);
     }
 }
