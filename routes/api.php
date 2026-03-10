@@ -13,6 +13,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\MembersController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriptionController;
 
 Route::webhooks('/flutterwave-webhook');
@@ -79,6 +80,16 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
             Route::delete('{project}/tasks/{task}/comments/{comment}/delete', 'delete')->can('delete', Comment::class);
         });
     });
+
+    Route::controller(NotificationController::class)->prefix('/notifications')->group(function () {
+            Route::get('/view', 'view');
+            Route::post('/mark-as-read', 'markasRead');
+            Route::get('/unread', 'getUnreadNotifications');
+            Route::delete('/delete-all', 'deleteAllNotifications');
+            Route::delete('/delete/{message}', 'deleteNotification');
+            Route::delete('/delete-selected', 'deleteSelectedNotification');
+            Route::get('/{message}/get', 'getSpecificNotification');
+        });
 
     Route::controller(MembersController::class)->prefix('/team/members')->group(function () {
         Route::get('/all', 'getTenantMembers');

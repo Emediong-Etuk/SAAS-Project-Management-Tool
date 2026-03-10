@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('notifications', function (Blueprint $table) {
             //
-            $table->foreignUuid('tenant_id')->nullable()->constrained()->cascadeOnDelete();
-
+            $table->string('alerts')->nullable();
         });
     }
 
@@ -23,10 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('notifications', function (Blueprint $table) {
             //
-            $table->dropForeign(['tenant_id']);
-            $table->dropColumn('tenant_id');
+            $table->dropColumn('alerts');
         });
     }
 };

@@ -11,19 +11,19 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Support\Services\BaseService;
 use App\Http\Resources\ProjectResource;
-use App\Contracts\Interface\DailyInterface;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Support\Repositories\UserRepository;
 use App\Contracts\Interface\AWSChimeInterface;
 use App\Support\Repositories\ProjectRepository;
+use App\Support\Repositories\NotificationRepository;
 
 class ProjectService extends BaseService
 {
     /**
      * Create a new class instance.
      */
-    public function __construct(private readonly ProjectRepository $projectRepository, private readonly UserRepository $userRepository, private readonly DailyInterface $dailyInterface, private readonly AWSChimeInterface $awsInterface)
+    public function __construct(private readonly ProjectRepository $projectRepository, private readonly UserRepository $userRepository, private readonly NotificationRepository $notificationRepository , private readonly AWSChimeInterface $awsInterface)
     {
         //
     }
@@ -125,6 +125,12 @@ class ProjectService extends BaseService
         }
 
         $this->userRepository->update($user->id, ['project_id' => $project->id]);
+
+        $this->notificationRepository->create([
+            'user_id' => $user->id,
+            'message' => "You have been added to the project ,{$project->name}.",
+        ]);
+
         return $this->successResponse("User ,{$user->name} has been added to project ,{$project->name}", [
             'project' => new ProjectResource($project)
         ]);
@@ -143,7 +149,15 @@ class ProjectService extends BaseService
 
     public function createMeeting(Request $request, Tenant $tenant, Project $project): JsonResponse
     {
-        return $this->awsInterface->createMeeting($request, $project);
+        
+        $createMeeting=$this->awsInterface->createMeeting($request, $project);
+        
+        $this->notificationRepository->create([
+            'user_id'=>$request->user()->id,
+            'message'=>"Meeting created for project ,{$project->name}.",
+        ]);
+
+        return $createMeeting;
     }
 
     public function joinMeeting(Request $request, Tenant $tenant, Project $project): JsonResponse
@@ -166,13 +180,30 @@ class ProjectService extends BaseService
         return $this->awsInterface->listAttendees($project);
     }
 
-    public function deleteMeeting(Tenant $tenant, Project $project):JsonResponse
+    public function deleteMeeting(Request $request, Tenant $tenant, Project $project):JsonResponse
     {
-        return $this->awsInterface->deleteMeeting($project);
+        
+        $deleteMeeting=$this->awsInterface->deleteMeeting($project);
+        
+        $this->notificationRepository->create([
+            'user_id'=>$request->user()->id,
+            'message'=>"Meeting ended for project ,{$project->name}.",
+        ]);
+
+        return $deleteMeeting;
     }
 
     public function deleteAttendee(Request $request, Tenant $tenant, Project $project):JsonResponse
     {
-        return $this->awsInterface->deleteAttendee($project,$request);
+        $attendee=$this->awsInterface->deleteAttendee($project,$request);
+
+        $user=$this->userRepository->findByRole($tenant->id,$project->id);
+
+        $this->notificationRepository->create([
+            'user_id'=>$user->id,
+            'message'=>"{$request->user()->name} left the meeting for project ,{$project->name}.",
+        ]);
+
+        return $attendee;
     }
 }

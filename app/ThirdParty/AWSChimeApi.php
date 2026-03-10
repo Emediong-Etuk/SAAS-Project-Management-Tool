@@ -37,7 +37,7 @@ class AWSChimeApi extends BaseThirdParty implements AWSChimeInterface
         $project_id = $project->id;
         $user_id = $request->user()->id;
 
-        if ($project->meeting_status) {
+        if ($project->meeting_status=== MeetingStatus::TRUE->value) {
             return $this->badRequestResponse(message: "Meeting already ongoing for this project.");
         }
 

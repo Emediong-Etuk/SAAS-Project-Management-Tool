@@ -37,4 +37,9 @@ class ProjectRepository
     {
         return User::query()->where('project_id', $project_id)->count();
     }
+
+    public function getProjectMembers(string $project_id):Collection
+    {
+        return User::query()->where('project_id', $project_id)->get();
+    }
 }

@@ -17,7 +17,11 @@ use App\Notifications\SendInvitationNotice;
 use App\Http\Requests\SendInvitationRequest;
 use App\Support\Repositories\UserRepository;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\CreateTenantInfoNotice;
+use App\Notifications\DeleteTenantInfoNotice;
+use App\Notifications\UpdateTenantInfoNotice;
 use App\Support\Repositories\TenantRepository;
+use App\Notifications\RemoveTenantMemberNotice;
 
 
 class TenantService extends BaseService
@@ -43,6 +47,8 @@ class TenantService extends BaseService
         $tenant = $this->tenantRepository->create($data);
         $this->userRepository->update($request->user()->id, ['tenant_id' => $tenant->id, 'role' => UserRolesEnum::TENANT_ADMIN->value]);
 
+        $request->user()->notify(New CreateTenantInfoNotice($tenant->name));
+
         return $this->successResponse(data: [
             'tenant' => new TenantResource($tenant)
         ]);
@@ -61,6 +67,8 @@ class TenantService extends BaseService
         $this->tenantRepository->update($tenant->id, $data);
         $tenant = $this->tenantRepository->find($tenant->id);
 
+        $this->notifyAllMembers($tenant,'has been updated','update');
+
         return $this->successResponse(data: [
             'tenant' => new TenantResource($tenant)
         ]);
@@ -73,6 +81,8 @@ class TenantService extends BaseService
         if ($request->user()->tenant_id !== $tenant->id) {
             return $this->badRequestResponse(message: "You do not belong to this tenant");
         }
+
+        $this->notifyAllMembers($tenant,'has been deleted','delete');
 
         return $this->successResponse('Tenant deleted successfully');
     }
@@ -88,7 +98,7 @@ class TenantService extends BaseService
 
         $tenant = $this->tenantRepository->find($tenant->id);
 
-        Cache::put("TENANCY_INVITATION_CODE_$inviteCode", [$request->receiver_email, $tenant->id], $expiryTime);
+        Cache::put("TENANCY_INVITATION_CODE_$inviteCode", [$request->receiver_email, $tenant->id, $request->user()->id], $expiryTime);
 
         Notification::route('mail', $request->receiver_email)->notify(new SendInvitationNotice($inviteCode, $expiryTime, $tenant->name));
 
@@ -113,11 +123,31 @@ class TenantService extends BaseService
 
         $users = $this->userRepository->findAllByTenant($request->user()->tenant_id);
 
+        $this->notifyAllMembers($tenant,'has been removed from the tenant','remove_member');
+
         return $this->successResponse(
             "User {$user->name} has been removed from the tenant {$tenant->name}",
             data: [
                 'users' => UserResource::collection($users),
             ]
         );
+    }
+
+    public function notifyAllMembers(Tenant $tenant,string $keyMessage, string $purpose){
+        $members=$this->userRepository->findAllByTenant($tenant->id);
+
+        for($i=0; $i<count($members); $i++){
+            if($purpose==='update'){
+                $members[$i]->notify(new UpdateTenantInfoNotice($tenant->name));
+            }
+
+            if($purpose==='delete'){
+                $members[$i]->notify(new DeleteTenantInfoNotice($tenant->name));
+            }
+
+            if($purpose==='remove_member'){
+                $members[$i]->notify(new RemoveTenantMemberNotice($tenant->name, $members[$i]->name));
+            }
+        }
     }
 }

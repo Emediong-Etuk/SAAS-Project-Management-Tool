@@ -44,10 +44,10 @@ class ProjectPolicy
 
     public function joinMeeting(User $user, Project $project): Response
     {
-        if($user->project_id === null){
+        if ($user->project_id === null) {
             return Response::denyAsNotFound("You are not assigned to any project to join meeting");
         }
-        if($user->project_id !== $project->id){
+        if ($user->project_id !== $project->id) {
             return Response::denyAsNotFound("You are not assigned to this project and cannot join the meeting");
         }
 
@@ -77,14 +77,14 @@ class ProjectPolicy
 
         if ($user->subscription_plan === PlansEnum::Pro->value) {
             return Response::allow();
-        }
 
-        if ($user->role === UserRolesEnum::TENANT_ADMIN->value) {
-            return Response::allow();
-        }
+            if ($user->role === UserRolesEnum::TENANT_ADMIN->value) {
+                return Response::allow();
+            }
 
-        if ($user->role === UserRolesEnum::PROJECT_MANAGER->value) {
-            return Response::allow();
+            if ($user->role === UserRolesEnum::PROJECT_MANAGER->value) {
+                return Response::allow();
+            }
         }
 
         return Response::denyAsNotFound("You do not have permission to {$method} a project");

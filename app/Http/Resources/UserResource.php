@@ -19,6 +19,12 @@ class UserResource extends JsonResource
             'name'=>$this->name,
             'email'=>$this->email,
             'tenant'=>new TenantResource($this->tenant),
+            'profile_picture'=>$this->profile_picture,
+            'cover_picture'=>$this->cover_picture,
+            'occupation'=>$this->occupation,
+            'skills'=>$this->skills,
+            'projects_worked_on'=>$this->projects_worked_on,
+            'linkedin_profile'=>$this->linkedin_profile,
             'password'=>$this->password,
             'created_at'=>$this->created_at,
             'updated_at'=>$this->updated_at

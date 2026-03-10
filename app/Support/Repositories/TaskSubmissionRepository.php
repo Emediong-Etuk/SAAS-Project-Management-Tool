@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Support\Services;
+namespace App\Support\Repositories;
 
-class BillService
+class TaskSubmissionRepository
 {
     /**
      * Create a new class instance.
