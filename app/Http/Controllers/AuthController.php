@@ -28,7 +28,12 @@ class AuthController extends Controller
 
     public function signup(SignupRequest $request): JsonResponse
     {
-        return $this->signupService->signup($request);
+        try{
+
+            return $this->signupService->signup($request);
+        }catch(\Exception $e){
+            return response()->json($e->getMessage(), 500);
+        }
     }
 
     public function verifyEmail(VerifyEmailRequest $request): JsonResponse
