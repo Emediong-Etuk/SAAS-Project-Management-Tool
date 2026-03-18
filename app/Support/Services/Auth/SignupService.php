@@ -45,7 +45,7 @@ class SignupService extends BaseService
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password,
-            'username' => explode('@', $request->name.Str::random(6)),
+            'username' => explode('@', $request->name)[0].Str::random(6),
         ];
 
         $user = $this->userRepository->create($data);
