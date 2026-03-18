@@ -42,6 +42,7 @@ class User extends Authenticatable
         'card_token',
         'customer_card_email',
         'payment_plan',
+        'username'
     ];
 
     /**
