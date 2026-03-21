@@ -42,7 +42,8 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->wantsJson() && $e->getCode() === Response::HTTP_INTERNAL_SERVER_ERROR) {
                 return response()->json([
                     'message' => 'Server Error',
-                    'error' => 'An error occured. Please try again later',
+                    // 'error' => 'An error occured. Please try again later',
+                    'error' => $e->getMessage(),
                 ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         });
