@@ -17,7 +17,7 @@ return new class extends Migration
             $table->json('skills')->nullable();
             $table->string('profile_picture')->nullable();
             $table->string('cover_picture')->nullable();
-            $table->string('projects_worked_on')->nullable();
+            $table->json('projects_worked_on')->nullable();
         });
     }
 
