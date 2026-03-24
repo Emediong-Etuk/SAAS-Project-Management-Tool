@@ -32,6 +32,13 @@ RUN npm install && npm run build
 
 EXPOSE 8000
 
-COPY start.sh /app/start.sh
-RUN sed -i 's/\r//' /app/start.sh && chmod +x /app/start.sh
+RUN printf '#!/bin/sh\n\
+php artisan config:clear\n\
+php artisan route:clear\n\
+php artisan view:clear\n\
+php artisan config:cache\n\
+php artisan route:cache\n\
+php artisan migrate --force\n\
+php artisan serve --host=0.0.0.0 --port=$PORT\n' > /app/start.sh && chmod +x /app/start.sh
+
 CMD ["/app/start.sh"]
