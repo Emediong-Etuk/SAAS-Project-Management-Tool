@@ -42,6 +42,7 @@ class Project extends Model
     {
         return [
             'meeting_id' => 'string',
+            'projects_worked_on'=>'array',
         ];
     }
 }
