@@ -28,9 +28,7 @@ RUN composer run-script post-autoload-dump
 
 RUN npm install && npm run build
 
-RUN php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
+
 
 EXPOSE 8000
 
