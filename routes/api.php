@@ -14,6 +14,7 @@ use App\Http\Middleware\TenantMiddleware;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\Tenant;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::webhooks('/flutterwave-webhook');
@@ -140,4 +141,26 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/accept-invitation', [MembersController::class, 'acceptInvitation'])->name('members.acceptInvitation');
+});
+
+
+Route::get('/fix-sessions', function () {
+    try {
+        DB::statement('DROP TABLE IF EXISTS sessions');
+        DB::statement('
+            CREATE TABLE sessions (
+                id VARCHAR(255) NOT NULL PRIMARY KEY,
+                user_id UUID NULL,
+                ip_address VARCHAR(45) NULL,
+                user_agent TEXT NULL,
+                payload TEXT NOT NULL,
+                last_activity INTEGER NOT NULL
+            )
+        ');
+        DB::statement('CREATE INDEX sessions_user_id_index ON sessions (user_id)');
+        DB::statement('CREATE INDEX sessions_last_activity_index ON sessions (last_activity)');
+        return response()->json(['message' => 'sessions table fixed!']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()]);
+    }
 });
