@@ -15,6 +15,7 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\Tenant;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 Route::webhooks('/flutterwave-webhook');
 
@@ -26,7 +27,7 @@ Route::controller(AdminController::class)->prefix('admin')->group(function () {
     });
 });
 
-Route::controller(AuthController::class)->prefix('auth')->group(function () {
+Route::controller(AuthController::class)->prefix('auth')->withoutMiddleware([VerifyCsrfToken::class])->group(function () {
     Route::post('/signup', 'signup');
     Route::post('/signup/resend-token', 'signup')->middleware('throttle:otp');
     Route::post('/verify-email', 'verifyEmail');
