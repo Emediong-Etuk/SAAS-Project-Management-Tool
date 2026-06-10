@@ -14,6 +14,7 @@ use App\Support\Services\Auth\SignupService;
 use App\Support\Services\ResetPasswordService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class AuthController extends Controller
 {
@@ -28,10 +29,10 @@ class AuthController extends Controller
 
     public function signup(SignupRequest $request): JsonResponse
     {
-        try{
+        try {
 
             return $this->signupService->signup($request);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
     }
@@ -66,7 +67,7 @@ class AuthController extends Controller
         return $this->oauthService->githubRedirect();
     }
 
-    public function githubCallback(): JsonResponse
+    public function githubCallback(): RedirectResponse
     {
         return $this->oauthService->githubCallback();
     }
@@ -76,7 +77,7 @@ class AuthController extends Controller
         return $this->oauthService->googleRedirect();
     }
 
-    public function googleCallback(): JsonResponse
+    public function googleCallback(): RedirectResponse
     {
         return $this->oauthService->googleCallback();
     }

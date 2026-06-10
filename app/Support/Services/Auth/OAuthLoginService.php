@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Socialite;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class OAuthLoginService extends BaseService
 {
@@ -24,7 +25,7 @@ class OAuthLoginService extends BaseService
         return Socialite::driver('github')->stateless()->redirect();
     }
 
-    public function githubCallback(): JsonResponse
+    public function githubCallback(): RedirectResponse
     {
         $githubUser = Socialite::driver('github')->stateless()->user();
         $expiryTime = now()->addMonth();
@@ -40,12 +41,7 @@ class OAuthLoginService extends BaseService
 
         $token = $user->createToken('Auth Token', ['can-access-user'], $expiryTime);
 
-        Log::info('user', [$user]);
-
-        return $this->successResponse(data: [
-            'data' => $data,
-            'token' => $token->plainTextToken,
-        ]);
+        return redirect(config('services.frontend.url') . '/auth/callback?token=' . $token->plainTextToken . 'user=' . $user);
     }
 
     public function googleRedirect()
@@ -53,7 +49,7 @@ class OAuthLoginService extends BaseService
         return Socialite::driver('google')->stateless()->redirect();
     }
 
-    public function googleCallback(): JsonResponse
+    public function googleCallback(): RedirectResponse
     {
         $googleUser = Socialite::driver('google')->stateless()->user();
         $expiryTime = now()->addMonth();
@@ -67,9 +63,6 @@ class OAuthLoginService extends BaseService
 
         $token = $user->createToken('Auth Token', ['can-access-user'], $expiryTime);
 
-        return $this->successResponse(data: [
-            'user' => $data,
-            'token' => $token->plainTextToken,
-        ]);
+        return redirect(config('services.frontend.url') . '/auth/callback?token=' . $token->plainTextToken . 'user=' . $user);
     }
 }

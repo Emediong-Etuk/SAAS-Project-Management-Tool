@@ -60,4 +60,8 @@ return [
         'redirect' => env('GOOGLE_REDIRECT'),
     ],
 
+    'frontend' => [
+        'url' => env('FRONTEND_URL')
+    ]
+
 ];
