@@ -56,7 +56,7 @@ class TenantService extends BaseService
 
         $tenant = $this->tenantRepository->find($request->user()->tenant_id);
         $currentSubscriptionPlan = $this->subscriptionPlan($request);
-        $projectStatus = $project->status;
+        $projectStatus = $project->status ?? null;
 
         return $this->successResponse(data: [
             'no_of_projects' => $totalProjects,
