@@ -76,7 +76,6 @@ class OAuthLoginService extends BaseService
             config('services.frontend.url') . '?' .
                 http_build_query([
                     'token' => $token->plainTextToken,
-                    'tenant_id' => $user->tenant_id ?? '',
                     'user' => $user
                 ])
         );
