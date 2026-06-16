@@ -39,7 +39,16 @@ class OAuthLoginService extends BaseService
 
         $token = $user->createToken('Auth Token', ['can-access-user'], $expiryTime);
 
-        return redirect(config('services.frontend.url') . '?token=' . $token->plainTextToken . 'user=' . $user);
+        // return redirect(config('services.frontend.url') . '?token=' . $token->plainTextToken . '&user=' . $user);
+
+        return redirect(
+            config('services.frontend.url') . '?' .
+                http_build_query([
+                    'token' => $token->plainTextToken,
+                    'tenant_id' => $user->tenant_id ?? '',
+                    'user' => $user
+                ])
+        );
     }
 
     public function googleRedirect()
@@ -61,6 +70,15 @@ class OAuthLoginService extends BaseService
 
         $token = $user->createToken('Auth Token', ['can-access-user'], $expiryTime);
 
-        return redirect(config('services.frontend.url') . 'token=' . $token->plainTextToken . 'user=' . $user);
+        // return redirect(config('services.frontend.url') . '?token=' . $token->plainTextToken . '&user=' . $user);
+
+        return redirect(
+            config('services.frontend.url') . '?' .
+                http_build_query([
+                    'token' => $token->plainTextToken,
+                    'tenant_id' => $user->tenant_id ?? '',
+                    'user' => $user
+                ])
+        );
     }
 }
