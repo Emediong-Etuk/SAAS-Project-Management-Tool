@@ -73,10 +73,14 @@ class OAuthLoginService extends BaseService
         // return redirect(config('services.frontend.url') . '?token=' . $token->plainTextToken . '&user=' . $user);
 
         return redirect(
-            config('services.frontend.url') . '?' .
+            config('services.frontend.url') . '/oauth-callback?' .
                 http_build_query([
                     'token' => $token->plainTextToken,
-                    'user' => $user
+                    'user' => json_encode([
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                    ])
                 ])
         );
     }
