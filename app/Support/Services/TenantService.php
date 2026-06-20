@@ -50,6 +50,7 @@ class TenantService extends BaseService
         $projectCompletionRate = $project !== null ? $this->calculateProjectCompletionRate($project, $totalProjects, $request->user()->tenant->id) : null;
         $projectProgress = $project !== null ? $this->calculateProjectProgress($project) : null;
 
+
         $totalTasks = $this->taskRepository->countAllByTenant($request->user()->tenant->id);
         $completedTasks = $this->taskRepository->completedTasks($request->user()->tenant->id);
         $pendingTasks = $this->taskRepository->pendingTasks($request->user()->tenant->id);
@@ -57,6 +58,8 @@ class TenantService extends BaseService
         $tenant = $this->tenantRepository->find($request->user()->tenant_id);
         $currentSubscriptionPlan = $this->subscriptionPlan($request);
         $projectStatus = $project->status ?? null;
+
+        $tenantUsers = $this->userRepository->findAllByTenant($request->user()->tenant_id);
 
         return $this->successResponse(data: [
             'no_of_projects' => $totalProjects,
