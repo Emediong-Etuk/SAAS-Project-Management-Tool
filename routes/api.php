@@ -54,7 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/update', 'update')->can('update', Tenant::class)->name('tenant.update');
             Route::delete('/delete', 'delete')->can('delete', Tenant::class);
             Route::post('/invite', 'sendInvitation')->can('invite', Tenant::class)->name('tenant.invite');
-            Route::post('/{user}/remove', 'removeMember')->can('removeMember', Tenant::class)->name('tenant.removeMember');
+            Route::post('/{user:name}/remove', 'removeMember')->can('removeMember', Tenant::class)->name('tenant.removeMember');
         });
     });
 });

@@ -55,7 +55,14 @@ class UserRepository
 
     public function findByRole(string $tenant_id, string $project_id): ?User
     {
-        return User::query()->where('tenant_id', $tenant_id)->where('project_id', $project_id)->whereIn('role', [UserRolesEnum::PROJECT_MANAGER->value, UserRolesEnum::TENANT_ADMIN->value])->first();
+        return User::query()
+            ->where('tenant_id', $tenant_id)
+            ->where('project_id', $project_id)
+            ->where(function ($query) {
+                $query->where('role', UserRolesEnum::PROJECT_MANAGER->value)
+                      ->orWhere('role', UserRolesEnum::TENANT_ADMIN->value);
+            })
+            ->first();
     }
 
     public function findByName(string $name): ?User
@@ -65,13 +72,13 @@ class UserRepository
 
     public function countAllUsers(): int
     {
-        return User::query()->count();
+        return User::query()->count('*');
     }
 
     public function searchUser(string $search): ?User
     {
-        return User::query()->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('username', 'LIKE', '%'.$search.'%')
+        return User::query()->where('name', 'LIKE', '%' . $search . '%')
+            ->orWhere('username', 'LIKE', '%' . $search . '%')
             ->first();
     }
 }

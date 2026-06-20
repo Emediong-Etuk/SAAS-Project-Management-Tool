@@ -167,7 +167,7 @@ class TenantService extends BaseService
 
     public function removeMember(Tenant $tenant, Request $request, User $user): JsonResponse
     {
-        $user = $this->userRepository->find($user->id);
+        $user = $this->userRepository->findByName($user->name);
 
         if (! $user || $user->tenant_id !== $tenant->id) {
             return $this->badRequestResponse('User not found in this tenant', 404);
