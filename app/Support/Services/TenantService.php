@@ -72,6 +72,7 @@ class TenantService extends BaseService
             'no_of_pending_tasks' => $pendingTasks,
             'tenant' => $tenant,
             'currentSubscriptionPlan' => $currentSubscriptionPlan,
+            'tenantUsers' => $tenantUsers->pluck('name')->all()
         ]);
     }
 

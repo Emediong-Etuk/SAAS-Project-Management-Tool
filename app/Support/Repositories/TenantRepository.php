@@ -28,6 +28,6 @@ class TenantRepository
 
     public function countAllTenants(): int
     {
-        return Tenant::query()->count();
+        return Tenant::query()->count('*');
     }
 }

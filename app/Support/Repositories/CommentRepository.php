@@ -9,7 +9,7 @@ class CommentRepository
 {
     public function getAllCommentsForTask($taskId): Collection
     {
-        return Comment::where('task_id', $taskId)->get();
+        return Comment::where('task_id', '=', $taskId, 'and')->get();
     }
 
     public function create(array $data): Comment
