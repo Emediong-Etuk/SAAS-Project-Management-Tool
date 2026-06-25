@@ -45,7 +45,12 @@ class OAuthLoginService extends BaseService
             config('services.frontend.url') . '/oauth-callback?' .
                 http_build_query([
                     'token' => $token->plainTextToken,
-                    'user' => $user
+                    'tenant_id' => $user->tenant_id,
+                    'user' => json_encode([
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                    ])
                 ])
         );
     }
@@ -75,6 +80,7 @@ class OAuthLoginService extends BaseService
             config('services.frontend.url') . '/oauth-callback?' .
                 http_build_query([
                     'token' => $token->plainTextToken,
+                    'tenant_id' => $user->tenant_id,
                     'user' => json_encode([
                         'id' => $user->id,
                         'name' => $user->name,
