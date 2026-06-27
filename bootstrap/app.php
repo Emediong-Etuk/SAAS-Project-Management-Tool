@@ -4,10 +4,12 @@ use App\Http\Middleware\ForceJsonResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Sentry\Laravel\Integration;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,6 +28,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append([
             ForceJsonResponse::class,
         ]);
+    })
+    ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->prepend(HandleCors::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 

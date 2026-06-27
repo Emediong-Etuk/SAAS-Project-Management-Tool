@@ -74,8 +74,6 @@ class OAuthLoginService extends BaseService
 
         $token = $user->createToken('Auth Token', ['can-access-user'], $expiryTime);
 
-        // return redirect(config('services.frontend.url') . '?token=' . $token->plainTextToken . '&user=' . $user);
-
         return redirect(
             config('services.frontend.url') . '/oauth-callback?' .
                 http_build_query([
