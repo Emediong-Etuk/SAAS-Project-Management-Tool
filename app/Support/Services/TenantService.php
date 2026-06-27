@@ -27,6 +27,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
+
 
 class TenantService extends BaseService
 {
@@ -81,7 +83,7 @@ class TenantService extends BaseService
         $path = $request->file('logo')->store('company_logo', 's3');
 
         $this->tenantRepository->update($request->user()->tenant_id, [
-            'company_logo' => config('filesystems.disks.public.url') . '/' . $path,
+            'company_logo' => Storage::disk('s3')->url($path)
         ]);
 
         $tenant = $this->tenantRepository->find($request->user()->tenant_id);
