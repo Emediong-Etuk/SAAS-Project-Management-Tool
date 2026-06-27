@@ -38,7 +38,7 @@ class TaskSubmissionService extends BaseService
         $path = [];
 
         foreach ($request->file('files') as $file) {
-            $path[] = config('filesystems.disks.public.url').'/'.$file->store('task_submissions', 'public');
+            $path[] = config('filesystems.disks.public.url') . '/' . $file->store('task_submissions', 's3');
         }
 
         $data['submission_files'] = $path;
@@ -80,19 +80,19 @@ class TaskSubmissionService extends BaseService
 
         if (count($files) === 1) {
 
-            $relativePath = str_replace(env('APP_URL').'/storage'.'/', '', $files[0]);
+            $relativePath = str_replace(env('APP_URL') . '/storage' . '/', '', $files[0]);
             $fullPath = Storage::disk('public')->path($relativePath);
 
             return response()->download($fullPath);
         }
 
         $zip = new ZipArchive;
-        $zipPath = tempnam(sys_get_temp_dir(), 'submissions').'.zip';
+        $zipPath = tempnam(sys_get_temp_dir(), 'submissions') . '.zip';
         $zip->open($zipPath, ZipArchive::CREATE);
 
         foreach ($files as $fileUrl) {
-            Log::info('File URL: '.$fileUrl);
-            $relativePath = str_replace(env('APP_URL').'/storage'.'/', '', $fileUrl);
+            Log::info('File URL: ' . $fileUrl);
+            $relativePath = str_replace(env('APP_URL') . '/storage' . '/', '', $fileUrl);
             $fullPath = Storage::disk('public')->path($relativePath);
 
             if (file_exists($fullPath)) {
