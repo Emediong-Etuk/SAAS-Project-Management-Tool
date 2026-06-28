@@ -81,7 +81,14 @@ class TenantService extends BaseService
 
     public function uploadCompanyLogo(CompanyLogoRequest $request): JsonResponse
     {
-        $path = $request->file('logo')->store('company_logo', 's3');
+        // $path = $request->file('logo')->store('company_logo', 's3');
+        try {
+            $path = $request->file('logo')->store('company_logo', 's3');
+            Log::error('upload path: ' . $path);
+        } catch (\Exception $e) {
+            Log::error('upload error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
 
         $this->tenantRepository->update($request->user()->tenant_id, [
             'company_logo' => config('filesystems.disks.s3.url') . $path
