@@ -87,7 +87,7 @@ class TenantService extends BaseService
             'company_logo' => config('filesystems.disks.s3.url') . $path
         ]);
         // dd($path);
-        Log::info('path', [config('filesystems.disks.s3.url') . $path]);
+        Log::error('upload path: ' . $path);
 
         $tenant = $this->tenantRepository->find($request->user()->tenant_id);
 
