@@ -83,7 +83,7 @@ class TenantService extends BaseService
         $path = $request->file('logo')->store('company_logo', 's3');
 
         $this->tenantRepository->update($request->user()->tenant_id, [
-            'company_logo' => Storage::disk('s3')->url($path)
+            'company_logo' => config('filesystems.disks.s3.url') . $path
         ]);
 
         $tenant = $this->tenantRepository->find($request->user()->tenant_id);
