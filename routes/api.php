@@ -16,6 +16,10 @@ use App\Models\Task;
 use App\Models\Tenant;
 use Illuminate\Support\Facades\Route;
 
+Route::options('{any}', function () {
+    return response()->json([], 200);
+})->where('any', '.*');
+
 Route::webhooks('/flutterwave-webhook');
 
 Route::controller(AdminController::class)->prefix('admin')->group(function () {
