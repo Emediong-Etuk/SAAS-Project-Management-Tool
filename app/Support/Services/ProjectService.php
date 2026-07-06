@@ -47,7 +47,7 @@ class ProjectService extends BaseService
             'tenant_id' => $tenant->id,
             'name' => $request->name,
             'description' => $request->description,
-            'status' => $request->status,
+            'status' => ProjectStatus::ACTIVE->value,
             'deadline' => $request->deadline,
         ];
 
@@ -101,7 +101,7 @@ class ProjectService extends BaseService
     public function getProjectStatusList(Tenant $tenant, Project $project): JsonResponse
     {
         $statusList = ProjectStatus::cases();
-        $statusArray = array_map(fn ($status) => $status->value, $statusList);
+        $statusArray = array_map(fn($status) => $status->value, $statusList);
 
         return $this->successResponse(data: [
             'status_list' => $statusArray,
