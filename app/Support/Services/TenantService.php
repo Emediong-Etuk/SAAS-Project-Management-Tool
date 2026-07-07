@@ -238,7 +238,7 @@ class TenantService extends BaseService
             }
         }
 
-        return count($completedProjects) / $totalProjects * 100;
+        return (int) (count($completedProjects) / $totalProjects * 100);
     }
 
     public function calculateProjectProgress(Project $project): int
@@ -246,6 +246,9 @@ class TenantService extends BaseService
         $totalProjectTasks = $this->taskRepository->countAllForProject($project->id);
         $totalCompletedTasks = $this->taskRepository->getCompletedTasksForProject($project->id);
 
-        return $totalCompletedTasks / $totalProjectTasks * 100;
+        if ($totalProjectTasks === 0 || $totalCompletedTasks === 0) {
+            return 0;
+        }
+        return (int) ($totalCompletedTasks / $totalProjectTasks * 100);
     }
 }
