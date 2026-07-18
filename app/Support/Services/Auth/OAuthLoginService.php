@@ -35,7 +35,8 @@ class OAuthLoginService extends BaseService
             'username' => explode('@', $githubUser->name)[0] . Str::random(6)
         ];
 
-        $user = $this->userRepository->firstOrCreate($githubUser->email, $data);
+        // $user = $this->userRepository->firstOrCreate($githubUser->email, $data);
+        $user = $this->userRepository->updateOrCreate($data['email'], $data);
 
         Auth::login($user);
 
@@ -74,7 +75,8 @@ class OAuthLoginService extends BaseService
             'username' => explode('@', $googleUser->name)[0] . Str::random(6),
         ];
 
-        $user = $this->userRepository->firstOrCreate($data['email'], $data);
+        // $user = $this->userRepository->firstOrCreate($data['email'], $data);
+        $user = $this->userRepository->updateOrCreate($data['email'], $data);
 
         $token = $user->createToken('Auth Token', ['can-access-user'], $expiryTime);
 

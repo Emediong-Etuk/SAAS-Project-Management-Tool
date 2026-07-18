@@ -18,6 +18,11 @@ class UserRepository
         return User::query()->firstOrCreate(['email' => $email], $data);
     }
 
+    public function updateOrCreate(string $email, $data): User
+    {
+        return User::query()->updateOrCreate(['email' => $email], $data);
+    }
+
     public function findByEmail(string $email): ?User
     {
         return User::query()->where('email', $email)->first();

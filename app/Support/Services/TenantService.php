@@ -75,13 +75,12 @@ class TenantService extends BaseService
             'no_of_pending_tasks' => $pendingTasks,
             'tenant' => $tenant,
             'currentSubscriptionPlan' => $currentSubscriptionPlan,
-            // 'tenantUsers' => $tenantUsers->map(function ($user) {
-            //     return [
-            //         'name' => $user->name,
-            //         'username' => $user->username,
-            //     ];
-            // })->all()
-            'tenantUsers' => $tenantUsers
+            'tenantUsers' => $tenantUsers->map(function ($user) {
+                return [
+                    'name' => $user->name,
+                    'username' => $user->username,
+                ];
+            })->all()
         ]);
     }
 
