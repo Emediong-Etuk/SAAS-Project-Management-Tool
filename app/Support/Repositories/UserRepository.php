@@ -33,6 +33,11 @@ class UserRepository
         return User::query()->where('tenant_id', $tenantId)->first();
     }
 
+    public function findByUsername(string $username): ?User
+    {
+        return User::query()->where('username', $username)->first();
+    }
+
     public function findAllByTenant(string $tenantId): Collection
     {
         return User::query()->where('tenant_id', $tenantId)->get();
@@ -60,7 +65,7 @@ class UserRepository
             ->where('project_id', $project_id)
             ->where(function ($query) {
                 $query->where('role', UserRolesEnum::PROJECT_MANAGER->value)
-                      ->orWhere('role', UserRolesEnum::TENANT_ADMIN->value);
+                    ->orWhere('role', UserRolesEnum::TENANT_ADMIN->value);
             })
             ->first();
     }

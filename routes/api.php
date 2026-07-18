@@ -74,7 +74,7 @@ Route::middleware([TenantMiddleware::class, 'auth:sanctum'])->prefix('{tenant}')
             Route::delete('/{project}/delete', 'delete')->can('delete', Project::class)->name('projects.delete');
             Route::post('/{project}/{user}/add', 'addUser')->can('addUser', Project::class)->name('projects.addUser');
             Route::post('/{project}/{user}/remove', 'removeUser')->can('removeUser', Project::class)->name('projects.removeUser');
-            Route::post('/{project}/{user}/assign-role', 'assignRole')->middleware('can:assignRole,project,user')->name('projects.assignRole');
+            Route::post('/{project}/assign-role', 'assignRole')->can('assignRole', Project::class)->name('projects.assignRole');
             Route::post('/{project}/create-meeting', 'createMeeting')->can('createMeeting', Project::class)->name('projects.createMeeting');
             Route::post('/{project}/join-meeting', 'joinMeeting')->middleware('can:joinMeeting,project')->name('projects.joinMeeting');
             Route::get('/{project}/get-meeting', 'getMeeting')->middleware('can:joinMeeting,project')->name('projects.getMeeting');

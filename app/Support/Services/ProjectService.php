@@ -9,6 +9,7 @@ use App\Enum\UserRolesEnum;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Requests\UpdateProjectStatusRequest;
+use App\Http\Requests\AssignRoleRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use App\Models\Tenant;
@@ -165,8 +166,9 @@ class ProjectService extends BaseService
         ]);
     }
 
-    public function assignRole(Tenant $tenant, Project $project, User $user): JsonResponse
+    public function assignRole(Tenant $tenant, Project $project, AssignRoleRequest $request): JsonResponse
     {
+        $user = $this->userRepository->findByUsername($request->username);
         if ($user->project_id !== $project->id) {
             return $this->badRequestResponse('User does not belong to this project');
         }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AssignRoleRequest;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Requests\UpdateProjectStatusRequest;
@@ -65,9 +66,9 @@ class ProjectController extends Controller
         return $this->projectService->removeUser($tenant, $project, $user);
     }
 
-    public function assignRole(Tenant $tenant, Project $project, User $user): JsonResponse
+    public function assignRole(Tenant $tenant, Project $project, AssignRoleRequest $request): JsonResponse
     {
-        return $this->projectService->assignRole($tenant, $project, $user);
+        return $this->projectService->assignRole($tenant, $project, $request);
     }
 
     public function createMeeting(Request $request, Tenant $tenant, Project $project): JsonResponse

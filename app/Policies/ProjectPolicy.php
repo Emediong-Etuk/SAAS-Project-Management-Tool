@@ -58,15 +58,7 @@ class ProjectPolicy
 
     public function assignRole(User $user): Response
     {
-        if ($user->subscription_plan === PlansEnum::Pro->value) {
-            return Response::allow();
-        }
-
-        if ($user->role === UserRolesEnum::TENANT_ADMIN->value) {
-            return Response::allow();
-        }
-
-        return Response::deny('You do not have permission to assign roles in a project', 403);
+        return $this->validate($user, 'assign user to');
     }
 
     public function removeUser(User $user): Response
