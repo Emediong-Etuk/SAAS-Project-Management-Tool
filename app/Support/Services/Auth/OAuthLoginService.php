@@ -5,6 +5,7 @@ namespace App\Support\Services\Auth;
 use App\Support\Repositories\UserRepository;
 use App\Support\Services\BaseService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Laravel\Socialite\Socialite;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -68,6 +69,7 @@ class OAuthLoginService extends BaseService
         $data = [
             'name' => $googleUser->name,
             'email' => $googleUser->email,
+            'username' => explode('@', $googleUser->name)[0] . Str::random(6),
         ];
 
         $user = $this->userRepository->firstOrCreate($data['email'], $data);
