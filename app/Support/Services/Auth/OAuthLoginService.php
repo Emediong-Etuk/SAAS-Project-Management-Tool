@@ -32,6 +32,7 @@ class OAuthLoginService extends BaseService
         $data = [
             'name' => $githubUser->name,
             'email' => $githubUser->email,
+            'username' => explode('@', $githubUser->name)[0] . Str::random(6)
         ];
 
         $user = $this->userRepository->firstOrCreate($githubUser->email, $data);
@@ -50,6 +51,7 @@ class OAuthLoginService extends BaseService
                     'user' => json_encode([
                         'id' => $user->id,
                         'name' => $user->name,
+                        'username' => $user->username,
                         'email' => $user->email,
                     ])
                 ])
@@ -84,6 +86,7 @@ class OAuthLoginService extends BaseService
                     'user' => json_encode([
                         'id' => $user->id,
                         'name' => $user->name,
+                        'username' => $user->username,
                         'email' => $user->email,
                     ])
                 ])
